@@ -1,48 +1,67 @@
 @import "tailwindcss";
 
 @theme {
-  --font-family-base: 'Manrope', system-ui, sans-serif;
-  
+  --color-background: #f9fafb;
+  --color-foreground: #111827;
   --color-primary: #00E599;
-  --color-black: #000000;
-  --color-white: #ffffff;
+  --color-primary-foreground: #ffffff;
+  --color-border: #e5e7eb;
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
 }
 
-@layer base {
-  body {
-    font-family: var(--font-family-base);
-  }
+:root {
+  --background: #f9fafb;
+  --foreground: #111827;
 }
 
-/* Custom Utilities */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+/* Solscan-style Card */
+.sol-card {
+  background-color: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+}
+
 .text-balance {
   text-wrap: balance;
 }
 
-.glass-card {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+/* Mobile-specific improvements */
+@media (max-width: 640px) {
+  html {
+    font-size: 14px;
+  }
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
 }
 
-@keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+/* Improve scrollbar on mobile */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
 
-.animate-marquee {
-  animation: marquee 30s linear infinite;
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
 }
 
-.animate-marquee:hover {
-  animation-play-state: paused;
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
-}
-
-.animate-float {
-  animation: float 6s ease-in-out infinite;
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
