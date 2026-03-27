@@ -125,7 +125,7 @@ export default function DashboardClient({
             <span className="font-mono text-xs font-bold text-[#e2e8f0] uppercase tracking-widest">Wallet Balance</span>
           </div>
           <div className="p-5 flex-1">
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-6">
               <input 
                 type="text" 
                 placeholder="0x..." 
@@ -138,7 +138,7 @@ export default function DashboardClient({
               <button 
                 onClick={handleCheckBalance}
                 disabled={isChecking}
-                className="px-6 py-3 border border-[#00E599] text-[#00E599] font-mono text-xs font-bold uppercase tracking-widest rounded hover:bg-[#00E599]/10 transition-colors flex items-center gap-2 disabled:opacity-50"
+                className="px-6 py-3 border border-[#00E599] text-[#00E599] font-mono text-xs font-bold uppercase tracking-widest rounded hover:bg-[#00E599]/10 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {isChecking && <Loader2 className="w-3 h-3 animate-spin"/>}
                 Check
@@ -149,7 +149,7 @@ export default function DashboardClient({
               <div className="text-red-400 font-mono text-xs mb-4">{walletError}</div>
             )}
 
-            <div className="grid grid-cols-3 gap-3 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
               <div className="bg-[#0b0e14] p-3 rounded border border-[#1f2937]">
                  <p className="text-[9px] font-mono text-gray-500 uppercase tracking-widest mb-1">Available</p>
                  <p className="font-mono font-bold text-[#00E599]">{walletInfo ? walletInfo.balance_qua.toLocaleString(undefined, { maximumFractionDigits: 6 }) : '0.00'} QUA</p>

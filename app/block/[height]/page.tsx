@@ -91,19 +91,19 @@ export default async function BlockDetailsPage({
                 block.transactions.map((tx, idx) => (
                   <div key={idx} className="bg-[#0b0e14] rounded p-5 border border-[#1f2937] hover:border-[#00E599]/50 transition-colors">
                     <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                      <div className="col-span-2">
+                      <div className="md:col-span-2">
                         <p className="text-[10px] font-mono font-bold text-gray-500 uppercase tracking-widest mb-2">From</p>
                         <Link href={`/address/${tx.sender}`} className="font-mono text-sm text-[#00E599] hover:text-[#00f0ff] break-all transition-colors">
                           {tx.sender === 'COINBASE' ? 'System (Coinbase)' : tx.sender}
                         </Link>
                       </div>
-                      <div className="col-span-2">
+                      <div className="md:col-span-2">
                         <p className="text-[10px] font-mono font-bold text-gray-500 uppercase tracking-widest mb-2">To</p>
                         <Link href={`/address/${tx.recipient}`} className="font-mono text-sm text-[#00E599] hover:text-[#00f0ff] break-all transition-colors">
                           {tx.recipient}
                         </Link>
                       </div>
-                      <div className="col-span-1 text-right">
+                      <div className="md:col-span-1 md:text-right">
                         <p className="text-[10px] font-mono font-bold text-gray-500 uppercase tracking-widest mb-2">Amount</p>
                         <span className="font-mono font-bold text-[#00E599] bg-[#00E599]/10 border border-[#00E599]/30 px-2 py-1 rounded text-xs inline-block">
                           {(tx.amount / 1_000_000).toLocaleString()} QUA
