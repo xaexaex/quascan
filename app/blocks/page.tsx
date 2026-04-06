@@ -31,7 +31,7 @@ export default async function BlocksPage({
 
   const stats = await fetchStats();
   const currentHeight = stats ? stats.chain_length : 0;
-  
+
   const totalPages = Math.ceil(currentHeight / pageSize);
   if (page > totalPages && totalPages > 0) page = totalPages;
 
@@ -49,22 +49,24 @@ export default async function BlocksPage({
   const blocks = blocksUnfiltered.filter((b): b is Block => b !== null);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 pb-12">
-      <div className="flex items-center gap-4 mb-8">
-        <div className="w-16 h-16 rounded bg-[#111827] border border-[#1f2937] flex items-center justify-center text-[#00E599] shadow-lg mt-1">
-          <Box className="w-8 h-8" />
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 pb-16">
+      {/* Page Header */}
+      <div className="flex items-center gap-4 mb-10">
+        <div className="w-14 h-14 rounded-2xl bg-[#00E599]/10 border border-[#00E599]/30 flex items-center justify-center text-[#00E599] shadow-sm">
+          <Box className="w-7 h-7" />
         </div>
         <div>
-          <h1 className="text-3xl font-black tracking-tighter text-[#e2e8f0]">Blocks</h1>
-          <p className="text-gray-500 text-xs font-mono mt-2">Showing blocks from #{startHeight} to #{endHeight}</p>
+          <h1 className="text-3xl font-black tracking-tighter text-black">Blocks</h1>
+          <p className="text-gray-500 text-xs font-mono mt-1">Showing blocks from #{startHeight} to #{endHeight}</p>
         </div>
       </div>
 
-      <div className="dark-card overflow-hidden mb-8">
+      {/* Table Card */}
+      <div className="bg-white rounded-2xl shadow-xl border border-[#00E599]/30 overflow-hidden mb-8">
         <div className="overflow-x-auto">
           <table className="w-full text-left whitespace-nowrap font-mono">
             <thead>
-              <tr className="bg-[#0b0e14] border-b border-[#1f2937]">
+              <tr className="bg-gray-50 border-b border-gray-100">
                 <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Height</th>
                 <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Age</th>
                 <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Transactions</th>
@@ -72,42 +74,43 @@ export default async function BlocksPage({
                 <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Difficulty</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1f2937]/50 bg-[#111827]">
+            <tbody className="divide-y divide-gray-100">
               {blocks.map((block) => {
                 const miner = block.transactions.find(tx => tx.sender === 'COINBASE')?.recipient || 'Unknown';
                 return (
-                <tr key={block.index} className="hover:bg-[#1a2235]/50 transition-colors">
-                  <td className="py-4 px-6">
-                    <Link href={`/block/${block.index}`} className="flex items-center gap-2">
-                      <div className="px-3 py-1.5 rounded bg-[#0b0e14] border border-[#1f2937] flex items-center justify-center text-[#e2e8f0] font-mono text-sm hover:border-[#00E599] transition-colors">
-                        #{block.index}
+                  <tr key={block.index} className="hover:bg-gray-50 transition-colors">
+                    <td className="py-4 px-6">
+                      <Link href={`/block/${block.index}`} className="flex items-center gap-2">
+                        <div className="px-3 py-1.5 rounded-xl bg-[#00E599]/10 border border-[#00E599]/20 flex items-center justify-center text-black font-mono text-sm hover:border-[#00E599] hover:bg-[#00E599]/20 transition-colors font-bold">
+                          #{block.index}
+                        </div>
+                      </Link>
+                    </td>
+                    <td className="py-4 px-6 text-sm text-gray-500 font-medium">
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-gray-400" />
+                        <TimeAgo timestamp={block.timestamp} />
                       </div>
-                    </Link>
-                  </td>
-                  <td className="py-4 px-6 text-sm text-gray-400 font-medium">
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-gray-500" />
-                      <TimeAgo timestamp={block.timestamp} />
-                    </div>
-                  </td>
-                  <td className="py-4 px-6 text-sm font-bold text-[#e2e8f0]">
-                    <span className="px-3 py-1.5 bg-[#00E599]/10 text-[#00E599] border border-[#00E599]/30 rounded">
-                      {block.transactions.length} txns
-                    </span>
-                  </td>
-                  <td className="py-4 px-6 font-mono text-sm">
-                    <Link href={`/address/${miner}`} className="text-[#00E599] hover:underline hover:text-[#00f0ff] transition-colors">
-                      {miner.length > 16 ? `${miner.substring(0, 16)}...` : miner}
-                    </Link>
-                  </td>
-                  <td className="py-4 px-6 text-sm text-gray-400 font-mono">
-                    {block.difficulty.toLocaleString()}
-                  </td>
-                </tr>
-              )})}
+                    </td>
+                    <td className="py-4 px-6 text-sm font-bold text-black">
+                      <span className="px-3 py-1.5 bg-[#00E599]/10 text-teal-700 border border-[#00E599]/20 rounded-full text-xs font-bold">
+                        {block.transactions.length} txns
+                      </span>
+                    </td>
+                    <td className="py-4 px-6 font-mono text-sm">
+                      <Link href={`/address/${miner}`} className="text-[#00E599] hover:underline hover:text-teal-600 transition-colors font-medium">
+                        {miner.length > 16 ? `${miner.substring(0, 16)}...` : miner}
+                      </Link>
+                    </td>
+                    <td className="py-4 px-6 text-sm text-gray-500 font-mono">
+                      {block.difficulty.toLocaleString()}
+                    </td>
+                  </tr>
+                );
+              })}
               {blocks.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="py-12 text-center text-gray-500 font-mono text-[10px] uppercase tracking-widest">
+                  <td colSpan={5} className="py-12 text-center text-gray-400 font-mono text-[10px] uppercase tracking-widest">
                     No blocks found on this page.
                   </td>
                 </tr>
@@ -122,16 +125,16 @@ export default async function BlocksPage({
         <div className="flex items-center justify-center gap-4">
           <Link
             href={page > 1 ? `/blocks?page=${page - 1}` : '#'}
-            className={`w-10 h-10 rounded border border-[#1f2937] flex items-center justify-center transition-colors ${page > 1 ? 'bg-[#0b0e14] text-[#e2e8f0] hover:border-[#00E599] hover:text-[#00E599]' : 'bg-[#111827] text-gray-600 cursor-not-allowed'}`}
+            className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-colors ${page > 1 ? 'border-gray-200 bg-white text-gray-700 hover:border-[#00E599] hover:text-[#00E599] shadow-sm' : 'border-gray-100 bg-gray-50 text-gray-300 cursor-not-allowed'}`}
           >
             <ChevronLeft className="w-5 h-5" />
           </Link>
-          <span className="text-sm font-mono text-gray-400">
-            Page <span className="text-[#e2e8f0] font-bold">{page}</span> of <span className="text-[#00E599]">{Math.max(1, totalPages)}</span>
+          <span className="text-sm font-mono text-gray-500">
+            Page <span className="text-black font-bold">{page}</span> of <span className="text-[#00E599] font-bold">{Math.max(1, totalPages)}</span>
           </span>
           <Link
             href={page < totalPages ? `/blocks?page=${page + 1}` : '#'}
-            className={`w-10 h-10 rounded border border-[#1f2937] flex items-center justify-center transition-colors ${page < totalPages ? 'bg-[#0b0e14] text-[#e2e8f0] hover:border-[#00E599] hover:text-[#00E599]' : 'bg-[#111827] text-gray-600 cursor-not-allowed'}`}
+            className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-colors ${page < totalPages ? 'border-gray-200 bg-white text-gray-700 hover:border-[#00E599] hover:text-[#00E599] shadow-sm' : 'border-gray-100 bg-gray-50 text-gray-300 cursor-not-allowed'}`}
           >
             <ChevronRight className="w-5 h-5" />
           </Link>

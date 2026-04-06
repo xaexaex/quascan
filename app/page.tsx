@@ -13,7 +13,7 @@ export default async function Home() {
   ]);
 
   return (
-    <div className="bg-[#0b0e14] min-h-screen font-sans">
+    <div className="bg-white min-h-screen font-sans">
       <DashboardClient initialStats={stats} initialBlocks={latestBlocks} />
     </div>
   );

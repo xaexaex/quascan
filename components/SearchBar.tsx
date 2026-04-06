@@ -26,8 +26,8 @@ export default function SearchBar() {
 
   return (
     <form onSubmit={handleSearch} className="relative w-full">
-      <div className="relative flex items-center bg-[#0b0e14] border border-[#1f2937] rounded-lg focus-within:ring-1 focus-within:ring-[#00E599]/50 focus-within:border-[#00E599] transition-all overflow-hidden group">
-        <div className="pl-3 pr-2 flex items-center pointer-events-none text-gray-500 group-focus-within:text-[#00E599]">
+      <div className="relative flex items-center bg-white border border-gray-200 rounded-xl focus-within:ring-2 focus-within:ring-[#00E599]/30 focus-within:border-[#00E599] transition-all overflow-hidden group shadow-sm">
+        <div className="pl-3 pr-2 flex items-center pointer-events-none text-gray-400 group-focus-within:text-[#00E599]">
           <Search className="h-4 w-4" />
         </div>
         <input
@@ -35,11 +35,11 @@ export default function SearchBar() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search Block Height, Address, or Tx Hash..."
-          className="w-full py-2.5 pr-4 text-sm bg-transparent font-mono focus:outline-none placeholder:text-gray-600 text-[#e2e8f0]"
+          className="w-full py-2.5 pr-4 text-sm bg-transparent font-mono focus:outline-none placeholder:text-gray-400 text-black"
         />
         <button
           type="submit"
-          className="text-[10px] font-bold text-gray-500 hover:text-[#00E599] px-3 py-1.5 mr-1 bg-[#111827] border border-[#1f2937] rounded shadow-sm transition-colors"
+          className="text-[10px] font-bold text-gray-500 hover:text-[#00E599] px-3 py-1.5 mr-1 bg-gray-50 border border-gray-200 rounded-lg shadow-sm transition-colors"
         >
           /
         </button>

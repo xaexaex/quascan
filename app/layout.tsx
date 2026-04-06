@@ -55,10 +55,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${manrope.variable} antialiased min-h-screen flex flex-col bg-[#0b0e14] text-[#e2e8f0] font-sans`}>
+    <html lang="en" style={{ backgroundColor: '#ffffff' }}>
+      <body
+        className={`${manrope.variable} antialiased min-h-screen flex flex-col font-sans`}
+        style={{ backgroundColor: '#ffffff', color: '#000000' }}
+      >
         <Navbar />
-        <main className="flex-grow pt-20">
+        <main className="flex-grow pt-20 bg-white">
           {children}
         </main>
         <Footer />
