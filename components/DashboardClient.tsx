@@ -27,6 +27,31 @@ export default function DashboardClient({
   const [walletInfo, setWalletInfo] = useState<AddressInfo | null>(null);
   const [walletError, setWalletError] = useState("");
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [indexerStatus, setIndexerStatus] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchIndexerStatus = async () => {
+      try {
+        const res = await fetch('/api/indexer/status');
+        if (res.ok) {
+          const data = await res.json();
+          setIndexerStatus(data);
+        }
+      } catch (e) {
+        console.error('Failed to fetch indexer status', e);
+      }
+    };
+    fetchIndexerStatus();
+    // Refresh indexer status every 10 seconds if not synced
+    const interval = setInterval(() => {
+      if (!indexerStatus?.isSynced) {
+        fetchIndexerStatus();
+      }
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [indexerStatus?.isSynced]);
+
+
 
   // Quanta target block time is 30 seconds
   const hashrate = initialStats ? (initialStats.current_difficulty / 30) : 0;
@@ -124,6 +149,8 @@ export default function DashboardClient({
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 pb-16 pt-8">
+
+      {/* Indexer Status Banner Removed */}
 
       {/* Top 4 Stats — quanta-web card style */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

@@ -1,14 +1,16 @@
 import { Metadata } from 'next';
-import { fetchStats, fetchBlock, Block } from '@/lib/api';
 import { Box, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
+
+import dbConnect from '@/lib/db';
+import BlockModel from '@/lib/models/Block';
 
 export const metadata: Metadata = {
   title: 'Blocks | QuaScan Explorer',
   description: 'View all blocks on the Quanta network.',
 };
 
-export const revalidate = 10;
+export const revalidate = 0;
 
 function TimeAgo({ timestamp }: { timestamp: number }) {
   const diff = Math.floor(Date.now() / 1000) - timestamp;
@@ -29,24 +31,21 @@ export default async function BlocksPage({
   if (isNaN(page) || page < 1) page = 1;
   const pageSize = 20;
 
-  const stats = await fetchStats();
-  const currentHeight = stats ? stats.chain_length : 0;
-
-  const totalPages = Math.ceil(currentHeight / pageSize);
+  await dbConnect();
+  const totalBlocks = await BlockModel.countDocuments();
+  const totalPages = Math.ceil(totalBlocks / pageSize);
+  
   if (page > totalPages && totalPages > 0) page = totalPages;
 
-  const startHeight = Math.max(0, currentHeight - 1 - (page - 1) * pageSize);
-  const endHeight = Math.max(0, startHeight - pageSize + 1);
+  const skip = Math.max(0, (page - 1) * pageSize);
+  const blocks = await BlockModel.find({})
+    .sort({ index: -1 })
+    .skip(skip)
+    .limit(pageSize)
+    .lean() as any[];
 
-  const blockPromises = [];
-  for (let i = startHeight; i >= endHeight; i--) {
-    if (i >= 0) {
-      blockPromises.push(fetchBlock(i));
-    }
-  }
-
-  const blocksUnfiltered = await Promise.all(blockPromises);
-  const blocks = blocksUnfiltered.filter((b): b is Block => b !== null);
+  const startHeight = blocks.length > 0 ? blocks[0].index : 0;
+  const endHeight = blocks.length > 0 ? blocks[blocks.length - 1].index : 0;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 pb-16">
@@ -76,7 +75,7 @@ export default async function BlocksPage({
             </thead>
             <tbody className="divide-y divide-gray-100">
               {blocks.map((block) => {
-                const miner = block.transactions.find(tx => tx.sender === 'COINBASE')?.recipient || 'Unknown';
+                const miner = block.miner || (block.transactions?.find((tx: any) => tx.sender === 'COINBASE')?.recipient) || 'Unknown';
                 return (
                   <tr key={block.index} className="hover:bg-gray-50 transition-colors">
                     <td className="py-4 px-6">

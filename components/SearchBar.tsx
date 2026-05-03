@@ -8,19 +8,23 @@ export default function SearchBar() {
   const [query, setQuery] = useState("");
   const router = useRouter();
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanQuery = query.trim();
     if (!cleanQuery) return;
 
-    if (/^\d+$/.test(cleanQuery)) {
-      router.push(`/block/${cleanQuery}`);
-    } else if (cleanQuery.length === 42) {
-      router.push(`/address/${cleanQuery}`);
-    } else if (cleanQuery.length === 64) {
-      router.push(`/tx/${cleanQuery}`);
-    } else {
-      alert("Invalid search format. Must be Block Height, 42-char Address, or 64-char Tx Hash.");
+    try {
+      const res = await fetch(`/api/search?q=${encodeURIComponent(cleanQuery)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.redirect) {
+          router.push(data.redirect);
+          return;
+        }
+      }
+      alert("No results found for your search.");
+    } catch (e) {
+      alert("Error occurred during search.");
     }
   };
 

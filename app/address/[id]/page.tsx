@@ -1,8 +1,10 @@
 import { Metadata } from 'next';
-import { fetchAddressInfo, fetchAddressTransactions } from '@/lib/api';
+import { fetchAddressInfo } from '@/lib/api';
 import { Wallet, Coins, History, ArrowRightCircle, ArrowLeftCircle, Lock } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import dbConnect from '@/lib/db';
+import TransactionModel from '@/lib/models/Transaction';
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const p = await params;
@@ -12,7 +14,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   };
 }
 
-export const revalidate = 10;
+export const revalidate = 0;
 
 function TimeAgo({ timestamp }: { timestamp: number }) {
   const diff = Math.floor(Date.now() / 1000) - timestamp;
@@ -33,17 +35,36 @@ export default async function AddressDetailsPage({
     notFound();
   }
 
-  const [data, txs] = await Promise.all([
+  await dbConnect();
+
+  const [data, dbTxs] = await Promise.all([
     fetchAddressInfo(id),
-    fetchAddressTransactions(id)
+    TransactionModel.find({ $or: [{ sender: id }, { recipient: id }] })
+      .sort({ blockHeight: -1 })
+      .limit(100)
+      .lean() as Promise<any[]>
   ]);
 
-  if (!data) {
+  if (!data && dbTxs.length === 0) {
     notFound();
   }
 
-  const spendableQua = data.balance_qua;
-  const totalQua = data.total_balance_qua;
+  const txs = {
+    transaction_count: await TransactionModel.countDocuments({ $or: [{ sender: id }, { recipient: id }] }),
+    transactions: dbTxs.map(tx => ({
+      tx_hash: tx.txHash,
+      block_height: tx.blockHeight,
+      block_time: tx.blockTime,
+      sender: tx.sender,
+      recipient: tx.recipient,
+      amount_microunits: tx.amountMicrounits,
+      fee_microunits: tx.feeMicrounits,
+      tx_type: tx.txType || 'TRANSFER'
+    }))
+  };
+
+  const spendableQua = data ? data.balance_qua : 0;
+  const totalQua = data ? data.total_balance_qua : 0;
   const lockedQua = totalQua - spendableQua;
 
   return (
@@ -57,7 +78,7 @@ export default async function AddressDetailsPage({
           <h1 className="text-3xl font-black tracking-tighter text-black mb-2">Address</h1>
           <div className="inline-flex max-w-full">
             <span className="bg-gray-50 border border-gray-200 rounded-xl p-3 font-mono text-sm md:text-base text-[#00E599] break-all select-all">
-              {data.address}
+              {data?.address || id}
             </span>
           </div>
         </div>
@@ -87,7 +108,7 @@ export default async function AddressDetailsPage({
               <span className="font-bold font-mono text-[#00E599]">{spendableQua.toLocaleString(undefined, { maximumFractionDigits: 6 })} QUA</span>
             </div>
 
-            {data.locked_balances.length > 0 && (
+            {data && data.locked_balances.length > 0 && (
               <div className="flex items-center justify-between text-sm border-b border-gray-100 pb-3">
                 <span className="text-gray-500 font-mono text-xs uppercase tracking-widest flex items-center gap-1">
                   <Lock className="w-3 h-3" /> Locked/Vesting:
@@ -100,7 +121,7 @@ export default async function AddressDetailsPage({
               <p className="text-[10px] font-mono font-bold text-gray-500 uppercase tracking-widest mb-2">Account Nonce</p>
               <div className="flex items-center gap-2">
                 <span className="font-mono text-sm font-bold text-gray-800 bg-gray-50 border border-gray-200 px-3 py-1 rounded-xl">
-                  {data.nonce}
+                  {data ? data.nonce : 0}
                 </span>
                 <span className="text-xs text-gray-400 font-mono">Transactions sent</span>
               </div>
