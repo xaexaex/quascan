@@ -28,6 +28,8 @@ export default function DashboardClient({
   const [walletError, setWalletError] = useState("");
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [indexerStatus, setIndexerStatus] = useState<any>(null);
+  // Latest blocks from MongoDB (same source as /blocks page — keeps both in sync)
+  const [dbBlocks, setDbBlocks] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchIndexerStatus = async () => {
@@ -42,7 +44,6 @@ export default function DashboardClient({
       }
     };
     fetchIndexerStatus();
-    // Refresh indexer status every 10 seconds if not synced
     const interval = setInterval(() => {
       if (!indexerStatus?.isSynced) {
         fetchIndexerStatus();
@@ -51,6 +52,23 @@ export default function DashboardClient({
     return () => clearInterval(interval);
   }, [indexerStatus?.isSynced]);
 
+  // Fetch latest blocks from MongoDB so dashboard matches the /blocks page exactly
+  useEffect(() => {
+    const loadDbBlocks = async () => {
+      try {
+        const res = await fetch('/api/blocks?page=1&limit=10');
+        if (res.ok) {
+          const data = await res.json();
+          setDbBlocks(data.blocks || []);
+        }
+      } catch (e) {
+        console.error('Failed to fetch blocks from DB', e);
+      }
+    };
+    loadDbBlocks();
+    const interval = setInterval(loadDbBlocks, 15000);
+    return () => clearInterval(interval);
+  }, []);
 
 
   // Quanta target block time is 30 seconds
@@ -309,38 +327,37 @@ export default function DashboardClient({
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {initialBlocks.slice(0, 10).map((block) => {
-                const miner = block.transactions.find(tx => tx.sender === 'COINBASE')?.recipient || 'Unknown';
-                return (
-                  <tr key={block.index} className="hover:bg-gray-50 transition-colors">
-                    <td className="py-4 px-6 text-sm font-bold">
-                      <Link href={`/block/${block.index}`} className="text-gray-900 hover:text-[#00E599] transition-colors">
-                        {block.index}
-                      </Link>
-                    </td>
-                    <td className="py-4 px-6 text-sm text-[#00E599]">
-                      <Link href={`/block/${block.index}`} className="hover:underline opacity-80 hover:opacity-100 font-medium">
-                        {block.hash.substring(0, 8)}...{block.hash.substring(block.hash.length - 6)}
-                      </Link>
-                    </td>
-                    <td className="py-4 px-6 text-sm text-teal-600">
-                      <Link href={`/address/${miner}`} className="hover:underline opacity-80 hover:opacity-100 font-medium">
-                        {miner.length > 20 ? `${miner.substring(0, 6)}...${miner.substring(miner.length - 6)}` : miner}
-                      </Link>
-                    </td>
-                    <td className="py-4 px-6 text-sm text-center">
-                      <span className="text-gray-600 bg-[#00E599]/10 border border-[#00E599]/20 px-2 py-0.5 rounded-full text-xs font-bold">{block.transactions.length}</span>
-                    </td>
-                    <td className="py-4 px-6 text-sm text-gray-500">
-                      {block.nonce.toLocaleString()}
-                    </td>
-                    <td className="py-4 px-6 text-sm text-gray-400 text-right">
-                      <TimeAgo timestamp={block.timestamp} />
-                    </td>
-                  </tr>
-                );
-              })}
-              {initialBlocks.length === 0 && (
+              {dbBlocks.map((block) => (
+                <tr key={block.index} className="hover:bg-gray-50 transition-colors">
+                  <td className="py-4 px-6 text-sm font-bold">
+                    <Link href={`/block/${block.index}`} className="text-gray-900 hover:text-[#00E599] transition-colors">
+                      {block.index}
+                    </Link>
+                  </td>
+                  <td className="py-4 px-6 text-sm text-[#00E599]">
+                    <Link href={`/block/${block.index}`} className="hover:underline opacity-80 hover:opacity-100 font-medium">
+                      {block.hash?.substring(0, 8)}...{block.hash?.substring(block.hash.length - 6)}
+                    </Link>
+                  </td>
+                  <td className="py-4 px-6 text-sm text-teal-600">
+                    <Link href={`/address/${block.miner}`} className="hover:underline opacity-80 hover:opacity-100 font-medium">
+                      {block.miner && block.miner.length > 20
+                        ? `${block.miner.substring(0, 6)}...${block.miner.substring(block.miner.length - 6)}`
+                        : (block.miner || 'Unknown')}
+                    </Link>
+                  </td>
+                  <td className="py-4 px-6 text-sm text-center">
+                    <span className="text-gray-600 bg-[#00E599]/10 border border-[#00E599]/20 px-2 py-0.5 rounded-full text-xs font-bold">{block.tx_count ?? 0}</span>
+                  </td>
+                  <td className="py-4 px-6 text-sm text-gray-500">
+                    {block.nonce?.toLocaleString()}
+                  </td>
+                  <td className="py-4 px-6 text-sm text-gray-400 text-right">
+                    <TimeAgo timestamp={block.timestamp} />
+                  </td>
+                </tr>
+              ))}
+              {dbBlocks.length === 0 && (
                 <tr>
                   <td colSpan={6} className="py-12 text-center text-gray-400 text-xs font-mono uppercase tracking-widest">
                     No block data available.
