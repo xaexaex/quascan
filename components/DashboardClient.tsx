@@ -347,7 +347,7 @@ export default function DashboardClient({
                     </Link>
                   </td>
                   <td className="py-4 px-6 text-sm text-center">
-                    <span className="text-gray-600 bg-[#00E599]/10 border border-[#00E599]/20 px-2 py-0.5 rounded-full text-xs font-bold">{block.tx_count ?? 0}</span>
+                    <span className="text-gray-600 bg-[#00E599]/10 border border-[#00E599]/20 px-2 py-0.5 rounded-full text-xs font-bold">{block.transactions?.length ?? block.txCount ?? block.tx_count ?? 0}</span>
                   </td>
                   <td className="py-4 px-6 text-sm text-gray-500">
                     {block.nonce?.toLocaleString()}
