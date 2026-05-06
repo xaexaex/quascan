@@ -88,7 +88,7 @@ export interface AddressInfo {
 export async function fetchAddressInfo(address: string): Promise<AddressInfo | null> {
   try {
     const res = await fetch(`${RPC_URL}/api/address/${address}`, {
-      next: { revalidate: 10 },
+      cache: 'no-store', // Balance must always be live — never serve a cached null
     });
     if (!res.ok) return null;
     return await res.json();
@@ -118,7 +118,7 @@ export interface AddressTxsResponse {
 export async function fetchAddressTransactions(address: string, maxBlocks: number = 10000): Promise<AddressTxsResponse | null> {
   try {
     const res = await fetch(`${RPC_URL}/api/address/${address}/txs?max_blocks=${maxBlocks}`, {
-      next: { revalidate: 10 },
+      cache: 'no-store',
     });
     if (!res.ok) return null;
     return await res.json();
