@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { fetchAddressInfo } from '@/lib/api';
+import { fetchAddressInfo, fetchAddressTransactions } from '@/lib/api';
 import { Wallet, Coins, History, ArrowRightCircle, ArrowLeftCircle, Lock } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
@@ -37,31 +37,55 @@ export default async function AddressDetailsPage({
 
   await dbConnect();
 
-  const [data, dbTxs] = await Promise.all([
+  // Hybrid: fetch from BOTH MongoDB (indexer history) AND node RPC (live confirmed txs).
+  // Merge + deduplicate by tx_hash so recent blocks not yet indexed still appear.
+  const [data, dbTxsRaw, rpcTxsRaw] = await Promise.all([
     fetchAddressInfo(id),
     TransactionModel.find({ $or: [{ sender: id }, { recipient: id }] })
       .sort({ blockHeight: -1 })
       .limit(100)
-      .lean() as Promise<any[]>
+      .lean() as Promise<any[]>,
+    fetchAddressTransactions(id, 10_000).catch(() => null),
   ]);
 
-  if (!data && dbTxs.length === 0) {
-    notFound();
+  // Normalise MongoDB rows
+  const dbTxs = (dbTxsRaw ?? []).map((tx: any) => ({
+    tx_hash: tx.txHash as string,
+    block_height: tx.blockHeight as number,
+    block_time: tx.blockTime as number,
+    sender: tx.sender as string,
+    recipient: tx.recipient as string,
+    amount_microunits: tx.amountMicrounits as number,
+    fee_microunits: tx.feeMicrounits as number,
+    tx_type: (tx.txType || 'TRANSFER') as string,
+  }));
+
+  // Normalise RPC rows (already the right shape)
+  const rpcTxs = rpcTxsRaw?.transactions ?? [];
+
+  // Merge: start with RPC (most up-to-date), fill in any gaps from DB
+  const seen = new Set<string>();
+  const merged: typeof rpcTxs = [];
+  for (const tx of [...rpcTxs, ...dbTxs]) {
+    if (!seen.has(tx.tx_hash)) {
+      seen.add(tx.tx_hash);
+      merged.push(tx);
+    }
   }
+  merged.sort((a, b) => b.block_height - a.block_height);
+  const topTxs = merged.slice(0, 100);
 
   const txs = {
-    transaction_count: await TransactionModel.countDocuments({ $or: [{ sender: id }, { recipient: id }] }),
-    transactions: dbTxs.map(tx => ({
-      tx_hash: tx.txHash,
-      block_height: tx.blockHeight,
-      block_time: tx.blockTime,
-      sender: tx.sender,
-      recipient: tx.recipient,
-      amount_microunits: tx.amountMicrounits,
-      fee_microunits: tx.feeMicrounits,
-      tx_type: tx.txType || 'TRANSFER'
-    }))
+    transaction_count: Math.max(
+      rpcTxsRaw?.transaction_count ?? 0,
+      await TransactionModel.countDocuments({ $or: [{ sender: id }, { recipient: id }] }),
+    ),
+    transactions: topTxs,
   };
+
+  if (!data && txs.transactions.length === 0) {
+    notFound();
+  }
 
   const spendableQua = data ? data.balance_qua : 0;
   const totalQua = data ? data.total_balance_qua : 0;

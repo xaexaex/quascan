@@ -138,7 +138,7 @@ export interface TxDetailResponse {
 export async function fetchTx(hash: string): Promise<TxDetailResponse | null> {
   try {
     const res = await fetch(`${RPC_URL}/api/tx/${hash}`, {
-      next: { revalidate: 10 },
+      cache: 'no-store', // TX status changes (pending → confirmed) — never cache
     });
     if (!res.ok) return null;
     return await res.json();
