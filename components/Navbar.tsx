@@ -8,6 +8,7 @@ import SearchBar from "./SearchBar";
 const navLinks = [
   { name: "Dashboard", href: "/" },
   { name: "Blocks", href: "/blocks" },
+  { name: "Checkpoints", href: "/checkpoints" },
 ];
 
 export default function Navbar() {
