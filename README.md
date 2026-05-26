@@ -68,4 +68,3 @@ QuantaScan is optimized for zero-config deployment on Vercel.
 3. In the Vercel project settings, add the `MONGODB_URI` environment variable.
 4. Deploy!
 
-*Note: Ensure your MongoDB Atlas cluster Network Access (IP Whitelisting) allows connections from Vercel (or is set to allow `0.0.0.0/0`).*
