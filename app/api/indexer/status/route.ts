@@ -2,12 +2,16 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import IndexerState from '@/lib/models/IndexerState';
 import { fetchStats } from '@/lib/api';
+import { syncBlocks } from '@/lib/sync';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
     await dbConnect();
+
+    // Trigger sync to get the database up to date
+    await syncBlocks().catch(console.error);
 
     const stats = await fetchStats();
     const chainHeight = stats ? stats.chain_length - 1 : 0;

@@ -3,6 +3,7 @@ import { fetchBlock } from '@/lib/api';
 import { Box, Hash, Clock, Cpu, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import CopyButton from '@/components/CopyButton';
 
 export async function generateMetadata({ params }: { params: Promise<{ height: string }> }): Promise<Metadata> {
   const p = await params;
@@ -32,44 +33,47 @@ export default async function BlockDetailsPage({
     notFound();
   }
 
-  const miner = block.transactions.find(tx => tx.sender === 'COINBASE')?.recipient || 'Unknown';
-
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 pb-16 pt-24">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 pb-16 pt-24 transition-colors duration-300">
       {/* Page Header */}
-      <div className="flex items-center gap-4 mb-10 relative">
-        <div className="absolute -left-10 top-0 w-32 h-32 bg-[#00E599]/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="w-14 h-14 rounded-2xl bg-[#00E599]/10 border border-[#00E599]/20 flex items-center justify-center text-[#00E599] flex-shrink-0 shadow-[0_0_15px_rgba(0,229,153,0.15)] relative z-10">
-          <Box className="w-7 h-7" />
+      <div className="flex items-center gap-4 mb-8 border-b border-border pb-6 relative">
+        <div className="w-12 h-12 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent shadow-sm">
+          <Box className="w-6 h-6" />
         </div>
-        <div className="relative z-10">
-          <h1 className="text-3xl font-black tracking-tight text-white flex items-center gap-3 font-sans">
-            Block <span className="text-[#00E599] font-mono">#{block.index}</span>
+        <div>
+          <h1 className="text-2xl font-black tracking-tight text-text-primary flex items-center gap-3 font-sans uppercase">
+            Block <span className="text-accent font-mono">#{block.index}</span>
           </h1>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
           {/* Block Identifiers */}
-          <div className="quantum-panel p-8">
-            <h3 className="text-sm font-bold text-white mb-6 flex items-center gap-2 uppercase tracking-widest">
-              <Hash className="w-5 h-5 text-[#00E599]" />
+          <div className="quantum-panel p-6 border border-border">
+            <h3 className="text-xs font-bold text-text-primary mb-6 flex items-center gap-2 uppercase tracking-widest pb-3 border-b border-border">
+              <Hash className="w-4 h-4 text-accent" />
               Block Identifiers
             </h3>
 
             <div className="space-y-6">
               <div>
-                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Block Hash</p>
-                <div className="bg-white/5 border border-white/10 rounded-xl p-4 font-mono text-sm text-gray-300 break-all select-all hover:bg-white/10 hover:text-white transition-colors">
+                <div className="flex justify-between items-center text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">
+                  <span>Block Hash</span>
+                  <CopyButton text={block.hash} />
+                </div>
+                <div className="bg-surface-2 border border-border rounded-xl p-3.5 font-mono text-xs text-text-primary break-all hover:bg-surface transition-colors font-semibold">
                   {block.hash}
                 </div>
               </div>
 
               <div>
-                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Previous Hash</p>
+                <div className="flex justify-between items-center text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">
+                  <span>Previous Hash</span>
+                  <CopyButton text={block.previous_hash} />
+                </div>
                 <Link href={`/block/${block.index > 0 ? block.index - 1 : 0}`}>
-                  <div className="bg-white/5 border border-white/10 rounded-xl p-4 font-mono text-sm text-gray-300 hover:bg-white/10 hover:text-[#00E599] hover:border-[#00E599]/30 transition-colors break-all">
+                  <div className="bg-surface border border-border rounded-xl p-3.5 font-mono text-xs text-text-secondary hover:text-accent hover:border-accent/30 transition-all break-all font-semibold">
                     {block.previous_hash}
                   </div>
                 </Link>
@@ -77,38 +81,38 @@ export default async function BlockDetailsPage({
             </div>
           </div>
 
-          {/* Transactions */}
-          <div className="quantum-panel p-8">
-            <h3 className="text-sm font-bold text-white mb-6 flex items-center gap-2 uppercase tracking-widest">
-              <ArrowRight className="w-5 h-5 text-[#00E599]" />
-              Transactions <span className="bg-white/5 border border-white/10 px-2 py-0.5 rounded-full text-xs">{block.transactions.length}</span>
+          {/* Transactions list */}
+          <div className="quantum-panel p-6 border border-border">
+            <h3 className="text-xs font-bold text-text-primary mb-6 flex items-center gap-2 uppercase tracking-widest pb-3 border-b border-border">
+              <ArrowRight className="w-4 h-4 text-accent" />
+              Transactions <span className="ml-1 px-2.5 py-0.5 rounded-full bg-accent/10 border border-accent/20 text-[10px] text-accent font-bold">{block.transactions?.length || 0}</span>
             </h3>
 
-            <div className="space-y-4">
-              {block.transactions.length === 0 ? (
-                <div className="text-center py-12 text-gray-500 font-medium text-xs uppercase tracking-widest bg-white/[0.02] border border-dashed border-white/10 rounded-xl">
+            <div className="space-y-3.5">
+              {(!block.transactions || block.transactions.length === 0) ? (
+                <div className="text-center py-10 text-text-muted font-bold text-[10px] uppercase tracking-widest bg-surface-2/10 border border-dashed border-border rounded-xl">
                   No transactions in this block (Empty block).
                 </div>
               ) : (
                 block.transactions.map((tx, idx) => (
-                  <div key={idx} className="bg-white/[0.02] rounded-xl p-6 border border-white/5 hover:border-white/20 transition-all hover:bg-white/[0.04]">
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                  <div key={idx} className="bg-surface-2/20 rounded-xl p-5 border border-border hover:border-accent/20 transition-all hover:bg-surface">
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 text-xs font-semibold">
                       <div className="md:col-span-2">
-                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">From</p>
-                        <Link href={`/address/${tx.sender}`} className="font-mono text-sm text-gray-400 hover:text-white break-all transition-colors font-medium">
+                        <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1.5">From</p>
+                        <Link href={`/address/${tx.sender}`} className="font-mono text-text-secondary hover:text-accent break-all transition-colors font-bold">
                           {tx.sender === 'COINBASE' ? 'System (Coinbase)' : tx.sender}
                         </Link>
                       </div>
                       <div className="md:col-span-2">
-                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">To</p>
-                        <Link href={`/address/${tx.recipient}`} className="font-mono text-sm text-gray-400 hover:text-white break-all transition-colors font-medium">
+                        <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1.5">To</p>
+                        <Link href={`/address/${tx.recipient}`} className="font-mono text-text-secondary hover:text-accent break-all transition-colors font-bold">
                           {tx.recipient}
                         </Link>
                       </div>
-                      <div className="md:col-span-1 md:text-right">
-                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Amount</p>
-                        <span className="font-mono font-bold text-white group-hover:text-[#00E599] transition-colors">
-                          {(tx.amount / 1_000_000).toLocaleString()} <span className="text-xs text-[#00E599]">QUA</span>
+                      <div className="md:col-span-1 md:text-right flex md:flex-col items-center md:items-end justify-between border-t md:border-t-0 pt-2 md:pt-0 border-border">
+                        <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1">Amount</p>
+                        <span className="font-mono font-black text-text-primary">
+                          {(tx.amount / 1_000_000).toLocaleString()} <span className="text-[10px] text-accent font-bold">QUA</span>
                         </span>
                       </div>
                     </div>
@@ -121,37 +125,37 @@ export default async function BlockDetailsPage({
 
         {/* Sidebar Info */}
         <div className="lg:col-span-1 space-y-6">
-          <div className="quantum-panel p-8">
-            <h3 className="text-sm font-bold text-white mb-6 flex items-center gap-2 uppercase tracking-widest">
-              <Cpu className="w-5 h-5 text-[#00E599]" />
+          <div className="quantum-panel p-6 border border-border">
+            <h3 className="text-xs font-bold text-text-primary mb-6 flex items-center gap-2 uppercase tracking-widest pb-3 border-b border-border">
+              <Cpu className="w-4 h-4 text-accent" />
               Consensus Info
             </h3>
 
-            <ul className="space-y-6">
+            <ul className="space-y-5 text-xs font-semibold">
               <li>
-                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">Proposer</p>
-                <Link href={`/address/${block.proposer || 'GENESIS'}`} className="font-mono text-sm text-gray-300 hover:text-[#00E599] break-all transition-colors font-medium bg-white/5 border border-white/10 rounded-xl p-3 block hover:bg-white/10 hover:border-[#00E599]/30">
+                <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Block Proposer</p>
+                <Link href={`/address/${block.proposer || 'GENESIS'}`} className="font-mono text-xs text-text-secondary hover:text-accent break-all transition-colors font-bold bg-surface-2 border border-border rounded-xl p-3 block hover:border-accent/30">
                   {block.proposer || 'GENESIS'}
                 </Link>
               </li>
               <li>
-                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">Timestamp</p>
-                <div className="flex items-center gap-2 text-sm text-gray-300 font-mono bg-white/5 border border-white/10 rounded-xl p-3">
-                  <Clock className="w-4 h-4 text-gray-500" />
+                <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Mined Timestamp</p>
+                <div className="flex items-center gap-2 text-text-primary font-mono bg-surface border border-border rounded-xl p-3">
+                  <Clock className="w-4 h-4 text-text-muted" />
                   {new Date(block.timestamp * 1000).toLocaleString()}
                 </div>
               </li>
               <div className="grid grid-cols-2 gap-4">
                 <li>
-                  <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">Epoch</p>
-                  <span className="font-mono text-sm text-white bg-white/5 border border-white/10 px-4 py-3 rounded-xl block text-center font-bold">
-                    {block.epoch ?? 0}
+                  <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Epoch</p>
+                  <span className="font-mono text-text-primary bg-surface-2 border border-border px-4 py-2.5 rounded-xl block text-center font-bold">
+                    Epoch {block.epoch ?? 0}
                   </span>
                 </li>
                 <li>
-                  <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">BFT Round</p>
-                  <span className="font-mono text-sm text-white bg-white/5 border border-white/10 px-4 py-3 rounded-xl block text-center font-bold">
-                    {block.bft_round ?? 0}
+                  <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">BFT Round</p>
+                  <span className="font-mono text-text-primary bg-surface-2 border border-border px-4 py-2.5 rounded-xl block text-center font-bold">
+                    Round {block.bft_round ?? 0}
                   </span>
                 </li>
               </div>
@@ -162,3 +166,4 @@ export default async function BlockDetailsPage({
     </div>
   );
 }
+

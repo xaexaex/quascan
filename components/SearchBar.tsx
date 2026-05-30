@@ -30,8 +30,8 @@ export default function SearchBar() {
 
   return (
     <form onSubmit={handleSearch} className="relative w-full">
-      <div className="relative flex items-center bg-white/5 border border-white/10 rounded-xl focus-within:border-[#00E599]/50 focus-within:bg-white/10 transition-all overflow-hidden group shadow-lg shadow-black/50">
-        <div className="pl-4 pr-3 flex items-center pointer-events-none text-gray-500 group-focus-within:text-[#00E599] transition-colors">
+      <div className="relative flex items-center bg-surface-2 border border-border rounded-xl focus-within:border-accent focus-within:ring-1 focus-within:ring-accent/30 transition-all overflow-hidden group shadow-sm">
+        <div className="pl-4 pr-2 flex items-center pointer-events-none text-text-muted group-focus-within:text-accent transition-colors">
           <Search className="h-4 w-4" />
         </div>
         <input
@@ -39,17 +39,18 @@ export default function SearchBar() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search Block, Address, Tx..."
-          className="w-full py-2.5 pr-4 text-sm bg-transparent font-medium focus:outline-none placeholder:text-gray-600 text-white"
+          className="w-full py-2.5 pr-2 text-xs font-semibold bg-transparent focus:outline-none placeholder:text-text-muted text-text-primary"
+          spellCheck={false}
         />
-        <div className="pr-2">
-          <button
-            type="submit"
-            className="text-xs font-bold text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg border border-white/5 transition-colors"
-          >
-            /
-          </button>
-        </div>
+        <button
+          type="submit"
+          className="mr-1.5 p-2 bg-accent hover:bg-accent/90 text-white rounded-lg transition-colors flex items-center justify-center cursor-pointer shadow-sm shadow-accent/20"
+          aria-label="Search Submit"
+        >
+          <Search className="w-3.5 h-3.5" />
+        </button>
       </div>
     </form>
   );
 }
+

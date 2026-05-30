@@ -1,12 +1,16 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Block from '@/lib/models/Block';
+import { syncBlocks } from '@/lib/sync';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
     await dbConnect();
+    
+    // Auto-sync in the background
+    syncBlocks().catch(console.error);
 
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1', 10);

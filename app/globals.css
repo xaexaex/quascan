@@ -1,30 +1,50 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #000000;
-  --color-surface: #0a0a0a;
-  --color-surface-2: #111111;
-  --color-border: rgba(255, 255, 255, 0.05);
-  --color-border-focus: rgba(0, 229, 153, 0.5);
-  --color-text-primary: #ffffff;
-  --color-text-secondary: #999999;
-  --color-text-muted: #666666;
-  --color-accent: #00E599;
+  --color-background: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-border-focus: var(--border-focus);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-accent: var(--accent);
+  --color-accent-light: var(--accent-light);
+  --color-card-bg: var(--card-bg);
   --font-display: var(--font-syne), ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, monospace;
 }
 
 :root {
-  --bg: #000000;
-  --surface: #0a0a0a;
-  --surface-2: #111111;
-  --border: rgba(255, 255, 255, 0.05);
+  /* ===================== LIGHT MODE CONFIG ===================== */
+  --bg: #f5f7fa;
+  --surface: #ffffff;
+  --surface-2: #f1f3f6;
+  --border: rgba(0, 0, 0, 0.08);
+  --border-focus: rgba(0, 184, 122, 0.5);
+  --text-primary: #1f2937;
+  --text-secondary: #4b5563;
+  --text-muted: #9ca3af;
+  --accent: #00a877;
+  --accent-light: rgba(0, 168, 119, 0.1);
+  --card-bg: rgba(255, 255, 255, 0.95);
+}
+
+.dark {
+  /* ===================== DARK MODE CONFIG ===================== */
+  --bg: #07080a;
+  --surface: #0f1013;
+  --surface-2: #16181d;
+  --border: rgba(255, 255, 255, 0.06);
   --border-focus: rgba(0, 229, 153, 0.5);
-  --text-primary: #ffffff;
-  --text-secondary: #999999;
-  --text-muted: #666666;
+  --text-primary: #f9fafb;
+  --text-secondary: #9ca3af;
+  --text-muted: #4b5563;
   --accent: #00E599;
+  --accent-light: rgba(0, 229, 153, 0.1);
+  --card-bg: rgba(15, 16, 19, 0.7);
 }
 
 /* ===================== RESET & BASE ===================== */
@@ -32,6 +52,7 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 100px;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 body {
@@ -40,6 +61,7 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 * {
@@ -77,33 +99,30 @@ body {
   font-family: var(--font-mono);
 }
 
-/* ===================== QUANTUM GLASS GRID PATTERN ===================== */
-
-.hero-grid {
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-  background-size: 40px 40px;
-}
-
-.hero-grid-fade {
-  background: radial-gradient(ellipse 80% 60% at 50% 0%, transparent 0%, var(--bg) 100%);
-}
-
 /* ===================== QUANTUM GLASS COMPONENTS ===================== */
 
 .quantum-panel {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--card-bg);
+  border: 1px solid var(--border);
   border-radius: 16px;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  transition: all 0.3s ease;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+}
+
+.dark .quantum-panel {
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
 }
 
 .quantum-panel:hover {
-  border-color: rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(0, 229, 153, 0.2);
+  box-shadow: 0 10px 40px rgba(0, 229, 153, 0.03);
+}
+
+.dark .quantum-panel:hover {
+  border-color: rgba(0, 229, 153, 0.2);
+  box-shadow: 0 10px 40px rgba(0, 229, 153, 0.05);
 }
 
 .quantum-glow-text {
@@ -112,16 +131,16 @@ body {
 
 /* scan-card map to quantum-panel for easy migration */
 .scan-card {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--card-bg);
+  border: 1px solid var(--border);
   border-radius: 16px;
   backdrop-filter: blur(12px);
   transition: all 0.3s ease;
 }
 
 .card-dark {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--card-bg);
+  border: 1px solid var(--border);
   border-radius: 16px;
   backdrop-filter: blur(12px);
   transition: all 0.3s ease;
@@ -133,3 +152,50 @@ body {
   background: rgba(0, 229, 153, 0.3);
   color: #ffffff;
 }
+
+/* ===================== ANIMATIONS ===================== */
+
+/* Glowing Pulse Rings */
+@keyframes pulseRing {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.5;
+  }
+}
+
+.pulse-ring {
+  animation: pulseRing 3s ease-in-out infinite;
+}
+
+/* Hologram Scanning Line Animation */
+@keyframes laserScan {
+  0% {
+    top: 0%;
+  }
+  50% {
+    top: 100%;
+  }
+  100% {
+    top: 0%;
+  }
+}
+
+.laser-scanner {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  box-shadow: 0 0 8px var(--accent);
+  animation: laserScan 4s linear infinite;
+  pointer-events: none;
+}
+
