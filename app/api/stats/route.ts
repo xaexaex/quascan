@@ -13,7 +13,7 @@ export async function GET() {
 
     const stats = {
       blockHeight: nodeStats.chain_length - 1,
-      difficulty: nodeStats.current_difficulty,
+      epoch: nodeStats.current_epoch,
       mempoolSize: nodeStats.pending_transactions,
       peerCount: 8, // mocked, no peer api yet
       hashrate: "Unknown" // mocked

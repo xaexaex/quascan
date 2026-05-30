@@ -71,16 +71,9 @@ export default function DashboardClient({
   }, []);
 
 
-  // Quanta target block time is 30 seconds
-  const hashrate = initialStats ? (initialStats.current_difficulty / 30) : 0;
-  const formattedHashrate = hashrate > 1000000
-    ? `${(hashrate / 1000000).toLocaleString(undefined, { maximumFractionDigits: 2 })} MH/s`
-    : hashrate > 1000
-    ? `${(hashrate / 1000).toLocaleString(undefined, { maximumFractionDigits: 2 })} kH/s`
-    : `${hashrate.toLocaleString(undefined, { maximumFractionDigits: 0 })} H/s`;
-
-  const uniqueMiners = new Set(
-    initialBlocks.map(block => block.transactions.find(tx => tx.sender === 'COINBASE')?.recipient).filter(Boolean)
+  // Number of unique proposers in the latest block window
+  const uniqueProposers = new Set(
+    initialBlocks.map(block => block.proposer).filter(Boolean)
   ).size;
 
   useEffect(() => {
@@ -149,11 +142,11 @@ export default function DashboardClient({
     },
     {
       index: 3,
-      label: "Difficulty",
+      label: "Active Validators",
       icon: Cpu,
-      value: initialStats ? `${(initialStats.current_difficulty / 1_000_000).toFixed(1)}M` : '---',
+      value: "7",
       accent: "text-[#00E599]",
-      sub: `Reward: ${initialStats ? (initialStats.mining_reward / 1_000_000) : 100} QUA/block`,
+      sub: `BFT Epoch ${initialStats?.current_epoch ?? 0}`,
     },
     {
       index: 4,
@@ -166,96 +159,101 @@ export default function DashboardClient({
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 pb-16 pt-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 pb-16 pt-24">
 
-      {/* Indexer Status Banner Removed */}
-
-      {/* Top 4 Stats — quanta-web card style */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Top 4 Stats — Quantum Glass Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map((card) => (
           <div
             key={card.index}
-            className="bg-white shadow-xl -translate-y-1 rounded-2xl p-6 sm:p-8 flex flex-col justify-between min-h-[160px] group transition-all duration-300 border border-[#00E599]/30 hover:-translate-y-2 hover:shadow-2xl"
+            className="quantum-panel p-6 flex flex-col justify-between min-h-[160px] group relative overflow-hidden"
           >
-            <div>
-              <div className="w-8 h-8 rounded-full border border-teal-600/30 flex items-center justify-center mb-4 text-sm font-mono text-teal-700 font-medium">
-                {card.index}
+            {/* Subtle background glow effect */}
+            <div className="absolute -right-8 -top-8 w-32 h-32 bg-[#00E599]/5 rounded-full blur-2xl group-hover:bg-[#00E599]/10 transition-colors pointer-events-none" />
+            
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-4">
+                <p className="font-bold text-xs uppercase tracking-widest text-gray-400">{card.label}</p>
+                <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-500 group-hover:text-[#00E599] group-hover:border-[#00E599]/30 transition-all">
+                  <card.icon className="w-4 h-4" />
+                </div>
               </div>
-              <div className={`text-3xl font-black font-mono tracking-tight mb-1 ${card.accent}`}>
+              <div className="text-3xl font-black font-sans tracking-tight mb-1 text-white quantum-glow-text group-hover:text-[#00E599] transition-colors">
                 {card.value}
               </div>
-              <p className="text-gray-800 font-semibold text-sm">{card.label}</p>
-              <p className="text-gray-500 text-xs mt-1">{card.sub}</p>
-            </div>
-            <div className="mt-4 flex justify-end opacity-10 group-hover:opacity-30 transition-opacity duration-500">
-              <card.icon className="w-10 h-10 text-teal-500" />
+              <p className="text-gray-500 text-xs font-medium">{card.sub}</p>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Wallet Balance Checker */}
-        <div className="bg-white rounded-2xl shadow-xl border border-[#00E599]/30 flex flex-col overflow-hidden">
-          <div className="px-6 py-5 border-b border-gray-100 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full border border-teal-600/30 flex items-center justify-center">
-              <CircleDollarSign className="w-4 h-4 text-teal-600" />
+        <div className="quantum-panel flex flex-col overflow-hidden">
+          <div className="px-6 py-4 border-b border-white/5 flex items-center gap-3 bg-white/[0.02]">
+            <div className="w-8 h-8 rounded-full bg-[#00E599]/10 flex items-center justify-center text-[#00E599]">
+              <CircleDollarSign className="w-4 h-4" />
             </div>
-            <span className="font-bold text-sm text-gray-900 uppercase tracking-widest">Wallet Balance</span>
+            <span className="font-bold text-sm uppercase tracking-widest text-white">Wallet Checker</span>
           </div>
-          <div className="p-6 flex-1">
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-6">
+          <div className="p-6 flex-1 bg-transparent">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-0 mb-6 bg-black rounded-xl border border-white/10 overflow-hidden focus-within:border-[#00E599]/50 transition-colors">
               <input
                 type="text"
                 placeholder="Enter Quanta address..."
                 value={addressInput}
                 onChange={(e) => setAddressInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleCheckBalance()}
-                className="flex-1 bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm font-mono text-black focus:outline-none focus:border-[#00E599] focus:ring-2 focus:ring-[#00E599]/20 transition-all"
+                className="flex-1 bg-transparent p-4 text-sm font-mono text-white focus:outline-none placeholder-gray-600"
                 spellCheck={false}
               />
               <button
                 onClick={handleCheckBalance}
                 disabled={isChecking}
-                className="px-6 py-3 bg-[#00E599] text-black font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-[#00E599]/80 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 shadow-sm"
+                className="px-6 py-4 bg-white/5 text-white hover:bg-white/10 hover:text-[#00E599] font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 border-l border-white/10 disabled:opacity-50"
               >
                 {isChecking && <Loader2 className="w-3 h-3 animate-spin" />}
-                Check
+                Query
               </button>
             </div>
 
             {walletError && (
-              <div className="text-red-500 text-xs mb-4 bg-red-50 rounded-lg p-3 border border-red-100">{walletError}</div>
+              <div className="text-red-400 text-xs mb-4 bg-red-500/10 border border-red-500/20 rounded-xl p-4 font-medium">{walletError}</div>
             )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
-              <div className="bg-gray-50 p-3 rounded-xl border border-gray-200">
-                <p className="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-1">Available</p>
-                <p className="font-mono font-bold text-[#00E599]">{walletInfo ? walletInfo.balance_qua.toLocaleString(undefined, { maximumFractionDigits: 6 }) : '0.00'} QUA</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+              <div className="p-4 bg-white/5 rounded-xl border border-white/5">
+                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Available</p>
+                <p className="font-mono font-bold text-[#00E599] text-lg">{walletInfo ? walletInfo.balance_qua.toLocaleString(undefined, { maximumFractionDigits: 6 }) : '0.00'}</p>
+                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">QUA</p>
               </div>
-              <div className="bg-gray-50 p-3 rounded-xl border border-gray-200">
-                <p className="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-1">Total (Inc. Locked)</p>
-                <p className="font-mono font-bold text-black">{walletInfo ? walletInfo.total_balance_qua.toLocaleString(undefined, { maximumFractionDigits: 6 }) : '0.00'} QUA</p>
+              <div className="p-4 bg-white/5 rounded-xl border border-white/5">
+                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Total</p>
+                <p className="font-mono font-bold text-white text-lg">{walletInfo ? walletInfo.total_balance_qua.toLocaleString(undefined, { maximumFractionDigits: 6 }) : '0.00'}</p>
+                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">QUA</p>
               </div>
-              <div className="bg-gray-50 p-3 rounded-xl border border-gray-200">
-                <p className="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-1">Nonce</p>
-                <p className="font-mono font-bold text-gray-800">{walletInfo ? walletInfo.nonce : '0'}</p>
+              <div className="p-4 bg-white/5 rounded-xl border border-white/5">
+                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Nonce</p>
+                <p className="font-mono font-bold text-gray-400 text-lg">{walletInfo ? walletInfo.nonce : '0'}</p>
               </div>
             </div>
 
             <div>
-              <p className="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-3">Locked Balances {walletInfo ? `(${walletInfo.locked_balances.length} Entries)` : ''}</p>
-              <div className="h-36 overflow-y-auto pr-2 space-y-1">
+              <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 flex justify-between">
+                <span>Locked Balances</span>
+                {walletInfo ? <span className="bg-[#00E599]/20 text-[#00E599] px-2 py-0.5 rounded-full">{walletInfo.locked_balances.length}</span> : null}
+              </p>
+              <div className="h-32 overflow-y-auto pr-2 space-y-2 rounded-xl bg-black border border-white/5 p-2">
                 {walletInfo?.locked_balances.length ? (
                   walletInfo.locked_balances.map((lock, i) => (
-                    <div key={i} className="flex justify-between py-2 border-b border-gray-100 text-xs font-mono">
-                      <span className="text-gray-700">{lock.amount_qua} QUA</span>
-                      <span className="text-gray-400">unlocks at block #{lock.unlock_height}</span>
+                    <div key={i} className="flex justify-between items-center py-2 px-3 bg-white/5 rounded-lg text-xs font-mono">
+                      <span className="text-[#00E599] font-bold">{lock.amount_qua} QUA</span>
+                      <span className="text-gray-500">unlocks @ {lock.unlock_height}</span>
                     </div>
                   ))
                 ) : (
-                  <div className="text-gray-400 text-xs font-mono h-full flex flex-col items-center justify-center border border-dashed border-gray-200 rounded-xl pt-4 pb-4">
-                    No locked balances found
+                  <div className="text-gray-600 text-xs font-medium h-full flex flex-col items-center justify-center uppercase tracking-widest">
+                    No locked balances
                   </div>
                 )}
               </div>
@@ -264,26 +262,26 @@ export default function DashboardClient({
         </div>
 
         {/* Network Info */}
-        <div className="bg-white rounded-2xl shadow-xl border border-[#00E599]/30 flex flex-col overflow-hidden">
-          <div className="px-6 py-5 border-b border-gray-100 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full border border-teal-600/30 flex items-center justify-center">
-              <Network className="w-4 h-4 text-teal-600" />
+        <div className="quantum-panel flex flex-col overflow-hidden">
+          <div className="px-6 py-4 border-b border-white/5 flex items-center gap-3 bg-white/[0.02]">
+            <div className="w-8 h-8 rounded-full bg-[#00E599]/10 flex items-center justify-center text-[#00E599]">
+              <Network className="w-4 h-4" />
             </div>
-            <span className="font-bold text-sm text-gray-900 uppercase tracking-widest">Network Info</span>
+            <span className="font-bold text-sm uppercase tracking-widest text-white">Network Info</span>
           </div>
-          <div className="p-6 flex-1 flex flex-col justify-center space-y-4">
+          <div className="p-6 flex-1 flex flex-col justify-center space-y-2 bg-transparent">
             {[
-              { label: "Chain Length", value: `${initialStats?.chain_length || 0} blocks` },
-              { label: "Difficulty", value: initialStats?.current_difficulty.toLocaleString() || '0' },
-              { label: "Network Hashrate", value: formattedHashrate, accent: true },
-              { label: `Active Miners (Last ${initialBlocks?.length || 0} Blks)`, value: uniqueMiners.toString() },
+              { label: "Chain Length", value: `${initialStats?.chain_length || 0}` },
+              { label: "BFT Epoch", value: (initialStats?.current_epoch ?? 0).toString() },
+              { label: "Active Validators", value: "7 / 7" },
+              { label: `Unique Proposers (Last ${initialBlocks?.length || 0})`, value: uniqueProposers.toString() },
               { label: "Block Reward", value: `${initialStats ? (initialStats.mining_reward / 1_000_000).toLocaleString() : 0} QUA` },
               { label: "Total Supply", value: `${initialStats ? (initialStats.total_supply / 1_000_000).toLocaleString() : 0} QUA` },
               { label: "Pending Txs", value: (initialStats?.pending_transactions || 0).toString() },
             ].map((row) => (
-              <div key={row.label} className="flex justify-between items-center py-2 text-sm border-b border-gray-100">
-                <span className="text-gray-500 font-medium">{row.label}</span>
-                <span className={`font-bold font-mono ${row.accent ? 'text-[#00E599]' : 'text-gray-900'}`}>{row.value}</span>
+              <div key={row.label} className="flex justify-between items-center py-3 px-4 rounded-xl text-sm border border-transparent hover:border-white/5 hover:bg-white/5 transition-all">
+                <span className="font-medium text-gray-400 text-xs uppercase tracking-widest">{row.label}</span>
+                <span className="font-bold text-white font-mono">{row.value}</span>
               </div>
             ))}
           </div>
@@ -291,75 +289,75 @@ export default function DashboardClient({
       </div>
 
       {/* Latest Blocks Table */}
-      <div className="bg-white rounded-2xl shadow-xl border border-[#00E599]/30 overflow-hidden">
-        <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+      <div className="quantum-panel overflow-hidden mt-8">
+        <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full border border-teal-600/30 flex items-center justify-center">
-              <Activity className="w-4 h-4 text-teal-600" />
+            <div className="w-8 h-8 rounded-full bg-[#00E599]/10 flex items-center justify-center text-[#00E599]">
+              <Activity className="w-4 h-4" />
             </div>
-            <span className="font-bold text-sm text-gray-900 uppercase tracking-widest">Latest Blocks</span>
+            <span className="font-bold text-sm uppercase tracking-widest text-white">Latest Blocks</span>
           </div>
-          <div className="flex items-center gap-4">
-            <Link href="/blocks" className="text-sm font-semibold text-[#00E599] hover:underline transition-colors">
+          <div className="flex items-center gap-3">
+            <Link href="/blocks" className="text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-white px-3 py-1.5 rounded-lg hover:bg-white/5 transition-colors">
               View All
             </Link>
             <button
               onClick={handleRefresh}
               disabled={isRefreshing}
-              className="flex items-center gap-2 border border-gray-200 bg-gray-50 px-3 py-1.5 rounded-xl hover:border-[#00E599] hover:text-[#00E599] transition-colors text-xs text-gray-500 font-bold tracking-widest uppercase disabled:opacity-50"
+              className="flex items-center gap-2 bg-white/5 border border-white/10 text-white px-4 py-2 rounded-lg hover:bg-white/10 hover:text-[#00E599] transition-all text-xs font-bold tracking-widest uppercase disabled:opacity-50"
             >
               <RefreshCw className={`w-3 h-3 ${isRefreshing ? 'animate-spin' : ''}`} />
-              Refresh
+              Sync
             </button>
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto bg-transparent">
           <table className="w-full text-left font-mono whitespace-nowrap">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-100">
+              <tr className="border-b border-white/5">
                 <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Height</th>
                 <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Hash</th>
-                <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Miner</th>
+                <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Proposer</th>
                 <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-widest text-center">Txs</th>
-                <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Nonce</th>
+                <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Epoch</th>
                 <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-widest text-right">Time</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-white/5">
               {dbBlocks.map((block) => (
-                <tr key={block.index} className="hover:bg-gray-50 transition-colors">
+                <tr key={block.index} className="hover:bg-white/[0.02] transition-colors group">
                   <td className="py-4 px-6 text-sm font-bold">
-                    <Link href={`/block/${block.index}`} className="text-gray-900 hover:text-[#00E599] transition-colors">
+                    <Link href={`/block/${block.index}`} className="text-white group-hover:text-[#00E599] transition-colors">
                       {block.index}
                     </Link>
                   </td>
-                  <td className="py-4 px-6 text-sm text-[#00E599]">
-                    <Link href={`/block/${block.index}`} className="hover:underline opacity-80 hover:opacity-100 font-medium">
+                  <td className="py-4 px-6 text-sm">
+                    <Link href={`/block/${block.index}`} className="text-gray-400 font-medium group-hover:text-white transition-colors">
                       {block.hash?.substring(0, 8)}...{block.hash?.substring(block.hash.length - 6)}
                     </Link>
                   </td>
-                  <td className="py-4 px-6 text-sm text-teal-600">
-                    <Link href={`/address/${block.miner}`} className="hover:underline opacity-80 hover:opacity-100 font-medium">
-                      {block.miner && block.miner.length > 20
-                        ? `${block.miner.substring(0, 6)}...${block.miner.substring(block.miner.length - 6)}`
-                        : (block.miner || 'Unknown')}
+                  <td className="py-4 px-6 text-sm">
+                    <Link href={`/address/${block.proposer}`} className="text-gray-400 group-hover:text-[#00E599] font-medium transition-colors">
+                      {block.proposer && block.proposer.length > 20
+                        ? `${block.proposer.substring(0, 6)}...${block.proposer.substring(block.proposer.length - 6)}`
+                        : (block.proposer || 'GENESIS')}
                     </Link>
                   </td>
                   <td className="py-4 px-6 text-sm text-center">
-                    <span className="text-gray-600 bg-[#00E599]/10 border border-[#00E599]/20 px-2 py-0.5 rounded-full text-xs font-bold">{block.transactions?.length ?? block.txCount ?? block.tx_count ?? 0}</span>
+                    <span className="bg-white/5 text-gray-300 px-2.5 py-1 rounded-full text-xs font-bold border border-white/5 group-hover:border-[#00E599]/30 group-hover:text-[#00E599] transition-colors">{block.transactions?.length ?? block.txCount ?? block.tx_count ?? 0}</span>
                   </td>
-                  <td className="py-4 px-6 text-sm text-gray-500">
-                    {block.nonce?.toLocaleString()}
+                  <td className="py-4 px-6 text-sm font-bold text-gray-500 group-hover:text-gray-300 transition-colors">
+                    EPOCH {block.epoch ?? 0}
                   </td>
-                  <td className="py-4 px-6 text-sm text-gray-400 text-right">
+                  <td className="py-4 px-6 text-sm text-gray-500 group-hover:text-gray-300 transition-colors text-right">
                     <TimeAgo timestamp={block.timestamp} />
                   </td>
                 </tr>
               ))}
               {dbBlocks.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-gray-400 text-xs font-mono uppercase tracking-widest">
+                  <td colSpan={6} className="py-12 text-center text-gray-500 text-xs font-medium uppercase tracking-widest">
                     No block data available.
                   </td>
                 </tr>

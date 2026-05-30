@@ -35,14 +35,15 @@ export default async function BlockDetailsPage({
   const miner = block.transactions.find(tx => tx.sender === 'COINBASE')?.recipient || 'Unknown';
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 pb-16">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 pb-16 pt-24">
       {/* Page Header */}
-      <div className="flex items-center gap-4 mb-10">
-        <div className="w-14 h-14 rounded-2xl bg-[#00E599]/10 border border-[#00E599]/30 flex items-center justify-center text-[#00E599] flex-shrink-0 shadow-sm">
+      <div className="flex items-center gap-4 mb-10 relative">
+        <div className="absolute -left-10 top-0 w-32 h-32 bg-[#00E599]/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="w-14 h-14 rounded-2xl bg-[#00E599]/10 border border-[#00E599]/20 flex items-center justify-center text-[#00E599] flex-shrink-0 shadow-[0_0_15px_rgba(0,229,153,0.15)] relative z-10">
           <Box className="w-7 h-7" />
         </div>
-        <div>
-          <h1 className="text-3xl font-black tracking-tighter text-black flex items-center gap-3">
+        <div className="relative z-10">
+          <h1 className="text-3xl font-black tracking-tight text-white flex items-center gap-3 font-sans">
             Block <span className="text-[#00E599] font-mono">#{block.index}</span>
           </h1>
         </div>
@@ -51,24 +52,24 @@ export default async function BlockDetailsPage({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
         <div className="lg:col-span-2 space-y-6">
           {/* Block Identifiers */}
-          <div className="bg-white rounded-2xl shadow-xl border border-[#00E599]/30 p-6">
-            <h3 className="text-base font-bold text-gray-900 mb-6 flex items-center gap-2">
+          <div className="quantum-panel p-8">
+            <h3 className="text-sm font-bold text-white mb-6 flex items-center gap-2 uppercase tracking-widest">
               <Hash className="w-5 h-5 text-[#00E599]" />
               Block Identifiers
             </h3>
 
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div>
-                <p className="text-[10px] font-mono font-bold text-gray-500 uppercase tracking-widest mb-2">Block Hash</p>
-                <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 font-mono text-sm text-gray-700 break-all select-all">
+                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Block Hash</p>
+                <div className="bg-white/5 border border-white/10 rounded-xl p-4 font-mono text-sm text-gray-300 break-all select-all hover:bg-white/10 hover:text-white transition-colors">
                   {block.hash}
                 </div>
               </div>
 
               <div>
-                <p className="text-[10px] font-mono font-bold text-gray-500 uppercase tracking-widest mb-2">Previous Hash</p>
+                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Previous Hash</p>
                 <Link href={`/block/${block.index > 0 ? block.index - 1 : 0}`}>
-                  <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 font-mono text-sm text-[#00E599] hover:bg-[#00E599]/5 hover:border-[#00E599]/40 transition-colors break-all">
+                  <div className="bg-white/5 border border-white/10 rounded-xl p-4 font-mono text-sm text-gray-300 hover:bg-white/10 hover:text-[#00E599] hover:border-[#00E599]/30 transition-colors break-all">
                     {block.previous_hash}
                   </div>
                 </Link>
@@ -77,37 +78,37 @@ export default async function BlockDetailsPage({
           </div>
 
           {/* Transactions */}
-          <div className="bg-white rounded-2xl shadow-xl border border-[#00E599]/30 p-6">
-            <h3 className="text-base font-bold text-gray-900 mb-6 flex items-center gap-2">
+          <div className="quantum-panel p-8">
+            <h3 className="text-sm font-bold text-white mb-6 flex items-center gap-2 uppercase tracking-widest">
               <ArrowRight className="w-5 h-5 text-[#00E599]" />
-              Transactions ({block.transactions.length})
+              Transactions <span className="bg-white/5 border border-white/10 px-2 py-0.5 rounded-full text-xs">{block.transactions.length}</span>
             </h3>
 
             <div className="space-y-4">
               {block.transactions.length === 0 ? (
-                <div className="text-center py-8 text-gray-400 font-mono text-[10px] uppercase tracking-widest bg-gray-50 border border-dashed border-gray-200 rounded-xl">
+                <div className="text-center py-12 text-gray-500 font-medium text-xs uppercase tracking-widest bg-white/[0.02] border border-dashed border-white/10 rounded-xl">
                   No transactions in this block (Empty block).
                 </div>
               ) : (
                 block.transactions.map((tx, idx) => (
-                  <div key={idx} className="bg-gray-50 rounded-xl p-5 border border-gray-200 hover:border-[#00E599]/40 transition-colors">
+                  <div key={idx} className="bg-white/[0.02] rounded-xl p-6 border border-white/5 hover:border-white/20 transition-all hover:bg-white/[0.04]">
                     <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                       <div className="md:col-span-2">
-                        <p className="text-[10px] font-mono font-bold text-gray-500 uppercase tracking-widest mb-2">From</p>
-                        <Link href={`/address/${tx.sender}`} className="font-mono text-sm text-[#00E599] hover:text-teal-600 break-all transition-colors">
+                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">From</p>
+                        <Link href={`/address/${tx.sender}`} className="font-mono text-sm text-gray-400 hover:text-white break-all transition-colors font-medium">
                           {tx.sender === 'COINBASE' ? 'System (Coinbase)' : tx.sender}
                         </Link>
                       </div>
                       <div className="md:col-span-2">
-                        <p className="text-[10px] font-mono font-bold text-gray-500 uppercase tracking-widest mb-2">To</p>
-                        <Link href={`/address/${tx.recipient}`} className="font-mono text-sm text-[#00E599] hover:text-teal-600 break-all transition-colors">
+                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">To</p>
+                        <Link href={`/address/${tx.recipient}`} className="font-mono text-sm text-gray-400 hover:text-white break-all transition-colors font-medium">
                           {tx.recipient}
                         </Link>
                       </div>
                       <div className="md:col-span-1 md:text-right">
-                        <p className="text-[10px] font-mono font-bold text-gray-500 uppercase tracking-widest mb-2">Amount</p>
-                        <span className="font-mono font-bold text-[#00E599] bg-[#00E599]/10 border border-[#00E599]/20 px-3 py-1 rounded-full text-xs inline-block">
-                          {(tx.amount / 1_000_000).toLocaleString()} QUA
+                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Amount</p>
+                        <span className="font-mono font-bold text-white group-hover:text-[#00E599] transition-colors">
+                          {(tx.amount / 1_000_000).toLocaleString()} <span className="text-xs text-[#00E599]">QUA</span>
                         </span>
                       </div>
                     </div>
@@ -120,38 +121,40 @@ export default async function BlockDetailsPage({
 
         {/* Sidebar Info */}
         <div className="lg:col-span-1 space-y-6">
-          <div className="bg-white rounded-2xl shadow-xl border border-[#00E599]/30 p-6">
-            <h3 className="text-base font-bold text-gray-900 mb-6 flex items-center gap-2">
+          <div className="quantum-panel p-8">
+            <h3 className="text-sm font-bold text-white mb-6 flex items-center gap-2 uppercase tracking-widest">
               <Cpu className="w-5 h-5 text-[#00E599]" />
-              Mining Info
+              Consensus Info
             </h3>
 
             <ul className="space-y-6">
               <li>
-                <p className="text-[10px] font-mono font-bold text-gray-500 uppercase tracking-widest mb-2">Miner</p>
-                <Link href={`/address/${miner}`} className="font-mono text-sm text-[#00E599] hover:text-teal-600 break-all transition-colors">
-                  {miner}
+                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">Proposer</p>
+                <Link href={`/address/${block.proposer || 'GENESIS'}`} className="font-mono text-sm text-gray-300 hover:text-[#00E599] break-all transition-colors font-medium bg-white/5 border border-white/10 rounded-xl p-3 block hover:bg-white/10 hover:border-[#00E599]/30">
+                  {block.proposer || 'GENESIS'}
                 </Link>
               </li>
               <li>
-                <p className="text-[10px] font-mono font-bold text-gray-500 uppercase tracking-widest mb-2">Timestamp</p>
-                <div className="flex items-center gap-2 text-sm text-gray-600 font-mono">
-                  <Clock className="w-4 h-4 text-gray-400" />
+                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">Timestamp</p>
+                <div className="flex items-center gap-2 text-sm text-gray-300 font-mono bg-white/5 border border-white/10 rounded-xl p-3">
+                  <Clock className="w-4 h-4 text-gray-500" />
                   {new Date(block.timestamp * 1000).toLocaleString()}
                 </div>
               </li>
-              <li>
-                <p className="text-[10px] font-mono font-bold text-gray-500 uppercase tracking-widest mb-2">Difficulty</p>
-                <span className="font-mono text-sm text-gray-800 bg-gray-50 border border-gray-200 px-3 py-1.5 rounded-xl inline-block font-bold">
-                  {block.difficulty.toLocaleString()}
-                </span>
-              </li>
-              <li>
-                <p className="text-[10px] font-mono font-bold text-gray-500 uppercase tracking-widest mb-2">Nonce</p>
-                <span className="font-mono text-sm text-gray-800 bg-gray-50 border border-gray-200 px-3 py-1.5 rounded-xl inline-block font-bold">
-                  {block.nonce}
-                </span>
-              </li>
+              <div className="grid grid-cols-2 gap-4">
+                <li>
+                  <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">Epoch</p>
+                  <span className="font-mono text-sm text-white bg-white/5 border border-white/10 px-4 py-3 rounded-xl block text-center font-bold">
+                    {block.epoch ?? 0}
+                  </span>
+                </li>
+                <li>
+                  <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">BFT Round</p>
+                  <span className="font-mono text-sm text-white bg-white/5 border border-white/10 px-4 py-3 rounded-xl block text-center font-bold">
+                    {block.bft_round ?? 0}
+                  </span>
+                </li>
+              </div>
             </ul>
           </div>
         </div>

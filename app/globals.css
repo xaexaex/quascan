@@ -1,28 +1,33 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #ffffff;
-  --color-foreground: #000000;
-  --color-primary: #00E599;
-  --color-primary-foreground: #000000;
-  --color-secondary: #00E599;
-  --color-muted: #525252;
-  --color-card: #ffffff;
-  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --color-background: #000000;
+  --color-surface: #0a0a0a;
+  --color-surface-2: #111111;
+  --color-border: rgba(255, 255, 255, 0.05);
+  --color-border-focus: rgba(0, 229, 153, 0.5);
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #999999;
+  --color-text-muted: #666666;
+  --color-accent: #00E599;
+  --font-display: var(--font-syne), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
 }
 
 :root {
-  --background: #ffffff;
-  --foreground: #000000;
-  --primary: #00E599;
-  --secondary: #00E599;
+  --bg: #000000;
+  --surface: #0a0a0a;
+  --surface-2: #111111;
+  --border: rgba(255, 255, 255, 0.05);
+  --border-focus: rgba(0, 229, 153, 0.5);
+  --text-primary: #ffffff;
+  --text-secondary: #999999;
+  --text-muted: #666666;
+  --accent: #00E599;
 }
 
-html,
-body {
-  background-color: #ffffff !important;
-  color: #000000;
-}
+/* ===================== RESET & BASE ===================== */
 
 html {
   scroll-behavior: smooth;
@@ -30,67 +35,101 @@ html {
 }
 
 body {
-  background-color: #ffffff;
-  color: #000000;
+  background-color: var(--bg) !important;
+  color: var(--text-primary);
   font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Card style matching quanta-web */
-.scan-card {
-  background: #ffffff;
-  border: 1px solid rgba(0, 229, 153, 0.2);
-  border-radius: 1rem;
-  box-shadow: 0 20px 60px -12px rgba(0, 0, 0, 0.08), 0 4px 16px -4px rgba(0, 0, 0, 0.04);
-  transition: box-shadow 0.3s ease, transform 0.3s ease;
+* {
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
 }
 
-.scan-card:hover {
-  box-shadow: 0 24px 72px -12px rgba(0, 0, 0, 0.12), 0 8px 24px -4px rgba(0, 0, 0, 0.06);
-  transform: translateY(-2px);
-}
+/* ===================== SCROLLBAR ===================== */
 
-/* Legacy dark-card — replaced by scan-card */
-.dark-card {
-  background: #ffffff;
-  border: 1px solid rgba(0, 229, 153, 0.2);
-  border-radius: 1rem;
-  box-shadow: 0 20px 60px -12px rgba(0, 0, 0, 0.08), 0 4px 16px -4px rgba(0, 0, 0, 0.04);
-  transition: box-shadow 0.3s ease, transform 0.3s ease;
-}
-
-.dark-card:hover {
-  box-shadow: 0 24px 72px -12px rgba(0, 0, 0, 0.12), 0 8px 24px -4px rgba(0, 0, 0, 0.06);
-}
-
-.text-balance {
-  text-wrap: balance;
-}
-
-/* Mobile-specific improvements */
-@media (max-width: 640px) {
-  html {
-    font-size: 14px;
-  }
-  * {
-    -webkit-tap-highlight-color: transparent;
-  }
-}
-
-/* Improve scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: var(--bg);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
+  background: var(--border);
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: var(--accent);
+}
+
+/* ===================== TYPOGRAPHY ===================== */
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+/* ===================== QUANTUM GLASS GRID PATTERN ===================== */
+
+.hero-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.hero-grid-fade {
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, transparent 0%, var(--bg) 100%);
+}
+
+/* ===================== QUANTUM GLASS COMPONENTS ===================== */
+
+.quantum-panel {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.3s ease;
+}
+
+.quantum-panel:hover {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.quantum-glow-text {
+  text-shadow: 0 0 20px rgba(0, 229, 153, 0.4);
+}
+
+/* scan-card map to quantum-panel for easy migration */
+.scan-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  transition: all 0.3s ease;
+}
+
+.card-dark {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  transition: all 0.3s ease;
+}
+
+/* ===================== SELECTION ===================== */
+
+::selection {
+  background: rgba(0, 229, 153, 0.3);
+  color: #ffffff;
 }

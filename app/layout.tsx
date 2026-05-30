@@ -1,13 +1,22 @@
 import type { Metadata } from "next";
-import { Manrope } from "next/font/google";
+import { Inter, Syne, JetBrains_Mono } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import "./globals.css";
 
-const manrope = Manrope({
-  variable: "--font-manrope",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800"],
+});
+
+const syne = Syne({
+  variable: "--font-syne",
+  subsets: ["latin"],
+});
+
+const jetbrains = JetBrains_Mono({
+  variable: "--font-jetbrains",
+  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
@@ -55,13 +64,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" style={{ backgroundColor: '#ffffff' }}>
+    <html lang="en" className="dark">
       <body
-        className={`${manrope.variable} antialiased min-h-screen flex flex-col font-sans`}
-        style={{ backgroundColor: '#ffffff', color: '#000000' }}
+        className={`${inter.variable} ${syne.variable} ${jetbrains.variable} antialiased min-h-screen flex flex-col font-sans`}
       >
         <Navbar />
-        <main className="flex-grow pt-20 bg-white">
+        <main className="flex-grow pt-20">
           {children}
         </main>
         <Footer />

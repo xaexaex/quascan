@@ -3,7 +3,7 @@ export const RPC_URL = "https://rpc.quantachain.org";
 export interface NetworkStats {
   chain_length: number;
   total_transactions: number;
-  current_difficulty: number;
+  current_epoch: number;
   mining_reward: number;
   total_supply: number;
   pending_transactions: number;
@@ -13,10 +13,16 @@ export interface Block {
   index: number;
   timestamp: number;
   transactions: Transaction[];
-  nonce: number;
   previous_hash: string;
   hash: string;
-  difficulty: number;
+  merkle_root: string;
+  state_root: string;
+  // BFT consensus fields
+  epoch: number;
+  bft_round: number;
+  proposer: string;
+  bft_signatures: any[];
+  bft_signers: string[];
 }
 
 export interface Transaction {

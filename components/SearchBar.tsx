@@ -30,23 +30,25 @@ export default function SearchBar() {
 
   return (
     <form onSubmit={handleSearch} className="relative w-full">
-      <div className="relative flex items-center bg-white border border-gray-200 rounded-xl focus-within:ring-2 focus-within:ring-[#00E599]/30 focus-within:border-[#00E599] transition-all overflow-hidden group shadow-sm">
-        <div className="pl-3 pr-2 flex items-center pointer-events-none text-gray-400 group-focus-within:text-[#00E599]">
+      <div className="relative flex items-center bg-white/5 border border-white/10 rounded-xl focus-within:border-[#00E599]/50 focus-within:bg-white/10 transition-all overflow-hidden group shadow-lg shadow-black/50">
+        <div className="pl-4 pr-3 flex items-center pointer-events-none text-gray-500 group-focus-within:text-[#00E599] transition-colors">
           <Search className="h-4 w-4" />
         </div>
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search Block Height, Address, or Tx Hash..."
-          className="w-full py-2.5 pr-4 text-sm bg-transparent font-mono focus:outline-none placeholder:text-gray-400 text-black"
+          placeholder="Search Block, Address, Tx..."
+          className="w-full py-2.5 pr-4 text-sm bg-transparent font-medium focus:outline-none placeholder:text-gray-600 text-white"
         />
-        <button
-          type="submit"
-          className="text-[10px] font-bold text-gray-500 hover:text-[#00E599] px-3 py-1.5 mr-1 bg-gray-50 border border-gray-200 rounded-lg shadow-sm transition-colors"
-        >
-          /
-        </button>
+        <div className="pr-2">
+          <button
+            type="submit"
+            className="text-xs font-bold text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg border border-white/5 transition-colors"
+          >
+            /
+          </button>
+        </div>
       </div>
     </form>
   );
