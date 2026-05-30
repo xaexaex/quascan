@@ -10,7 +10,7 @@ export async function GET() {
 
     // 1. Calculate the timestamps for the last 14 days
     const now = new Date();
-    const days = [];
+    const days: Array<{ dateStr: string; label: string; fullDate: string; transactions: number; price: number }> = [];
     const oneDayMs = 24 * 60 * 60 * 1000;
 
     // Create list of the last 14 days (chronological order)
