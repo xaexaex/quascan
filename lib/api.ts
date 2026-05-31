@@ -154,3 +154,28 @@ export async function fetchTx(hash: string): Promise<TxDetailResponse | null> {
   }
 }
 
+export interface ValidatorInfo {
+  address: string;
+  falcon_pk_hex: string;
+  stake_microunits: number;
+  registered_epoch: number;
+  active: boolean;
+}
+
+export interface ValidatorsResponse {
+  active_count: number;
+  validators: ValidatorInfo[];
+}
+
+export async function fetchValidators(): Promise<ValidatorsResponse | null> {
+  try {
+    const res = await fetch(`${RPC_URL}/api/validators`, {
+      next: { revalidate: 30 },
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (error) {
+    console.error("Failed to fetch validators", error);
+    return null;
+  }
+}

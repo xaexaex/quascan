@@ -9,7 +9,7 @@ interface Block {
   hash: string;
   timestamp: number;
   transactions: number;
-  miner: string;
+  proposer: string;
 }
 
 export default function RecentBlocks() {
@@ -31,7 +31,7 @@ export default function RecentBlocks() {
         hash: `0x${Math.random().toString(16).substring(2, 18)}...`,
         timestamp: Date.now() - i * 10000,
         transactions: Math.floor(Math.random() * 50),
-        miner: `0x${Math.random().toString(16).substring(2, 10)}...`
+        proposer: `0x${Math.random().toString(16).substring(2, 10)}...`
       }));
       setBlocks(mockBlocks);
       setLoading(false);
@@ -91,7 +91,7 @@ export default function RecentBlocks() {
                     {formatTime(block.timestamp)}
                   </span>
                   <span>{block.transactions} txns</span>
-                  <span className="font-mono">{block.miner}</span>
+                  <span className="font-mono">{block.proposer}</span>
                 </div>
               </div>
             </div>

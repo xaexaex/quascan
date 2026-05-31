@@ -35,10 +35,10 @@ export async function syncBlocks() {
         hash: rpcBlock.hash,
         previousHash: rpcBlock.previous_hash,
         timestamp: rpcBlock.timestamp,
-        difficulty: rpcBlock.bft_round || 1,
-        nonce: rpcBlock.bft_round || 0,
+        epoch: rpcBlock.epoch || 0,
+        bftRound: rpcBlock.bft_round || 0,
         txCount: rpcBlock.transactions?.length || 0,
-        miner: rpcBlock.proposer || 'GENESIS',
+        proposer: rpcBlock.proposer || 'GENESIS',
         transactions: rpcBlock.transactions || []
       };
 
@@ -53,15 +53,15 @@ export async function syncBlocks() {
       if (rpcBlock.transactions && rpcBlock.transactions.length > 0) {
         for (const tx of rpcBlock.transactions) {
           const txData = {
-            txHash: tx.signature,
+            txHash: Array.isArray(tx.signature) ? Buffer.from(tx.signature).toString('hex') : (tx.signature || ''),
             blockHeight: rpcBlock.index,
             blockTime: rpcBlock.timestamp,
             sender: tx.sender,
             recipient: tx.recipient,
             amountMicrounits: tx.amount,
             feeMicrounits: tx.fee,
-            signature: tx.signature,
-            publicKey: tx.public_key,
+            signature: Array.isArray(tx.signature) ? Buffer.from(tx.signature).toString('hex') : (tx.signature || ''),
+            publicKey: Array.isArray(tx.public_key) ? Buffer.from(tx.public_key).toString('hex') : (tx.public_key || ''),
             txType: tx.sender === 'COINBASE' ? 'coinbase' : 'transfer'
           };
 

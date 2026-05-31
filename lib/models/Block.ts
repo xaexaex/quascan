@@ -5,10 +5,10 @@ export interface IBlock extends Document {
   hash: string;
   previousHash: string;
   timestamp: number;
-  difficulty: number;
-  nonce: number;
+  epoch: number;
+  bftRound: number;
   txCount: number;
-  miner: string;
+  proposer: string;
   transactions: any[];
 }
 
@@ -17,17 +17,17 @@ const BlockSchema: Schema = new Schema({
   hash: { type: String, required: true },
   previousHash: { type: String, required: true },
   timestamp: { type: Number, required: true },
-  difficulty: { type: Number, required: true },
-  nonce: { type: Number, required: true },
+  epoch: { type: Number, required: true },
+  bftRound: { type: Number, required: true },
   txCount: { type: Number, required: true },
-  miner: { type: String, required: true },
+  proposer: { type: String, required: true },
   transactions: { type: Array, required: true }
 }, {
   timestamps: true
 });
 
 BlockSchema.index({ hash: 1 });
-BlockSchema.index({ miner: 1 });
+BlockSchema.index({ proposer: 1 });
 BlockSchema.index({ timestamp: -1 });
 BlockSchema.index({ index: -1 });
 
