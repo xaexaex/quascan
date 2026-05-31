@@ -58,6 +58,21 @@ function TimeAgo({ timestamp }: { timestamp: number }) {
   return <>{Math.floor(diff / 86400)}d ago</>;
 }
 
+// Helper to safely format signature (handles old DB records where signature might be an array)
+function formatSignature(sig: any): string {
+  if (!sig) return "";
+  let str = "";
+  if (typeof sig === "string") {
+    str = sig;
+  } else if (Array.isArray(sig)) {
+    str = Array.from(sig).map((b: any) => b.toString(16).padStart(2, '0')).join('');
+  } else {
+    str = String(sig);
+  }
+  if (str.length <= 9) return str;
+  return `${str.substring(0, 5)}...${str.substring(str.length - 4)}`;
+}
+
 export default function DashboardClient({
   initialStats,
   initialBlocks,
@@ -541,9 +556,9 @@ export default function DashboardClient({
                                 key={tx.signature}
                                 href={`/tx/${tx.signature}`}
                                 className="text-[9px] font-mono text-accent hover:underline font-semibold"
-                                title={tx.signature}
+                                title={typeof tx.signature === 'string' ? tx.signature : 'Transaction'}
                               >
-                                {tx.signature.substring(0, 5)}...{tx.signature.substring(tx.signature.length - 4)}
+                                {formatSignature(tx.signature)}
                               </Link>
                             ))}
                           </div>
