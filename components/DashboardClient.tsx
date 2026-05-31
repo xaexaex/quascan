@@ -5,7 +5,6 @@ import Link from "next/link";
 import { NetworkStats, Block, fetchAddressInfo, AddressInfo } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { useTheme } from "@/components/ThemeProvider";
 import { 
   Activity, CircleDollarSign, Loader2, Network, RefreshCw, Layers, 
   Database, Cpu, Zap, ShieldCheck, CheckCircle2, History, 
@@ -77,7 +76,6 @@ export default function DashboardClient({
   const [historyData, setHistoryData] = useState<any[]>([]);
   const [isMounted, setIsMounted] = useState(false);
   const [checkedWallet, setCheckedWallet] = useState(false);
-  const { theme } = useTheme();
   const [exploreQuery, setExploreQuery] = useState("");
   const [isSearchingExplorer, setIsSearchingExplorer] = useState(false);
 
@@ -288,11 +286,7 @@ export default function DashboardClient({
         
         {/* Topographic Wave Image Background - Blended for light and dark themes */}
         <div 
-          className="absolute inset-0 opacity-20 dark:opacity-35 pointer-events-none overflow-hidden select-none bg-cover bg-center"
-          style={{ 
-            backgroundImage: theme === "dark" ? "url('/ripple-dark.jpg')" : "url('/ripple-light.jpg')",
-            mixBlendMode: theme === "dark" ? "screen" : "multiply" 
-          }}
+          className="absolute inset-0 opacity-20 pointer-events-none overflow-hidden select-none bg-cover bg-center bg-[url('/ripple-light.jpg')] mix-blend-multiply dark:bg-[url('/ripple-dark.jpg')] dark:opacity-35 dark:mix-blend-screen"
         />
 
         {/* Hero Exploration Panel (Left 3/5 width equivalent) */}
@@ -387,7 +381,7 @@ export default function DashboardClient({
                 <div className="p-3 rounded-lg border border-accent/20 bg-accent/5 flex items-start gap-2.5">
                   <CheckCircle2 className="w-3.5 h-3.5 text-accent flex-shrink-0 mt-0.5" />
                   <div className="text-[9px] text-text-secondary leading-normal font-semibold">
-                    <strong className="text-accent font-bold">CRYSTALS-Dilithium (Level 5)</strong> secure primitives verified compatible.
+                    <strong className="text-accent font-bold">Falcon-512 (NIST PQC)</strong> post-quantum signature scheme verified compatible.
                   </div>
                 </div>
 
@@ -465,6 +459,8 @@ export default function DashboardClient({
                       strokeWidth={1.2}
                       fillOpacity={1}
                       fill={`url(#colorGrad-${idx})`}
+                      dot={false}
+                      activeDot={false}
                     />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -540,7 +536,7 @@ export default function DashboardClient({
                         </span>
                         {block.transactions && block.transactions.length > 0 && (
                           <div className="flex flex-col gap-0.5 max-h-[48px] overflow-y-auto pr-1 select-text">
-                            {block.transactions.map((tx) => (
+                            {block.transactions.map((tx: any) => (
                               <Link
                                 key={tx.signature}
                                 href={`/tx/${tx.signature}`}
@@ -632,7 +628,8 @@ export default function DashboardClient({
                     strokeWidth={1.5}
                     fillOpacity={1}
                     fill="url(#chartGrad)"
-                    activeDot={{ r: 6, fill: "#808080", stroke: "#fff", strokeWidth: 2 }}
+                    dot={false}
+                    activeDot={{ r: 4, fill: "var(--accent)", stroke: "var(--bg)", strokeWidth: 2 }}
                   />
                 </AreaChart>
               </ResponsiveContainer>
@@ -656,11 +653,11 @@ export default function DashboardClient({
           <div className="space-y-3.5 text-xs font-semibold flex-1 flex flex-col justify-center py-2">
             <div className="flex justify-between items-center py-2 border-b border-border/40">
               <span className="text-[9px] uppercase text-text-muted tracking-widest">Algorithm</span>
-              <span className="font-mono font-bold text-text-primary">CRYSTALS-Dilithium</span>
+              <span className="font-mono font-bold text-text-primary">Falcon-512</span>
             </div>
             <div className="flex justify-between items-center py-2 border-b border-border/40">
-              <span className="text-[9px] uppercase text-text-muted tracking-widest">Security Level</span>
-              <span className="font-mono font-bold text-text-primary">Level 5</span>
+              <span className="text-[9px] uppercase text-text-muted tracking-widest">Standard</span>
+              <span className="font-mono font-bold text-text-primary">NIST PQC</span>
             </div>
             <div className="flex justify-between items-center py-2">
               <span className="text-[9px] uppercase text-text-muted tracking-widest">Quantum Resistance</span>

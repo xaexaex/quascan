@@ -18,33 +18,35 @@
 }
 
 :root {
-  /* ===================== LIGHT MODE CONFIG ===================== */
-  --bg: #f5f7fa;
-  --surface: #ffffff;
-  --surface-2: #f1f3f6;
-  --border: rgba(0, 0, 0, 0.08);
-  --border-focus: rgba(0, 184, 122, 0.5);
-  --text-primary: #1f2937;
-  --text-secondary: #4b5563;
-  --text-muted: #9ca3af;
+  /* ===================== LIGHT MODE — warm slate ===================== */
+  --bg: #eaecf2;
+  --surface: #f4f5f9;
+  --surface-2: #e8eaf0;
+  --border: rgba(0, 0, 0, 0.07);
+  --border-focus: rgba(0, 168, 119, 0.4);
+  --text-primary: #111827;
+  --text-secondary: #374151;
+  --text-muted: #6b7280;
   --accent: #00a877;
   --accent-light: rgba(0, 168, 119, 0.1);
-  --card-bg: rgba(255, 255, 255, 0.95);
+  --card-bg: rgba(255, 255, 255, 0.88);
+  --navbar-bg: rgba(234, 236, 242, 0.88);
 }
 
 .dark {
-  /* ===================== DARK MODE CONFIG ===================== */
-  --bg: #07080a;
-  --surface: #0f1013;
-  --surface-2: #16181d;
-  --border: rgba(255, 255, 255, 0.06);
-  --border-focus: rgba(0, 229, 153, 0.5);
-  --text-primary: #f9fafb;
-  --text-secondary: #9ca3af;
-  --text-muted: #4b5563;
+  /* ===================== DARK MODE — deep navy-charcoal ===================== */
+  --bg: #0b0e15;
+  --surface: #121620;
+  --surface-2: #191e2c;
+  --border: rgba(255, 255, 255, 0.07);
+  --border-focus: rgba(0, 229, 153, 0.4);
+  --text-primary: #e4e8f0;
+  --text-secondary: #828aa0;
+  --text-muted: #454d63;
   --accent: #00E599;
-  --accent-light: rgba(0, 229, 153, 0.1);
-  --card-bg: rgba(15, 16, 19, 0.7);
+  --accent-light: rgba(0, 229, 153, 0.08);
+  --card-bg: rgba(18, 22, 32, 0.88);
+  --navbar-bg: rgba(11, 14, 21, 0.92);
 }
 
 /* ===================== RESET & BASE ===================== */
@@ -62,6 +64,39 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.3s ease, color 0.3s ease;
+  min-height: 100vh;
+}
+
+/* ── Coffee-toned ambient orbs ───────────────────────────── */
+html::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 5% 0%,   rgba(160, 110, 60, 0.10) 0%, transparent 65%),
+    radial-gradient(ellipse 55% 45% at 95% 100%, rgba(130,  80, 40, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 35% at 50% 50%,  rgba(200, 150, 80, 0.04) 0%, transparent 70%);
+}
+
+/* Light mode: softer warm orbs */
+html:not(.dark)::before {
+  background:
+    radial-gradient(ellipse 70% 50% at 5% 0%,   rgba(160, 110, 60, 0.07) 0%, transparent 65%),
+    radial-gradient(ellipse 55% 45% at 95% 100%, rgba(130,  80, 40, 0.05) 0%, transparent 60%);
+}
+
+/* Subtle dot-grid texture */
+html::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: radial-gradient(circle, var(--text-muted) 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: 0.035;
 }
 
 * {
@@ -72,8 +107,8 @@ body {
 /* ===================== SCROLLBAR ===================== */
 
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -105,24 +140,26 @@ body {
   background: var(--card-bg);
   border: 1px solid var(--border);
   border-radius: 16px;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+  position: relative;
+  z-index: 1;
 }
 
 .dark .quantum-panel {
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.35);
 }
 
 .quantum-panel:hover {
-  border-color: rgba(0, 229, 153, 0.2);
-  box-shadow: 0 10px 40px rgba(0, 229, 153, 0.03);
+  border-color: rgba(0, 229, 153, 0.18);
+  box-shadow: 0 8px 32px rgba(0, 229, 153, 0.04);
 }
 
 .dark .quantum-panel:hover {
-  border-color: rgba(0, 229, 153, 0.2);
-  box-shadow: 0 10px 40px rgba(0, 229, 153, 0.05);
+  border-color: rgba(0, 229, 153, 0.18);
+  box-shadow: 0 8px 40px rgba(0, 229, 153, 0.06);
 }
 
 .quantum-glow-text {
@@ -149,7 +186,7 @@ body {
 /* ===================== SELECTION ===================== */
 
 ::selection {
-  background: rgba(0, 229, 153, 0.3);
+  background: rgba(0, 229, 153, 0.25);
   color: #ffffff;
 }
 
@@ -198,4 +235,3 @@ body {
   animation: laserScan 4s linear infinite;
   pointer-events: none;
 }
-
