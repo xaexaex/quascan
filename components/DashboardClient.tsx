@@ -5,9 +5,9 @@ import Link from "next/link";
 import { NetworkStats, Block, fetchAddressInfo, AddressInfo } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { 
-  Activity, CircleDollarSign, Loader2, Network, RefreshCw, Layers, 
-  Database, Cpu, Zap, ShieldCheck, CheckCircle2, History, 
+import {
+  Activity, CircleDollarSign, Loader2, Network, RefreshCw, Layers,
+  Database, Cpu, Zap, ShieldCheck, CheckCircle2, History,
   ArrowRightCircle, ArrowLeftCircle, Lock, ArrowRight, Clock, Search
 } from "lucide-react";
 
@@ -86,7 +86,6 @@ export default function DashboardClient({
   const [walletInfo, setWalletInfo] = useState<AddressInfo | null>(null);
   const [walletError, setWalletError] = useState("");
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [indexerStatus, setIndexerStatus] = useState<any>(null);
   const [dbBlocks, setDbBlocks] = useState<any[]>([]);
   const [historyData, setHistoryData] = useState<any[]>([]);
   const [isMounted, setIsMounted] = useState(false);
@@ -120,28 +119,6 @@ export default function DashboardClient({
   useEffect(() => {
     setIsMounted(true);
   }, []);
-
-  // Fetch indexer status
-  useEffect(() => {
-    const fetchIndexerStatus = async () => {
-      try {
-        const res = await fetch('/api/indexer/status');
-        if (res.ok) {
-          const data = await res.json();
-          setIndexerStatus(data);
-        }
-      } catch (e) {
-        console.error('Failed to fetch indexer status', e);
-      }
-    };
-    fetchIndexerStatus();
-    const interval = setInterval(() => {
-      if (!indexerStatus?.isSynced) {
-        fetchIndexerStatus();
-      }
-    }, 10000);
-    return () => clearInterval(interval);
-  }, [indexerStatus?.isSynced]);
 
   // Fetch latest blocks from DB
   useEffect(() => {
@@ -239,17 +216,17 @@ export default function DashboardClient({
   // ===================== DYNAMIC DATABASE GRAPH DATA MAPPING =====================
   // Sort blocks chronologically for standard Sparklines (Genesis to Latest index)
   const chartBlocks = dbBlocks.length > 0 ? [...dbBlocks].reverse() : [];
-  
+
   // Real dynamic sparkline data mapping from database
-  const heightChartData = chartBlocks.length > 0 
-    ? chartBlocks.map(b => ({ val: b.index })) 
+  const heightChartData = chartBlocks.length > 0
+    ? chartBlocks.map(b => ({ val: b.index }))
     : [{ val: 0 }, { val: 1 }];
 
-  const validatorChartData = chartBlocks.length > 0 
-    ? chartBlocks.map(() => ({ val: 7 })) 
+  const validatorChartData = chartBlocks.length > 0
+    ? chartBlocks.map(() => ({ val: 7 }))
     : [{ val: 7 }, { val: 7 }];
 
-  const supplyChartData = chartBlocks.length > 0 
+  const supplyChartData = chartBlocks.length > 0
     ? chartBlocks.map(() => ({ val: initialStats ? (initialStats.total_supply / 1_000_000) : 50000 }))
     : [{ val: 50000 }, { val: 50000 }];
 
@@ -295,12 +272,12 @@ export default function DashboardClient({
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 pb-16 pt-6 transition-colors duration-300">
-      
+
       {/* ===================== HERO SECTION WITH CONTOUR WAVES ===================== */}
       <div className="quantum-panel relative overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch p-6 sm:p-8 border border-border shadow-sm">
-        
+
         {/* Topographic Wave Image Background - Blended for light and dark themes */}
-        <div 
+        <div
           className="absolute inset-0 opacity-20 pointer-events-none overflow-hidden select-none bg-cover bg-center bg-[url('/ripple-light.jpg')] mix-blend-multiply dark:bg-[url('/ripple-dark.jpg')] dark:opacity-35 dark:mix-blend-screen"
         />
 
@@ -312,7 +289,7 @@ export default function DashboardClient({
           <p className="text-text-secondary text-xs sm:text-sm font-semibold max-w-lg">
             Search for blocks, transactions, addresses, tokens, and more
           </p>
-          
+
           {/* Main Hero Search Bar */}
           <div className="max-w-xl bg-surface rounded-2xl p-1.5 border border-border shadow-sm focus-within:border-accent/40 transition-all flex items-center overflow-hidden">
             <div className="pl-3 pr-1.5 text-text-muted">
@@ -324,7 +301,7 @@ export default function DashboardClient({
               value={exploreQuery}
               onChange={(e) => setExploreQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleExplorerSearch()}
-              className="flex-1 bg-transparent p-2.5 text-xs font-semibold text-text-primary focus:outline-none placeholder:text-text-muted"
+              className="flex-1 min-w-0 w-full bg-transparent p-2.5 text-xs font-semibold text-text-primary focus:outline-none placeholder:text-text-muted"
             />
             <button
               onClick={handleExplorerSearch}
@@ -342,10 +319,12 @@ export default function DashboardClient({
             {[
               { name: "Latest Blocks", action: () => router.push("/blocks") },
               { name: "Checkpoints Status", action: () => router.push("/checkpoints") },
-              { name: "PQC Wallet Check", action: () => {
-                const el = document.getElementById("wallet-checker-section");
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-              }}
+              {
+                name: "PQC Wallet Check", action: () => {
+                  const el = document.getElementById("wallet-checker-section");
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }
+              }
             ].map((item) => (
               <button
                 key={item.name}
@@ -375,7 +354,7 @@ export default function DashboardClient({
                 value={addressInput}
                 onChange={(e) => setAddressInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleCheckBalance()}
-                className="flex-1 bg-transparent p-2.5 text-[10px] font-mono text-text-primary focus:outline-none placeholder:text-text-muted"
+                className="flex-1 min-w-0 w-full bg-transparent p-2.5 text-[10px] font-mono text-text-primary focus:outline-none placeholder:text-text-muted"
                 spellCheck={false}
               />
               <button
@@ -463,8 +442,8 @@ export default function DashboardClient({
                   <AreaChart data={card.data}>
                     <defs>
                       <linearGradient id={`colorGrad-${idx}`} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="var(--accent)" stopOpacity={0.15}/>
-                        <stop offset="95%" stopColor="var(--accent)" stopOpacity={0.0}/>
+                        <stop offset="5%" stopColor="var(--accent)" stopOpacity={0.15} />
+                        <stop offset="95%" stopColor="var(--accent)" stopOpacity={0.0} />
                       </linearGradient>
                     </defs>
                     <Area
@@ -487,7 +466,7 @@ export default function DashboardClient({
 
       {/* ===================== ROW 3: MAIN CONTENT SECTION (SYMMETRICAL 2x2 GRID) ===================== */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-        
+
         {/* Latest Blocks Table (Top-Left 1/2) */}
         <div className="quantum-panel overflow-hidden border border-border flex flex-col justify-between">
           <div className="px-5 py-4 border-b border-border flex items-center justify-between bg-surface-2/20">
@@ -596,34 +575,34 @@ export default function DashboardClient({
           <div className="flex-1 w-full h-[240px] mt-2 relative">
             {isMounted && historyData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart 
-                  data={historyData} 
+                <AreaChart
+                  data={historyData}
                   margin={{ top: 10, right: 10, left: -25, bottom: 0 }}
                 >
                   <defs>
                     <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="var(--accent)" stopOpacity={0.15}/>
-                      <stop offset="95%" stopColor="var(--accent)" stopOpacity={0.0}/>
+                      <stop offset="5%" stopColor="var(--accent)" stopOpacity={0.15} />
+                      <stop offset="95%" stopColor="var(--accent)" stopOpacity={0.0} />
                     </linearGradient>
                   </defs>
-                  <XAxis 
-                    dataKey="label" 
-                    tickLine={false} 
+                  <XAxis
+                    dataKey="label"
+                    tickLine={false}
                     axisLine={false}
                     dy={8}
                     tick={{ fill: "var(--text-muted)", fontSize: 10, fontWeight: 600 }}
                     ticks={
-                      historyData.length >= 14 
+                      historyData.length >= 14
                         ? [
-                            historyData[0].label, 
-                            historyData[Math.floor(historyData.length / 2)].label, 
-                            historyData[historyData.length - 1].label
-                          ] 
+                          historyData[0].label,
+                          historyData[Math.floor(historyData.length / 2)].label,
+                          historyData[historyData.length - 1].label
+                        ]
                         : []
                     }
                   />
-                  <YAxis 
-                    tickLine={false} 
+                  <YAxis
+                    tickLine={false}
                     axisLine={false}
                     dx={-8}
                     tick={{ fill: "var(--text-muted)", fontSize: 10, fontWeight: 600 }}
@@ -631,8 +610,8 @@ export default function DashboardClient({
                     domain={[0, "auto"]}
                     allowDecimals={false}
                   />
-                  <Tooltip 
-                    content={<CustomTooltip />} 
+                  <Tooltip
+                    content={<CustomTooltip />}
                     cursor={{ stroke: "var(--border)", strokeWidth: 1, strokeDasharray: "3 3" }}
                     position={{ y: 20 }}
                   />

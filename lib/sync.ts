@@ -46,29 +46,34 @@ export async function syncBlocks() {
       await Block.findOneAndUpdate(
         { index: rpcBlock.index },
         blockData,
-        { upsert: true, new: true, runValidators: true }
+        { upsert: true, returnDocument: 'after', runValidators: true }
       );
 
       // 2. Format and upsert each transaction in the block
       if (rpcBlock.transactions && rpcBlock.transactions.length > 0) {
         for (const tx of rpcBlock.transactions) {
+          const txPayload = (tx as any).V2_Falcon512 || (tx as any).V1_Ed25519 || tx;
+
           const txData = {
-            txHash: Array.isArray(tx.signature) ? Buffer.from(tx.signature).toString('hex') : (tx.signature || ''),
+            txHash: Array.isArray(txPayload.signature) ? Buffer.from(txPayload.signature).toString('hex') : (txPayload.signature || ''),
             blockHeight: rpcBlock.index,
             blockTime: rpcBlock.timestamp,
-            sender: tx.sender,
-            recipient: tx.recipient,
-            amountMicrounits: tx.amount,
-            feeMicrounits: tx.fee,
-            signature: Array.isArray(tx.signature) ? Buffer.from(tx.signature).toString('hex') : (tx.signature || ''),
-            publicKey: Array.isArray(tx.public_key) ? Buffer.from(tx.public_key).toString('hex') : (tx.public_key || ''),
-            txType: tx.sender === 'COINBASE' ? 'coinbase' : 'transfer'
+            sender: txPayload.sender || '',
+            recipient: txPayload.recipient || txPayload.receiver || '',
+            amountMicrounits: txPayload.amount || 0,
+            feeMicrounits: txPayload.fee || 0,
+            signature: Array.isArray(txPayload.signature) ? Buffer.from(txPayload.signature).toString('hex') : (txPayload.signature || ''),
+            publicKey: Array.isArray(txPayload.public_key) ? Buffer.from(txPayload.public_key).toString('hex') : (txPayload.public_key || ''),
+            txType: txPayload.sender === 'COINBASE' ? 'coinbase' : 'transfer'
           };
 
+          const hashKey = txData.txHash;
+          if (!hashKey) continue;
+
           await Transaction.findOneAndUpdate(
-            { txHash: tx.signature },
+            { txHash: hashKey },
             txData,
-            { upsert: true, new: true, runValidators: true }
+            { upsert: true, returnDocument: 'after', runValidators: true }
           );
         }
       }
@@ -79,7 +84,7 @@ export async function syncBlocks() {
       await IndexerState.findOneAndUpdate(
         { key: 'last_indexed_block' },
         { key: 'last_indexed_block', value: maxIndex },
-        { upsert: true, new: true }
+        { upsert: true, returnDocument: 'after' }
       );
     }
 

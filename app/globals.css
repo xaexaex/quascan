@@ -29,6 +29,7 @@
   --text-muted: #6b7280;
   --accent: #00a877;
   --accent-light: rgba(0, 168, 119, 0.1);
+  --accent-ai: #00d2ff;
   --card-bg: rgba(255, 255, 255, 0.88);
   --navbar-bg: rgba(234, 236, 242, 0.88);
 }
@@ -45,6 +46,7 @@
   --text-muted: #454d63;
   --accent: #00E599;
   --accent-light: rgba(0, 229, 153, 0.08);
+  --accent-ai: #00d2ff;
   --card-bg: rgba(18, 22, 32, 0.88);
   --navbar-bg: rgba(11, 14, 21, 0.92);
 }
@@ -152,6 +154,19 @@ html::after {
   box-shadow: 0 4px 32px rgba(0, 0, 0, 0.35);
 }
 
+.quantum-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent 50%, rgba(255,255,255,0.02));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
 .quantum-panel:hover {
   border-color: rgba(0, 229, 153, 0.18);
   box-shadow: 0 8px 32px rgba(0, 229, 153, 0.04);
@@ -162,24 +177,35 @@ html::after {
   box-shadow: 0 8px 40px rgba(0, 229, 153, 0.06);
 }
 
+.ai-panel {
+  border-color: rgba(0, 210, 255, 0.2);
+}
+.ai-panel:hover {
+  border-color: rgba(0, 210, 255, 0.4);
+}
+
 .quantum-glow-text {
   text-shadow: 0 0 20px rgba(0, 229, 153, 0.4);
+}
+.ai-glow-text {
+  text-shadow: 0 0 20px rgba(0, 210, 255, 0.5);
 }
 
 /* scan-card map to quantum-panel for easy migration */
 .scan-card {
   background: var(--card-bg);
   border: 1px solid var(--border);
-  border-radius: 16px;
-  backdrop-filter: blur(12px);
+  border-radius: 20px;
+  backdrop-filter: blur(24px);
   transition: all 0.3s ease;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
 }
 
 .card-dark {
   background: var(--card-bg);
   border: 1px solid var(--border);
-  border-radius: 16px;
-  backdrop-filter: blur(12px);
+  border-radius: 20px;
+  backdrop-filter: blur(24px);
   transition: all 0.3s ease;
 }
 
