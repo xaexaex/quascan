@@ -199,7 +199,7 @@ export default function DashboardClient({
           </div>
           <input
             type="text"
-            placeholder="Address · Tx Hash · Block number..."
+            placeholder="Search address, tx, or block..."
             value={exploreQuery}
             onChange={(e) => setExploreQuery(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleExplorerSearch()}
@@ -212,6 +212,7 @@ export default function DashboardClient({
               fontFamily: "var(--font-mono)",
               fontSize: "0.875rem",
               color: "var(--c-text-1)",
+              textOverflow: "ellipsis",
             }}
           />
           <button

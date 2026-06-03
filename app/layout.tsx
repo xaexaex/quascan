@@ -3,6 +3,13 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import "./globals.css";
 
+export const viewport = {
+  themeColor: "#0D0402",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.quascan.xyz"),
   title: "QuaScan | QuantaChain Block Explorer | Post-Quantum Blockchain",

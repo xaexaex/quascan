@@ -156,6 +156,7 @@ export default function Navbar() {
             flexShrink: 0,
             padding: 0,
             color: "var(--c-text-2)",
+            marginLeft: "auto",
           }}
         >
           {open ? (
