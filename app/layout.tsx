@@ -1,80 +1,61 @@
 import type { Metadata } from "next";
-import { Inter, Syne, JetBrains_Mono } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
-
-const syne = Syne({
-  variable: "--font-syne",
-  subsets: ["latin"],
-});
-
-const jetbrains = JetBrains_Mono({
-  variable: "--font-jetbrains",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
-  metadataBase: new URL("https://scan.quantachain.org"),
-  title: "QuaScan | Quantum-Resistant Blockchain Explorer",
-  description: "Real-time blockchain explorer for the quantum-resistant Quanta network. View blocks, transactions, mempool, and network statistics.",
-  keywords: ["quanta", "blockchain", "explorer", "quascan", "quantum-resistant", "pqc"],
+  metadataBase: new URL("https://www.quascan.xyz"),
+  title: "QuaScan | QuantaChain Block Explorer | Post-Quantum Blockchain",
+  description: "Explore blocks, transactions, and validators on QuantaChain — the world's first Falcon-512 secured post-quantum blockchain. Built for AI agents, DePIN, and M2M.",
+  keywords: ["post-quantum blockchain", "Falcon-512 blockchain", "quantum-safe blockchain explorer", "quanta", "blockchain", "explorer", "quascan", "ai", "depin", "m2m"],
   authors: [{ name: "QuantaChain Team" }],
   openGraph: {
-    title: "QuaScan | Quantum-Resistant Blockchain Explorer",
-    description: "Real-time blockchain explorer for the quantum-resistant Quanta network. View blocks, transactions, mempool, and network statistics.",
-    url: "https://scan.quantachain.org",
+    title: "QuaScan | QuantaChain Block Explorer | Post-Quantum Blockchain",
+    description: "Explore blocks, transactions, and validators on QuantaChain — the world's first Falcon-512 secured post-quantum blockchain. Built for AI agents, DePIN, and M2M.",
+    url: "https://www.quascan.xyz",
     siteName: "QuaScan",
-    images: [
-      {
-        url: "/seo/image.png",
-        width: 1200,
-        height: 630,
-        alt: "QuaScan Explorer",
-      },
-    ],
+    images: [{ url: "/seo/image.png", width: 1200, height: 630, alt: "QuaScan Explorer" }],
     locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "QuaScan | Quantum-Resistant Blockchain Explorer",
-    description: "Real-time blockchain explorer for the quantum-resistant Quanta network.",
+    title: "QuaScan | QuantaChain Block Explorer | Post-Quantum Blockchain",
+    description: "Explore blocks, transactions, and validators on QuantaChain — the world's first Falcon-512 secured post-quantum blockchain.",
     images: ["/seo/image.png"],
     creator: "@quantachain",
   },
-  icons: {
-    icon: "/favicon.ico",
-  },
+  icons: { icon: "/favicon.svg" },
   manifest: "/site.webmanifest",
-  robots: {
-    index: true,
-    follow: true,
-  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${inter.variable} ${syne.variable} ${jetbrains.variable} antialiased min-h-screen flex flex-col font-sans`}
-      >
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Preconnect for Google Fonts */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* EB Garamond (editorial serif) + Geist (sans + mono) */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@300;400;500;600&display=swap"
+          rel="stylesheet"
+        />
+        {/* Anti-flash: apply saved theme before first paint */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('qsTheme');if(t==='light'){document.documentElement.setAttribute('data-theme','light')}else{document.documentElement.removeAttribute('data-theme')}}catch(e){}})()`,
+          }}
+        />
+      </head>
+      <body suppressHydrationWarning>
         <Navbar />
-        <main className="flex-grow pt-16">
-          {children}
-        </main>
+        <main style={{ paddingTop: "64px" }}>{children}</main>
         <Footer />
       </body>
     </html>
   );
 }
-

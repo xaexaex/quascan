@@ -4,11 +4,12 @@ import { Box, Hash, Clock, Cpu, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import CopyButton from '@/components/CopyButton';
+import BackButton from '@/components/BackButton';
 
 export async function generateMetadata({ params }: { params: Promise<{ height: string }> }): Promise<Metadata> {
   const p = await params;
   return {
-    title: `Block #${p.height} | QuaScan Explorer`,
+    title: `Block #${p.height} | Quanta Explorer`,
     description: `Details for block #${p.height} on the Quanta network.`,
   };
 }
@@ -34,134 +35,141 @@ export default async function BlockDetailsPage({
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 pb-16 pt-24 transition-colors duration-300">
+    <div className="page-wrap">
+      <BackButton />
+      
       {/* Page Header */}
-      <div className="flex items-center gap-4 mb-8 border-b border-border pb-6 relative">
-        <div className="w-12 h-12 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent shadow-sm">
-          <Box className="w-6 h-6" />
+      <div className="page-header">
+        <div className="page-icon">
+          <Box size={20} />
         </div>
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-text-primary flex items-center gap-3 font-sans uppercase">
-            Block <span className="text-accent font-mono">#{block.index}</span>
-          </h1>
+          <span className="page-title">Block Identifiers</span>
+          <h1 className="page-heading">Block <span style={{ color: "var(--c-accent)", fontFamily: "var(--font-mono)", fontWeight: 400 }}>#{block.index}</span></h1>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-6">
-          {/* Block Identifiers */}
-          <div className="quantum-panel p-6 border border-border">
-            <h3 className="text-xs font-bold text-text-primary mb-6 flex items-center gap-2 uppercase tracking-widest pb-3 border-b border-border">
-              <Hash className="w-4 h-4 text-accent" />
-              Block Identifiers
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 32, marginBottom: 32, alignItems: "start" }}>
+        
+        {/* Left Column */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+          
+          <div className="panel" style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            <h3 style={{ display: "flex", alignItems: "center", gap: 8, paddingBottom: 16, borderBottom: "1px solid var(--c-border)", margin: 0 }}>
+              <Hash size={14} color="var(--c-accent)" />
+              <span className="panel-section-label">Block Identifiers</span>
             </h3>
-
-            <div className="space-y-6">
+            
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <div>
-                <div className="flex justify-between items-center text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">
-                  <span>Block Hash</span>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <span className="field-label" style={{ marginBottom: 0 }}>Block Hash</span>
                   <CopyButton text={block.hash} />
                 </div>
-                <div className="bg-surface-2 border border-border rounded-xl p-3.5 font-mono text-xs text-text-primary break-all hover:bg-surface transition-colors font-semibold">
-                  {block.hash}
-                </div>
+                <div className="hash-box">{block.hash}</div>
               </div>
-
+              
               <div>
-                <div className="flex justify-between items-center text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">
-                  <span>Previous Hash</span>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <span className="field-label" style={{ marginBottom: 0 }}>Previous Hash</span>
                   <CopyButton text={block.previous_hash} />
                 </div>
-                <Link href={`/block/${block.index > 0 ? block.index - 1 : 0}`}>
-                  <div className="bg-surface border border-border rounded-xl p-3.5 font-mono text-xs text-text-secondary hover:text-accent hover:border-accent/30 transition-all break-all font-semibold">
+                <Link href={`/block/${block.index > 0 ? block.index - 1 : 0}`} style={{ textDecoration: "none" }}>
+                  <div className="hash-box hover-border-accent" style={{ color: "var(--c-text-2)", transition: "all var(--t)" }}>
                     {block.previous_hash}
                   </div>
                 </Link>
               </div>
             </div>
           </div>
-
-          {/* Transactions list */}
-          <div className="quantum-panel p-6 border border-border">
-            <h3 className="text-xs font-bold text-text-primary mb-6 flex items-center gap-2 uppercase tracking-widest pb-3 border-b border-border">
-              <ArrowRight className="w-4 h-4 text-accent" />
-              Transactions <span className="ml-1 px-2.5 py-0.5 rounded-full bg-accent/10 border border-accent/20 text-[10px] text-accent font-bold">{block.transactions?.length || 0}</span>
+          
+          <div className="panel" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <h3 style={{ display: "flex", alignItems: "center", gap: 8, paddingBottom: 16, borderBottom: "1px solid var(--c-border)", margin: 0 }}>
+              <ArrowRight size={14} color="var(--c-accent)" />
+              <span className="panel-section-label">Transactions</span>
+              <span className="tag" style={{ fontSize: "0.5rem", marginLeft: 4 }}>{block.transactions?.length || 0}</span>
             </h3>
-
-            <div className="space-y-3.5">
+            
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {(!block.transactions || block.transactions.length === 0) ? (
-                <div className="text-center py-10 text-text-muted font-bold text-[10px] uppercase tracking-widest bg-surface-2/10 border border-dashed border-border rounded-xl">
-                  No transactions in this block (Empty block).
+                <div style={{ textAlign: "center", padding: "40px 20px", border: "1px dashed var(--c-border)", background: "var(--c-bg-alt)" }}>
+                  <span className="panel-section-label">No transactions in this block (Empty block).</span>
                 </div>
               ) : (
                 block.transactions.map((tx, idx) => (
-                  <div key={idx} className="bg-surface-2/20 rounded-xl p-5 border border-border hover:border-accent/20 transition-all hover:bg-surface">
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 text-xs font-semibold">
-                      <div className="md:col-span-2">
-                        <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1.5">From</p>
-                        <Link href={`/address/${tx.sender}`} className="font-mono text-text-secondary hover:text-accent break-all transition-colors font-bold">
+                  <div key={idx} className="hover-border-accent" style={{ padding: 16, background: "var(--c-bg-alt)", border: "1px solid var(--c-border)", display: "flex", flexDirection: "column", gap: 12, transition: "border-color var(--t)" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                      <div>
+                        <span className="field-label">From</span>
+                        <Link href={`/address/${tx.sender}`} style={{ fontFamily: "var(--font-mono)", fontSize: "0.6875rem", color: "var(--c-text-2)", textDecoration: "none", wordBreak: "break-all" }}>
                           {tx.sender === 'COINBASE' ? 'System (Coinbase)' : tx.sender}
                         </Link>
                       </div>
-                      <div className="md:col-span-2">
-                        <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1.5">To</p>
-                        <Link href={`/address/${tx.recipient}`} className="font-mono text-text-secondary hover:text-accent break-all transition-colors font-bold">
+                      <div>
+                        <span className="field-label">To</span>
+                        <Link href={`/address/${tx.recipient}`} style={{ fontFamily: "var(--font-mono)", fontSize: "0.6875rem", color: "var(--c-text-2)", textDecoration: "none", wordBreak: "break-all" }}>
                           {tx.recipient}
                         </Link>
                       </div>
-                      <div className="md:col-span-1 md:text-right flex md:flex-col items-center md:items-end justify-between border-t md:border-t-0 pt-2 md:pt-0 border-border">
-                        <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1">Amount</p>
-                        <span className="font-mono font-black text-text-primary">
-                          {(tx.amount / 1_000_000).toLocaleString()} <span className="text-[10px] text-accent font-bold">QUA</span>
-                        </span>
-                      </div>
+                    </div>
+                    <div style={{ paddingTop: 12, borderTop: "1px solid var(--c-border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span className="field-label" style={{ marginBottom: 0 }}>Amount</span>
+                      <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.875rem", color: "var(--c-text-1)" }}>
+                        {(tx.amount / 1_000_000).toLocaleString()} <span style={{ color: "var(--c-accent)", fontSize: "0.6875rem" }}>QUA</span>
+                      </span>
                     </div>
                   </div>
                 ))
               )}
             </div>
           </div>
+          
         </div>
-
-        {/* Sidebar Info */}
-        <div className="lg:col-span-1 space-y-6">
-          <div className="quantum-panel p-6 border border-border">
-            <h3 className="text-xs font-bold text-text-primary mb-6 flex items-center gap-2 uppercase tracking-widest pb-3 border-b border-border">
-              <Cpu className="w-4 h-4 text-accent" />
-              Consensus Info
+        
+        {/* Right Column / Sidebar Info */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+          <div className="panel" style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            <h3 style={{ display: "flex", alignItems: "center", gap: 8, paddingBottom: 16, borderBottom: "1px solid var(--c-border)", margin: 0 }}>
+              <Cpu size={14} color="var(--c-accent)" />
+              <span className="panel-section-label">Consensus Info</span>
             </h3>
-
-            <ul className="space-y-5 text-xs font-semibold">
-              <li>
-                <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Block Proposer</p>
-                <Link href={`/address/${block.proposer || 'GENESIS'}`} className="font-mono text-xs text-text-secondary hover:text-accent break-all transition-colors font-bold bg-surface-2 border border-border rounded-xl p-3 block hover:border-accent/30">
-                  {block.proposer || 'GENESIS'}
+            
+            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+              <div>
+                <span className="field-label">Block Proposer</span>
+                <Link href={`/address/${block.proposer || 'GENESIS'}`} style={{ textDecoration: "none" }}>
+                  <div className="hash-box" style={{ background: "var(--c-bg-alt)", display: "block" }}>
+                    {block.proposer || 'GENESIS'}
+                  </div>
                 </Link>
-              </li>
-              <li>
-                <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Mined Timestamp</p>
-                <div className="flex items-center gap-2 text-text-primary font-mono bg-surface border border-border rounded-xl p-3">
-                  <Clock className="w-4 h-4 text-text-muted" />
+              </div>
+              
+              <div>
+                <span className="field-label">Mined Timestamp</span>
+                <div className="hash-box" style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--c-text-1)" }}>
+                  <Clock size={14} color="var(--c-text-3)" />
                   {new Date(block.timestamp * 1000).toLocaleString()}
                 </div>
-              </li>
-              <div className="grid grid-cols-2 gap-4">
-                <li>
-                  <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Epoch</p>
-                  <span className="font-mono text-text-primary bg-surface-2 border border-border px-4 py-2.5 rounded-xl block text-center font-bold">
-                    Epoch {block.epoch ?? 0}
-                  </span>
-                </li>
-                <li>
-                  <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">BFT Round</p>
-                  <span className="font-mono text-text-primary bg-surface-2 border border-border px-4 py-2.5 rounded-xl block text-center font-bold">
-                    Round {block.bft_round ?? 0}
-                  </span>
-                </li>
               </div>
-            </ul>
+              
+              <div style={{ display: "flex", gap: 12 }}>
+                <div style={{ flex: 1 }}>
+                  <span className="field-label">Epoch</span>
+                  <div className="hash-box" style={{ background: "var(--c-bg-alt)", textAlign: "center", color: "var(--c-text-1)" }}>
+                    Epoch {block.epoch ?? 0}
+                  </div>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <span className="field-label">BFT Round</span>
+                  <div className="hash-box" style={{ background: "var(--c-bg-alt)", textAlign: "center", color: "var(--c-text-1)" }}>
+                    Round {block.bft_round ?? 0}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+        
       </div>
     </div>
   );

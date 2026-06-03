@@ -1,14 +1,15 @@
 import { Metadata } from 'next';
 import { fetchTx } from '@/lib/api';
-import { Hash, Clock, Cpu, ArrowRight, Activity, ArrowRightLeft, Database, AlertCircle, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { Hash, Clock, Cpu, ArrowRight, ArrowRightLeft, Database, AlertCircle, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import CopyButton from '@/components/CopyButton';
+import BackButton from '@/components/BackButton';
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const p = await params;
   return {
-    title: `Tx ${p.id.substring(0, 10)}... | QuaScan Explorer`,
+    title: `Tx ${p.id.substring(0, 10)}... | Quanta Explorer`,
     description: `Details for transaction ${p.id} on the Quanta network.`,
   };
 }
@@ -30,29 +31,31 @@ export default async function TxDetailsPage({
 
   if (!txData) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-32 text-center pt-24">
-        <div className="inline-flex justify-center items-center w-20 h-20 rounded-full bg-red-500/10 border border-red-500/20 mb-8 text-red-500 shadow-md">
-          <AlertCircle className="w-9 h-9" />
+      <div className="page-wrap" style={{ textAlign: "center", padding: "120px 20px" }}>
+        <div style={{ display: "inline-flex", justifyContent: "center", alignItems: "center", width: 80, height: 80, borderRadius: "50%", background: "rgba(224, 82, 82, 0.1)", border: "1px solid rgba(224, 82, 82, 0.2)", color: "var(--c-err)", marginBottom: 32 }}>
+          <AlertCircle size={36} />
         </div>
-        <h1 className="text-3xl font-black text-text-primary mb-5 font-sans tracking-tight">Transaction Not Found</h1>
-        <p className="text-text-secondary max-w-lg mx-auto mb-10 leading-relaxed text-xs font-semibold flex items-center justify-center flex-wrap gap-2">
-          The transaction <span className="text-text-primary bg-surface-2 border border-border px-3 py-1.5 rounded-lg inline-block font-mono text-[10px] font-bold">{id.substring(0, 20)}...</span> could not be found via the Node RPC.
+        <h1 className="page-heading">Transaction Not Found</h1>
+        <p className="field-label" style={{ marginTop: 20, marginBottom: 40, display: "flex", alignItems: "center", justifyContent: "center", flexWrap: "wrap", gap: 8 }}>
+          The transaction <span className="tag" style={{ background: "var(--c-bg)", color: "var(--c-text-1)", fontFamily: "var(--font-mono)" }}>{id.substring(0, 20)}...</span> could not be found via the Node RPC.
         </p>
-        <div className="quantum-panel p-8 max-w-2xl mx-auto text-left relative overflow-hidden border border-border">
-          <h3 className="text-text-primary font-bold mb-3 flex items-center gap-2 text-xs uppercase tracking-widest relative z-10">
-            <Database className="w-4 h-4 text-accent" />
-            Storage Index Note
+        
+        <div className="panel" style={{ maxWidth: 640, margin: "0 auto", textAlign: "left" }}>
+          <h3 style={{ display: "flex", alignItems: "center", gap: 8, margin: 0, paddingBottom: 16, borderBottom: "1px solid var(--c-border)", color: "var(--c-text-1)" }}>
+            <Database size={14} color="var(--c-accent)" />
+            <span className="panel-section-label">Storage Index Note</span>
           </h3>
-          <p className="text-text-secondary text-xs leading-relaxed mb-5 font-semibold relative z-10">
-            This Quanta Node is currently configured to <strong className="font-bold text-text-primary">skip indexing Miner Rewards (Coinbase) and Treasury transactions</strong> in its internal database to conserve disk space. If this transaction is a network reward, it safely exists on the active blockchain but cannot be queried directly by its hash.
+          <p style={{ fontFamily: "var(--font-body)", fontSize: "0.875rem", color: "var(--c-text-2)", lineHeight: 1.6, marginTop: 16, marginBottom: 20 }}>
+            This Quanta Node is currently configured to <strong style={{ color: "var(--c-text-1)", fontWeight: 500 }}>skip indexing Miner Rewards (Coinbase) and Treasury transactions</strong> in its internal database to conserve disk space. If this transaction is a network reward, it safely exists on the active blockchain but cannot be queried directly by its hash.
           </p>
-          <div className="pt-4 border-t border-border relative z-10 flex items-center gap-2 text-xs">
-            <span className="text-text-primary font-bold flex items-center gap-1.5"><ArrowRight className="w-3.5 h-3.5 text-accent" /> To view Miner Rewards:</span>
-            <p className="text-text-secondary font-semibold">Check the details of the specific blocks mined by the exact addresses.</p>
+          <div style={{ paddingTop: 16, borderTop: "1px solid var(--c-border)", display: "flex", alignItems: "center", gap: 8, fontFamily: "var(--font-mono)", fontSize: "0.75rem" }}>
+            <span style={{ color: "var(--c-text-1)", display: "flex", alignItems: "center", gap: 6 }}><ArrowRight size={14} color="var(--c-accent)" /> To view Miner Rewards:</span>
+            <span style={{ color: "var(--c-text-2)" }}>Check the details of the specific blocks mined by the exact addresses.</span>
           </div>
         </div>
-        <div className="mt-10">
-          <Link href="/" className="inline-flex items-center justify-center px-6 py-2.5 bg-surface border border-border hover:bg-surface-2 text-text-primary font-bold uppercase tracking-wider rounded-xl transition-all text-[10px] cursor-pointer">
+        
+        <div style={{ marginTop: 40 }}>
+          <Link href="/" className="page-btn" style={{ width: "auto", padding: "0 24px", fontFamily: "var(--font-mono)", fontSize: "0.6875rem", letterSpacing: "0.08em", textTransform: "uppercase", fontWeight: 400 }}>
             Return Home
           </Link>
         </div>
@@ -64,74 +67,73 @@ export default async function TxDetailsPage({
   const isCoinbase = tx.sender === 'COINBASE';
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 pb-16 pt-24 transition-colors duration-300">
+    <div className="page-wrap">
+      <BackButton />
       
       {/* Page Header */}
-      <div className="flex items-center gap-4 mb-8 border-b border-border pb-6 relative">
-        <div className="w-12 h-12 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent flex-shrink-0 shadow-sm">
-          <ArrowRightLeft className="w-6 h-6" />
+      <div className="page-header">
+        <div className="page-icon">
+          <ArrowRightLeft size={20} />
         </div>
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-text-primary font-sans uppercase">Transaction Details</h1>
+          <span className="page-title">Explorer</span>
+          <h1 className="page-heading">Transaction Details</h1>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 32, marginBottom: 32, alignItems: "start" }}>
+        
+        {/* Left Column */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
           
           {/* Main Transaction Summary */}
-          <div className="quantum-panel p-6 border border-border space-y-6">
-            <div className="flex items-center justify-between pb-4 border-b border-border">
-              <h3 className="text-xs font-bold text-text-primary flex items-center gap-2 uppercase tracking-widest">
-                <Hash className="w-4 h-4 text-accent" />
-                Transaction Synopsis
+          <div className="panel" style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: 16, borderBottom: "1px solid var(--c-border)" }}>
+              <h3 style={{ display: "flex", alignItems: "center", gap: 8, margin: 0 }}>
+                <Hash size={14} color="var(--c-accent)" />
+                <span className="panel-section-label">Transaction Synopsis</span>
               </h3>
               <CopyButton text={tx_hash} />
             </div>
 
-            <div className="space-y-4">
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <div>
-                <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Transaction Hash</p>
-                <div className="bg-surface-2 border border-border rounded-xl p-3.5 font-mono text-xs text-text-primary break-all hover:bg-surface transition-colors font-semibold">
-                  {tx_hash}
-                </div>
+                <span className="field-label">Transaction Hash</span>
+                <div className="hash-box">{tx_hash}</div>
               </div>
 
-              <div className="bg-surface rounded-xl border border-border overflow-hidden">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-b border-border">
-                  <div className="p-5 border-b border-border md:border-b-0 md:border-r">
-                    <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">From</p>
+              <div style={{ background: "var(--c-surface)", border: "1px solid var(--c-border)", display: "flex", flexDirection: "column" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", borderBottom: "1px solid var(--c-border)" }}>
+                  <div style={{ padding: 20, borderRight: "1px solid var(--c-border)" }}>
+                    <span className="field-label">From</span>
                     {isCoinbase ? (
-                      <span className="font-mono text-xs font-bold text-accent bg-accent/10 border border-accent/20 rounded-lg px-3 py-1.5 inline-flex items-center gap-1.5 uppercase tracking-wider">
-                        System (Coinbase)
-                      </span>
+                      <span className="tag tag-accent" style={{ fontSize: "0.6875rem" }}>System (Coinbase)</span>
                     ) : (
-                      <Link href={`/address/${tx.sender}`} className="font-mono text-xs text-text-secondary hover:text-accent break-all transition-colors font-bold">
+                      <Link href={`/address/${tx.sender}`} className="hover-accent" style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--c-text-2)", textDecoration: "none", wordBreak: "break-all" }}>
                         {tx.sender}
                       </Link>
                     )}
                   </div>
-
-                  <div className="p-5">
-                    <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">To</p>
-                    <Link href={`/address/${tx.recipient}`} className="font-mono text-xs text-text-secondary hover:text-accent break-all transition-colors font-bold">
+                  <div style={{ padding: 20 }}>
+                    <span className="field-label">To</span>
+                    <Link href={`/address/${tx.recipient}`} className="hover-accent" style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--c-text-2)", textDecoration: "none", wordBreak: "break-all" }}>
                       {tx.recipient}
                     </Link>
                   </div>
                 </div>
 
-                <div className="p-5 bg-surface-2/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div style={{ padding: 20, background: "var(--c-bg-alt)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
                   <div>
-                    <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1">Amount</p>
-                    <span className="font-black font-sans text-2xl text-text-primary">
-                      {(tx.amount / 1_000_000).toLocaleString(undefined, { maximumFractionDigits: 6 })} <span className="text-lg text-accent">QUA</span>
+                    <span className="field-label">Amount</span>
+                    <span style={{ fontFamily: "var(--font-display)", fontSize: "1.75rem", fontWeight: 500, color: "var(--c-text-1)", letterSpacing: "-0.02em" }}>
+                      {(tx.amount / 1_000_000).toLocaleString(undefined, { maximumFractionDigits: 6 })} <span style={{ color: "var(--c-accent)", fontSize: "1.125rem", fontWeight: 400 }}>QUA</span>
                     </span>
                   </div>
 
                   {!isCoinbase && (
-                    <div className="sm:text-right">
-                      <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1">Gas Fee</p>
-                      <span className="font-bold font-mono text-xs text-text-secondary">
+                    <div style={{ textAlign: "right" }}>
+                      <span className="field-label">Gas Fee</span>
+                      <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--c-text-2)" }}>
                         {(tx.fee / 1_000_000).toLocaleString(undefined, { maximumFractionDigits: 6 })} QUA
                       </span>
                     </div>
@@ -141,49 +143,45 @@ export default async function TxDetailsPage({
             </div>
           </div>
 
-          {/* Post-Quantum Cryptography (PQC) Security Inspector */}
-          <div className="quantum-panel p-6 border border-border space-y-6">
-            <div className="flex items-center justify-between pb-4 border-b border-border">
-              <h3 className="text-xs font-bold text-text-primary flex items-center gap-2 uppercase tracking-widest">
-                <ShieldCheck className="w-4 h-4 text-accent animate-pulse" />
-                Post-Quantum Security Detail
+          {/* Post-Quantum Security */}
+          <div className="panel" style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: 16, borderBottom: "1px solid var(--c-border)" }}>
+              <h3 style={{ display: "flex", alignItems: "center", gap: 8, margin: 0 }}>
+                <ShieldCheck size={14} color="var(--c-accent)" />
+                <span className="panel-section-label">Post-Quantum Security Detail</span>
               </h3>
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-accent/10 border border-accent/20 text-[9px] uppercase tracking-wider font-bold text-accent">
-                Falcon-512 Compatible
-              </span>
+              <span className="tag tag-accent" style={{ fontSize: "0.5rem" }}>Falcon-512</span>
             </div>
 
-            <div className="space-y-4">
-              <div className="p-4 rounded-xl border border-accent/20 bg-accent/5 flex items-start gap-3">
-                <div className="w-5 h-5 rounded-full bg-accent/10 flex items-center justify-center text-accent flex-shrink-0 mt-0.5">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div style={{ padding: 16, border: "1px solid var(--c-border)", background: "var(--c-bg-alt)", display: "flex", alignItems: "flex-start", gap: 12 }}>
+                <CheckCircle2 size={16} color="var(--c-accent)" style={{ marginTop: 2 }} />
                 <div>
-                  <span className="text-xs font-bold text-text-primary block">Signature Verification Valid</span>
-                  <span className="text-[10px] text-text-secondary mt-0.5 block font-semibold leading-relaxed">
-                    This transaction is secured using the post-quantum <strong className="text-accent font-bold">Falcon-512</strong> cryptographic signature algorithm (PQC Level 5), protecting it against potential future quantum computing decryption vectors.
+                  <span style={{ fontFamily: "var(--font-sans)", fontSize: "0.875rem", fontWeight: 500, color: "var(--c-text-1)", display: "block" }}>Signature Verification Valid</span>
+                  <span style={{ fontFamily: "var(--font-sans)", fontSize: "0.75rem", color: "var(--c-text-2)", lineHeight: 1.5, marginTop: 4, display: "block" }}>
+                    This transaction is secured using the post-quantum <strong style={{ color: "var(--c-accent)", fontWeight: 400 }}>Falcon-512</strong> cryptographic signature algorithm (PQC Level 5), protecting it against potential future quantum computing decryption vectors.
                   </span>
                 </div>
               </div>
 
               {/* Raw Public Key Console Panel */}
-              <div className="space-y-2">
-                <div className="flex justify-between items-center text-[10px] font-bold text-text-muted uppercase tracking-wider">
-                  <span>Falcon Public Key ({tx.public_key?.length || 0} bytes)</span>
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <span className="field-label" style={{ marginBottom: 0 }}>Falcon Public Key ({tx.public_key?.length || 0} bytes)</span>
                   {tx.public_key && <CopyButton text={tx.public_key} />}
                 </div>
-                <div className="bg-surface-2 border border-border rounded-xl p-3.5 font-mono text-[10px] text-text-secondary select-all max-h-24 overflow-y-auto break-all font-semibold leading-relaxed">
+                <div className="hash-box" style={{ maxHeight: 96, overflowY: "auto" }}>
                   {tx.public_key || "N/A (Coinbase reward / Genesis Transaction)"}
                 </div>
               </div>
 
               {/* Raw Signature Console Panel */}
-              <div className="space-y-2">
-                <div className="flex justify-between items-center text-[10px] font-bold text-text-muted uppercase tracking-wider">
-                  <span>Falcon Signature ({tx.signature?.length || 0} bytes)</span>
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <span className="field-label" style={{ marginBottom: 0 }}>Falcon Signature ({tx.signature?.length || 0} bytes)</span>
                   {tx.signature && <CopyButton text={tx.signature} />}
                 </div>
-                <div className="bg-surface-2 border border-border rounded-xl p-3.5 font-mono text-[10px] text-text-secondary select-all max-h-24 overflow-y-auto break-all font-semibold leading-relaxed">
+                <div className="hash-box" style={{ maxHeight: 96, overflowY: "auto" }}>
                   {tx.signature || "N/A (Coinbase reward / Genesis Transaction)"}
                 </div>
               </div>
@@ -192,44 +190,46 @@ export default async function TxDetailsPage({
         </div>
 
         {/* RIGHT COLUMN: Sidebar (Status & consensus info) */}
-        <div className="lg:col-span-1 space-y-8">
+        <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
           
-          <div className="quantum-panel p-6 border border-border space-y-6">
-            <h3 className="text-xs font-bold text-text-primary flex items-center gap-2 uppercase tracking-widest pb-4 border-b border-border">
-              <Cpu className="w-4 h-4 text-accent" />
-              Consensus & Status
+          <div className="panel" style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            <h3 style={{ display: "flex", alignItems: "center", gap: 8, paddingBottom: 16, borderBottom: "1px solid var(--c-border)", margin: 0 }}>
+              <Cpu size={14} color="var(--c-accent)" />
+              <span className="panel-section-label">Consensus & Status</span>
             </h3>
 
-            <div className="space-y-5 text-xs font-semibold">
-              <div className="space-y-2">
-                <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Confirmation Status</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+              <div>
+                <span className="field-label">Confirmation Status</span>
                 {status === 'confirmed' ? (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-accent/10 text-accent rounded-xl border border-accent/20 text-[10px] font-bold tracking-wider uppercase shadow-sm">
-                    <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></div>
+                  <span className="tag tag-accent" style={{ display: "inline-flex", gap: 6 }}>
+                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--c-bg)" }} />
                     Confirmed
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface-2 text-text-secondary rounded-xl border border-border text-[10px] font-bold tracking-wider uppercase">
-                    <Clock className="w-3.5 h-3.5" />
+                  <span className="tag" style={{ display: "inline-flex", gap: 6, background: "var(--c-surface)", color: "var(--c-text-2)", borderColor: "var(--c-border)" }}>
+                    <Clock size={10} />
                     Pending
                   </span>
                 )}
               </div>
 
               {block_height !== null && status === 'confirmed' && (
-                <div className="space-y-2">
-                  <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Included in Block</p>
-                  <Link href={`/block/${block_height}`} className="font-mono text-xs font-bold text-accent bg-accent/10 border border-accent/20 rounded-xl px-3.5 py-1.5 inline-block transition-colors hover:bg-accent/20">
-                    #{block_height}
+                <div>
+                  <span className="field-label">Included in Block</span>
+                  <Link href={`/block/${block_height}`} style={{ textDecoration: "none" }}>
+                    <span className="tag tag-accent" style={{ fontSize: "0.6875rem" }}>
+                      #{block_height}
+                    </span>
                   </Link>
                 </div>
               )}
 
-              <div className="space-y-2">
-                <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Account Nonce</p>
-                <span className="font-mono text-xs text-text-primary bg-surface-2 border border-border rounded-xl px-3.5 py-1.5 inline-block font-bold">
+              <div>
+                <span className="field-label">Account Nonce</span>
+                <div className="hash-box" style={{ display: "inline-block", background: "var(--c-bg-alt)", color: "var(--c-text-1)" }}>
                   {tx.nonce}
-                </span>
+                </div>
               </div>
             </div>
           </div>

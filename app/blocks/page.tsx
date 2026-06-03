@@ -1,12 +1,13 @@
 import { Metadata } from 'next';
 import { Box, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
+import BackButton from '@/components/BackButton';
 
 import dbConnect from '@/lib/db';
 import BlockModel from '@/lib/models/Block';
 
 export const metadata: Metadata = {
-  title: 'Blocks | QuaScan Explorer',
+  title: 'Blocks | Quanta Explorer',
   description: 'View all blocks on the Quanta network.',
 };
 
@@ -48,94 +49,110 @@ export default async function BlocksPage({
   const endHeight = blocks.length > 0 ? blocks[blocks.length - 1].index : 0;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 pb-16 pt-24 transition-colors duration-300">
+    <div className="page-wrap">
+      <BackButton />
+      
       {/* Page Header */}
-      <div className="flex items-center gap-4 mb-8 border-b border-border pb-6 relative">
-        <div className="w-12 h-12 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent shadow-sm">
-          <Box className="w-6 h-6" />
+      <div className="page-header">
+        <div className="page-icon">
+          <Box size={20} />
         </div>
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-text-primary font-sans uppercase">Blocks</h1>
-          <p className="text-text-secondary text-xs font-semibold mt-1">Showing blocks from #{startHeight} to #{endHeight}</p>
+          <span className="page-title">QuantaChain Explorer</span>
+          <h1 className="page-heading">Blocks</h1>
+          <p className="text-muted mt-2" style={{ fontFamily: "var(--font-mono)", fontSize: "0.6875rem", letterSpacing: "0.04em" }}>
+            Showing blocks #{startHeight} to #{endHeight}
+          </p>
         </div>
       </div>
 
+      <div className="az-divider" style={{ marginBottom: 32 }} />
+
       {/* Table Card */}
-      <div className="quantum-panel overflow-hidden border border-border mb-8">
-        <div className="overflow-x-auto bg-transparent">
-          <table className="w-full text-left whitespace-nowrap font-mono text-xs border-collapse">
-            <thead>
-              <tr className="border-b border-border bg-surface-2/30">
-                <th className="py-4 px-6 text-[10px] font-bold text-text-muted uppercase tracking-widest">Height</th>
-                <th className="py-4 px-6 text-[10px] font-bold text-text-muted uppercase tracking-widest">Age</th>
-                <th className="py-4 px-6 text-[10px] font-bold text-text-muted uppercase tracking-widest">Transactions</th>
-                <th className="py-4 px-6 text-[10px] font-bold text-text-muted uppercase tracking-widest">Proposer</th>
-                <th className="py-4 px-6 text-[10px] font-bold text-text-muted uppercase tracking-widest">Epoch</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {blocks.map((block) => {
-                const proposer = block.proposer || 'GENESIS';
-                return (
-                  <tr key={block.index} className="hover:bg-surface-2/30 transition-colors group">
-                    <td className="py-4 px-6">
-                      <Link href={`/block/${block.index}`} className="flex items-center gap-2">
-                        <div className="px-3 py-1.5 rounded-lg bg-surface border border-border flex items-center justify-center text-text-primary font-mono text-xs group-hover:border-accent/30 group-hover:text-accent transition-colors font-bold shadow-sm">
-                          #{block.index}
-                        </div>
-                      </Link>
-                    </td>
-                    <td className="py-4 px-6 text-xs text-text-secondary font-semibold group-hover:text-text-primary transition-colors">
-                      <div className="flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5 text-text-muted group-hover:text-accent transition-colors" />
-                        <TimeAgo timestamp={block.timestamp} />
-                      </div>
-                    </td>
-                    <td className="py-4 px-6 text-xs font-bold">
-                      <span className="px-3 py-1.5 bg-surface border border-border text-text-secondary rounded-full text-[10px] font-bold group-hover:border-accent/30 group-hover:text-accent transition-colors">
-                        {block.transactions?.length ?? 0} txns
+      <div className="panel" style={{ padding: 0, overflowX: "auto" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 800 }}>
+          <thead>
+            <tr style={{ borderBottom: "1px solid var(--c-border-mid)", background: "var(--c-surface)" }}>
+              <th style={{ padding: "16px 24px", textAlign: "left" }}><span className="panel-section-label">Height</span></th>
+              <th style={{ padding: "16px 24px", textAlign: "left" }}><span className="panel-section-label">Age</span></th>
+              <th style={{ padding: "16px 24px", textAlign: "left" }}><span className="panel-section-label">Transactions</span></th>
+              <th style={{ padding: "16px 24px", textAlign: "left" }}><span className="panel-section-label">Proposer</span></th>
+              <th style={{ padding: "16px 24px", textAlign: "right" }}><span className="panel-section-label">Epoch</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {blocks.map((block, i) => {
+              const proposer = block.proposer || 'GENESIS';
+              return (
+                <tr key={block.index} style={{ borderBottom: i === blocks.length - 1 ? "none" : "1px solid var(--c-border)", background: "var(--c-bg-alt)" }}>
+                  {/* Height */}
+                  <td style={{ padding: "16px 24px" }}>
+                    <Link href={`/block/${block.index}`} style={{ display: "inline-block" }}>
+                      <span className="tag tag-accent" style={{ fontSize: "0.6875rem" }}>
+                        #{block.index}
                       </span>
-                    </td>
-                    <td className="py-4 px-6 font-mono text-xs font-semibold text-text-secondary group-hover:text-accent transition-colors">
-                      <Link href={`/address/${proposer}`}>
-                        {proposer.length > 20 ? `${proposer.substring(0, 16)}...` : proposer}
-                      </Link>
-                    </td>
-                    <td className="py-4 px-6 text-xs font-bold text-text-muted group-hover:text-text-secondary transition-colors font-mono">
+                    </Link>
+                  </td>
+                  
+                  {/* Age */}
+                  <td style={{ padding: "16px 24px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--c-text-3)", fontFamily: "var(--font-mono)", fontSize: "0.625rem", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                      <Clock size={12} />
+                      <TimeAgo timestamp={block.timestamp} />
+                    </div>
+                  </td>
+                  
+                  {/* Txs */}
+                  <td style={{ padding: "16px 24px" }}>
+                    <span className="tag" style={{ fontSize: "0.5625rem" }}>
+                      {block.transactions?.length ?? 0} txns
+                    </span>
+                  </td>
+                  
+                  {/* Proposer */}
+                  <td style={{ padding: "16px 24px" }}>
+                    <Link href={`/address/${proposer}`} className="hover-accent" style={{ fontFamily: "var(--font-mono)", fontSize: "0.6875rem", color: "var(--c-text-2)", textDecoration: "none" }}>
+                      {proposer.length > 20 ? `${proposer.substring(0, 16)}...` : proposer}
+                    </Link>
+                  </td>
+                  
+                  {/* Epoch */}
+                  <td style={{ padding: "16px 24px", textAlign: "right" }}>
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.6875rem", color: "var(--c-text-1)" }}>
                       EPOCH {block.epoch ?? 0}
-                    </td>
-                  </tr>
-                );
-              })}
-              {blocks.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="py-12 text-center text-text-muted font-bold text-xs uppercase tracking-widest">
-                    No blocks found on this page.
+                    </span>
                   </td>
                 </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+              );
+            })}
+            {blocks.length === 0 && (
+              <tr>
+                <td colSpan={5} style={{ padding: "48px", textAlign: "center" }}>
+                  <span className="panel-section-label">No blocks found on this page.</span>
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-6">
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 24, marginTop: 40 }}>
           <Link
             href={page > 1 ? `/blocks?page=${page - 1}` : '#'}
-            className={`w-9 h-9 rounded-xl flex items-center justify-center border transition-all ${page > 1 ? 'bg-surface border-border text-text-primary hover:bg-surface-2 hover:text-accent' : 'bg-transparent border-border text-text-muted cursor-not-allowed'}`}
+            className={`page-btn ${page <= 1 ? 'disabled' : ''}`}
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft size={16} />
           </Link>
-          <span className="text-xs font-bold text-text-secondary">
-            Page <span className="text-text-primary font-black">{page}</span> of <span className="text-text-primary font-black">{Math.max(1, totalPages)}</span>
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.6875rem", color: "var(--c-text-3)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+            Page <strong style={{ color: "var(--c-text-1)", fontWeight: 500 }}>{page}</strong> of <strong style={{ color: "var(--c-text-1)", fontWeight: 500 }}>{Math.max(1, totalPages)}</strong>
           </span>
           <Link
             href={page < totalPages ? `/blocks?page=${page + 1}` : '#'}
-            className={`w-9 h-9 rounded-xl flex items-center justify-center border transition-all ${page < totalPages ? 'bg-surface border-border text-text-primary hover:bg-surface-2 hover:text-accent' : 'bg-transparent border-border text-text-muted cursor-not-allowed'}`}
+            className={`page-btn ${page >= totalPages ? 'disabled' : ''}`}
           >
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight size={16} />
           </Link>
         </div>
       )}

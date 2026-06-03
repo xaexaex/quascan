@@ -1,153 +1,228 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
-import { Sun, Moon, Search, Menu, X } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { usePathname, useRouter } from "next/navigation";
+
+const NAV_LINKS = [
+  { href: "/",           label: "Home" },
+  { href: "/blocks",     label: "Blocks" },
+  { href: "/validators", label: "Validators" },
+];
 
 export default function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const pathname = usePathname();
-  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
+  useEffect(() => { setOpen(false); }, [pathname]);
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 30);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 12);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const q = searchQuery.trim();
-    if (!q) return;
-    try {
-      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data.redirect) {
-          router.push(data.redirect);
-          setMobileMenuOpen(false);
-          setSearchQuery("");
-          return;
-        }
-      }
-    } catch { }
-  };
-
-  const navLinks = [
-    { name: "Home", href: "/" },
-    { name: "Blocks", href: "/blocks" },
-    { name: "Validators", href: "/validators" },
-  ];
-
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-3 px-4 pointer-events-none">
+    <>
       <nav
-        className={`pointer-events-auto w-full max-w-3xl transition-all duration-300 rounded-2xl px-4 h-12 flex items-center justify-between gap-3 ${scrolled
-            ? "bg-[var(--navbar-bg)] backdrop-blur-xl shadow-[0_8px_40px_rgba(0,0,0,0.22)] border border-[var(--border)]"
-            : "bg-[var(--navbar-bg)]/80 backdrop-blur-md shadow-[0_2px_16px_rgba(0,0,0,0.08)] border border-[var(--border)]/50"
-          }`}
+        style={{
+          position: "fixed",
+          top: 0, left: 0, right: 0,
+          height: "var(--nav-h)",
+          zIndex: 100,
+          display: "flex",
+          alignItems: "stretch",
+          borderBottom: `1px solid ${scrolled ? "var(--c-border-mid)" : "var(--c-border)"}`,
+          background: scrolled ? "rgba(13,4,2,0.97)" : "rgba(13,4,2,0.92)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          transition: "background 0.25s ease, border-color 0.25s ease",
+        }}
       >
-        {/* Logo */}
-        <Link href="/" className="flex items-center flex-shrink-0 gap-2 group" onClick={() => setMobileMenuOpen(false)}>
-          <Image
-            src="/logo/quanta-transparent-bg-logo.svg"
-            alt="Quanta"
-            width={22}
-            height={22}
-            className="object-contain group-hover:drop-shadow-[0_0_6px_var(--accent)] transition-all"
-            onError={(e) => { e.currentTarget.style.display = "none"; }}
-          />
-          <span className="text-sm font-black tracking-tight text-[var(--text-primary)] font-sans group-hover:text-[var(--accent)] transition-colors">
+        {/* Logo cell */}
+        <Link
+          href="/"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            padding: "0 24px",
+            borderRight: "1px solid var(--c-border)",
+            flexShrink: 0,
+          }}
+        >
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path fillRule="evenodd" clipRule="evenodd" d="M7 2H17V7H22V17H17V22H7V17H2V7H7V2ZM9 9V15H15V9H9Z" fill="#D4FF28" />
+          </svg>
+          <span
+            style={{
+              fontFamily: "var(--font-display)",
+              fontWeight: 500,
+              fontStyle: "italic",
+              fontSize: "1.1875rem",
+              color: "var(--c-text-1)",
+              letterSpacing: "-0.01em",
+            }}
+          >
             QuaScan
-          </span>
-          <span className="hidden sm:inline-block text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-md bg-[var(--accent-light)] text-[var(--accent)] border border-[var(--accent)]/25 leading-none">
-            Testnet
           </span>
         </Link>
 
-        {/* Nav links */}
-        <div className="hidden sm:flex items-center gap-0.5">
-          {navLinks.map((link) => {
-            const isActive = pathname === link.href;
+        {/* Desktop nav links */}
+        <div
+          className="nav-desktop-links"
+          style={{ display: "flex", alignItems: "stretch", flex: 1 }}
+        >
+          {NAV_LINKS.map((link) => {
+            const active = pathname === link.href;
             return (
               <Link
-                key={link.name}
+                key={link.href}
                 href={link.href}
-                className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ${isActive
-                    ? "text-[var(--accent)] bg-[var(--accent-light)]"
-                    : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-                  }`}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "0 22px",
+                  fontFamily: "var(--font-body)",
+                  fontWeight: 400,
+                  fontSize: "0.8125rem",
+                  letterSpacing: "0.04em",
+                  textTransform: "uppercase",
+                  color: active ? "var(--c-text-1)" : "var(--c-text-3)",
+                  borderRight: "1px solid var(--c-border)",
+                  borderBottom: active ? "2px solid var(--c-accent)" : "2px solid transparent",
+                  transition: "color var(--t)",
+                }}
+                onMouseEnter={(e) => {
+                  if (!active) (e.currentTarget as HTMLElement).style.color = "var(--c-text-2)";
+                }}
+                onMouseLeave={(e) => {
+                  if (!active) (e.currentTarget as HTMLElement).style.color = "var(--c-text-3)";
+                }}
               >
-                {link.name}
+                {link.label}
               </Link>
             );
           })}
         </div>
 
-        {/* Mini search (hidden on small screens) */}
-        <form
-          onSubmit={handleSearch}
-          className="hidden md:flex flex-1 max-w-[220px] items-center bg-[var(--surface-2)] rounded-xl px-3 h-8 gap-2 focus-within:ring-1 focus-within:ring-[var(--accent)]/40 transition-all border border-[var(--border)]/50 focus-within:border-[var(--accent)]"
+        {/* Right — Testnet badge */}
+        <div
+          className="nav-desktop-right"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            padding: "0 20px",
+            marginLeft: "auto",
+            borderLeft: "1px solid var(--c-border)",
+          }}
         >
-          <Search className="w-3 h-3 text-[var(--text-muted)] flex-shrink-0" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Block / Tx / Address..."
-            className="bg-transparent text-[10px] font-medium text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none w-full"
-          />
-        </form>
-
-        {/* Right side: Theme toggle placeholder & Mobile Menu Toggle */}
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="sm:hidden p-1.5 text-[var(--text-secondary)] hover:text-[var(--accent)] hover:bg-[var(--surface-2)] rounded-lg transition-colors"
+          <span
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.625rem",
+              color: "var(--c-accent)",
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              border: "1px solid var(--c-accent-mid)",
+              background: "var(--c-accent-dim)",
+              padding: "4px 10px",
+            }}
           >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+            Testnet
+          </span>
         </div>
+
+        {/* Hamburger — mobile only */}
+        <button
+          id="nav-hamburger"
+          className="nav-hamburger"
+          onClick={() => setOpen((v) => !v)}
+          aria-label={open ? "Close menu" : "Open menu"}
+          style={{
+            display: "none",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 56,
+            background: "transparent",
+            border: "none",
+            borderLeft: "1px solid var(--c-border)",
+            cursor: "pointer",
+            flexShrink: 0,
+            padding: 0,
+            color: "var(--c-text-2)",
+          }}
+        >
+          {open ? (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          ) : (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+              <line x1="3" y1="7" x2="21" y2="7" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="17" x2="21" y2="17" />
+            </svg>
+          )}
+        </button>
       </nav>
 
-      {/* Mobile menu dropdown */}
-      {mobileMenuOpen && (
-        <div className="absolute top-16 left-4 right-4 pointer-events-auto bg-[#eaecf2] dark:bg-[#0b0e15] border border-[var(--border)] shadow-2xl rounded-2xl p-4 flex flex-col gap-2 animate-in fade-in slide-in-from-top-2 duration-150 sm:hidden">
-          {/* Mobile Search */}
-          <form
-            onSubmit={handleSearch}
-            className="flex w-full items-center bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-3 h-10 gap-2 focus-within:ring-1 focus-within:ring-[var(--accent)]/40 transition-all mb-2"
-          >
-            <Search className="w-4 h-4 text-[var(--text-muted)] flex-shrink-0" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search..."
-              className="bg-transparent text-xs font-medium text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none w-full"
-            />
-          </form>
-
-          {navLinks.map((link) => {
-            const isActive = pathname === link.href;
+      {/* Mobile drawer */}
+      {open && (
+        <div
+          style={{
+            position: "fixed",
+            top: "var(--nav-h)",
+            left: 0, right: 0, bottom: 0,
+            background: "rgba(13,4,2,0.98)",
+            backdropFilter: "blur(20px)",
+            zIndex: 99,
+            display: "flex",
+            flexDirection: "column",
+            padding: "8px 0 32px",
+            overflowY: "auto",
+          }}
+        >
+          {NAV_LINKS.map((link) => {
+            const active = pathname === link.href;
             return (
               <Link
-                key={link.name}
+                key={link.href}
                 href={link.href}
-                className={`py-3 px-4 text-sm font-bold rounded-xl transition-colors flex items-center justify-between ${isActive ? "text-[var(--accent)] bg-[var(--accent-light)] border border-[var(--accent)]/10" : "text-[var(--text-secondary)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)]"
-                  }`}
-                onClick={() => setMobileMenuOpen(false)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "20px 28px",
+                  borderBottom: "1px solid var(--c-border)",
+                  fontFamily: "var(--font-display)",
+                  fontWeight: 500,
+                  fontSize: "1.375rem",
+                  fontStyle: active ? "italic" : "normal",
+                  color: active ? "var(--c-accent)" : "var(--c-text-1)",
+                  letterSpacing: "-0.01em",
+                  gap: 12,
+                }}
               >
-                {link.name}
+                {active && (
+                  <span style={{ width: 4, height: 4, borderRadius: "50%", background: "var(--c-accent)", flexShrink: 0 }} />
+                )}
+                {link.label}
               </Link>
             );
           })}
         </div>
       )}
-    </div>
+
+      <style>{`
+        @media (max-width: 720px) {
+          .nav-desktop-links { display: none !important; }
+          .nav-desktop-right  { display: none !important; }
+          .nav-hamburger      { display: flex !important; }
+        }
+      `}</style>
+    </>
   );
 }

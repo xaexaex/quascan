@@ -1,110 +1,108 @@
 import { fetchValidators } from "@/lib/api";
 import Link from "next/link";
 import { ShieldCheck, Cpu, Activity, UserCircle } from "lucide-react";
+import BackButton from "@/components/BackButton";
 
 export default async function ValidatorsPage() {
   const data = await fetchValidators();
 
   if (!data) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
-        <h1 className="text-2xl font-bold text-red-500">Error loading validators</h1>
-        <p className="text-text-muted mt-2">Could not connect to the network RPC.</p>
+      <div className="page-wrap" style={{ textAlign: "center" }}>
+        <h1 className="page-heading" style={{ color: "var(--c-err)" }}>Error loading validators</h1>
+        <p className="field-label" style={{ marginTop: 12 }}>Could not connect to the network RPC.</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-      <div className="flex items-center gap-3 pb-4 border-b border-border">
-        <div className="w-10 h-10 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent">
-          <ShieldCheck className="w-5 h-5" />
+    <div className="page-wrap">
+      <BackButton />
+      
+      {/* Page Header */}
+      <div className="page-header">
+        <div className="page-icon">
+          <ShieldCheck size={20} />
         </div>
         <div>
-          <h1 className="text-2xl font-black text-text-primary">Consensus Nodes</h1>
-          <p className="text-xs font-bold text-text-muted uppercase tracking-widest mt-0.5">
-            Active Validators: <span className="text-accent">{data.active_count}</span>
-          </p>
+          <span className="page-title">Network Security</span>
+          <h1 className="page-heading">Consensus Nodes</h1>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="quantum-panel p-5 border border-border flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] uppercase font-bold text-text-muted tracking-widest">Total Nodes</span>
-            <Cpu className="w-4 h-4 text-accent" />
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 24, marginBottom: 32 }}>
+        <div className="panel" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 24 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+            <span className="panel-section-label">Total Nodes</span>
+            <Cpu size={16} color="var(--c-accent)" />
           </div>
-          <div className="text-2xl font-black">{data.validators.length}</div>
+          <div className="stat-val">{data.validators.length}</div>
         </div>
-        <div className="quantum-panel p-5 border border-border flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] uppercase font-bold text-text-muted tracking-widest">Active</span>
-            <Activity className="w-4 h-4 text-green-500" />
+        
+        <div className="panel" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 24 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+            <span className="panel-section-label">Active</span>
+            <Activity size={16} color="var(--c-accent)" />
           </div>
-          <div className="text-2xl font-black text-green-500">{data.active_count}</div>
+          <div className="stat-val" style={{ color: "var(--c-accent)" }}>{data.active_count}</div>
         </div>
-        <div className="quantum-panel p-5 border border-border flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] uppercase font-bold text-text-muted tracking-widest">Algorithm</span>
-            <ShieldCheck className="w-4 h-4 text-accent" />
+        
+        <div className="panel" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 24 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+            <span className="panel-section-label">Algorithm</span>
+            <ShieldCheck size={16} color="var(--c-accent)" />
           </div>
-          <div className="text-xl font-bold font-mono">AlephBFT (PQC)</div>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: "1.25rem", fontWeight: 500, color: "var(--c-text-1)", letterSpacing: "-0.02em" }}>AlephBFT (PQC)</div>
         </div>
       </div>
 
-      <div className="quantum-panel overflow-hidden border border-border">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left font-mono whitespace-nowrap">
-            <thead>
-              <tr className="border-b border-border bg-surface-2/30">
-                <th className="py-3 px-4 text-[10px] font-bold text-text-muted uppercase tracking-widest">Status</th>
-                <th className="py-3 px-4 text-[10px] font-bold text-text-muted uppercase tracking-widest">Validator Address</th>
-                <th className="py-3 px-4 text-[10px] font-bold text-text-muted uppercase tracking-widest">Stake (QUA)</th>
-                <th className="py-3 px-4 text-[10px] font-bold text-text-muted uppercase tracking-widest">Registered Epoch</th>
-                <th className="py-3 px-4 text-[10px] font-bold text-text-muted uppercase tracking-widest">Public Key Snippet</th>
+      <div className="panel" style={{ padding: 0, overflowX: "auto" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 800 }}>
+          <thead>
+            <tr style={{ borderBottom: "1px solid var(--c-border-mid)", background: "var(--c-surface)" }}>
+              <th style={{ padding: "16px 24px", textAlign: "left" }}><span className="panel-section-label">Status</span></th>
+              <th style={{ padding: "16px 24px", textAlign: "left" }}><span className="panel-section-label">Validator Address</span></th>
+              <th style={{ padding: "16px 24px", textAlign: "left" }}><span className="panel-section-label">Stake (QUA)</span></th>
+              <th style={{ padding: "16px 24px", textAlign: "left" }}><span className="panel-section-label">Registered Epoch</span></th>
+              <th style={{ padding: "16px 24px", textAlign: "left" }}><span className="panel-section-label">Public Key Snippet</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.validators.map((val, idx) => (
+              <tr key={val.address} style={{ borderBottom: idx === data.validators.length - 1 ? "none" : "1px solid var(--c-border)", background: "var(--c-bg-alt)" }}>
+                <td style={{ padding: "16px 24px" }}>
+                  {val.active ? (
+                    <span className="tag tag-accent" style={{ fontSize: "0.5625rem" }}>Active</span>
+                  ) : (
+                    <span className="tag" style={{ fontSize: "0.5625rem", background: "var(--c-bg)", color: "var(--c-text-3)", borderColor: "var(--c-border-mid)" }}>Inactive</span>
+                  )}
+                </td>
+                <td style={{ padding: "16px 24px" }}>
+                  <Link href={`/address/${val.address}`} className="hover-accent" style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--c-text-1)", textDecoration: "none" }}>
+                    <UserCircle size={14} color="var(--c-text-3)" />
+                    {val.address}
+                  </Link>
+                </td>
+                <td style={{ padding: "16px 24px", fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--c-accent)" }}>
+                  {(val.stake_microunits / 1_000_000).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                </td>
+                <td style={{ padding: "16px 24px", fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--c-text-2)" }}>
+                  Epoch {val.registered_epoch}
+                </td>
+                <td style={{ padding: "16px 24px", fontFamily: "var(--font-mono)", fontSize: "0.625rem", color: "var(--c-text-3)" }} title={val.falcon_pk_hex}>
+                  {val.falcon_pk_hex.substring(0, 16)}...{val.falcon_pk_hex.substring(val.falcon_pk_hex.length - 16)}
+                </td>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {data.validators.map((val, idx) => (
-                <tr key={val.address} className="hover:bg-surface-2/10 transition-colors">
-                  <td className="py-3 px-4">
-                    {val.active ? (
-                      <span className="bg-green-500/10 text-green-500 border border-green-500/20 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
-                        Active
-                      </span>
-                    ) : (
-                      <span className="bg-text-muted/10 text-text-muted border border-text-muted/20 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
-                        Inactive
-                      </span>
-                    )}
-                  </td>
-                  <td className="py-3 px-4 text-xs">
-                    <Link href={`/address/${val.address}`} className="flex items-center gap-2 text-text-primary hover:text-accent font-bold transition-colors">
-                      <UserCircle className="w-4 h-4 text-text-muted" />
-                      {val.address}
-                    </Link>
-                  </td>
-                  <td className="py-3 px-4 text-xs font-bold text-accent">
-                    {(val.stake_microunits / 1_000_000).toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                  </td>
-                  <td className="py-3 px-4 text-xs text-text-secondary font-semibold">
-                    Epoch {val.registered_epoch}
-                  </td>
-                  <td className="py-3 px-4 text-[10px] text-text-muted font-mono" title={val.falcon_pk_hex}>
-                    {val.falcon_pk_hex.substring(0, 16)}...{val.falcon_pk_hex.substring(val.falcon_pk_hex.length - 16)}
-                  </td>
-                </tr>
-              ))}
-              {data.validators.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="py-8 text-center text-text-muted text-xs font-medium uppercase tracking-widest">
-                    No validators registered.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+            ))}
+            {data.validators.length === 0 && (
+              <tr>
+                <td colSpan={5} style={{ padding: "48px", textAlign: "center" }}>
+                  <span className="panel-section-label">No validators registered.</span>
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );

@@ -6,11 +6,12 @@ import Link from 'next/link';
 import dbConnect from '@/lib/db';
 import TransactionModel from '@/lib/models/Transaction';
 import CopyButton from '@/components/CopyButton';
+import BackButton from '@/components/BackButton';
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const p = await params;
   return {
-    title: `Address ${p.id.substring(0, 10)}... | QuaScan Explorer`,
+    title: `Address ${p.id.substring(0, 10)}... | Quanta Explorer`,
     description: `Details for address ${p.id} on the Quanta network.`,
   };
 }
@@ -38,8 +39,6 @@ export default async function AddressDetailsPage({
 
   await dbConnect();
 
-  // Hybrid: fetch from BOTH MongoDB (indexer history) AND node RPC (live confirmed txs).
-  // Merge + deduplicate by tx_hash so recent blocks not yet indexed still appear.
   const [data, dbTxsRaw, rpcTxsRaw] = await Promise.all([
     fetchAddressInfo(id),
     TransactionModel.find({ $or: [{ sender: id }, { recipient: id }] })
@@ -49,7 +48,6 @@ export default async function AddressDetailsPage({
     fetchAddressTransactions(id, 10_000).catch(() => null),
   ]);
 
-  // Normalise MongoDB rows
   const dbTxs = (dbTxsRaw ?? []).map((tx: any) => ({
     tx_hash: tx.txHash as string,
     block_height: tx.blockHeight as number,
@@ -61,10 +59,8 @@ export default async function AddressDetailsPage({
     tx_type: (tx.txType || 'TRANSFER') as string,
   }));
 
-  // Normalise RPC rows (already the right shape)
   const rpcTxs = rpcTxsRaw?.transactions ?? [];
 
-  // Merge: start with RPC (most up-to-date), fill in any gaps from DB
   const seen = new Set<string>();
   const merged: typeof rpcTxs = [];
   for (const tx of [...rpcTxs, ...dbTxs]) {
@@ -93,177 +89,175 @@ export default async function AddressDetailsPage({
   const lockedQua = totalQua - spendableQua;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 pb-16 pt-24 transition-colors duration-300">
+    <div className="page-wrap">
+      <BackButton />
       
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-border pb-6 relative">
-        <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent flex-shrink-0 shadow-sm">
-            <Wallet className="w-6 h-6" />
-          </div>
-          <div className="space-y-1">
-            <h1 className="text-2xl font-black tracking-tight text-text-primary font-sans uppercase">Address Details</h1>
-            <div className="flex items-center gap-2 max-w-full">
-              <span className="font-mono text-xs sm:text-sm text-text-secondary bg-surface-2 border border-border px-3 py-1.5 rounded-xl break-all select-all font-bold">
-                {data?.address || id}
-              </span>
-              <CopyButton text={data?.address || id} />
-            </div>
+      <div className="page-header">
+        <div className="page-icon">
+          <Wallet size={20} />
+        </div>
+        <div>
+          <span className="page-title">Explorer</span>
+          <h1 className="page-heading">Address Details</h1>
+          <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 12 }}>
+            <span className="tag" style={{ background: "var(--c-surface)", color: "var(--c-text-1)", fontFamily: "var(--font-mono)", fontSize: "0.75rem", userSelect: "all", wordBreak: "break-all" }}>
+              {data?.address || id}
+            </span>
+            <CopyButton text={data?.address || id} />
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 32, marginBottom: 48 }}>
         
         {/* Balance Card */}
-        <div className="quantum-panel p-6 border border-border relative overflow-hidden">
-          <div className="absolute -right-16 -top-16 w-64 h-64 bg-accent/5 rounded-full blur-3xl pointer-events-none" />
-          <h3 className="text-xs font-bold text-text-primary mb-6 flex items-center gap-2 uppercase tracking-widest relative z-10">
-            <Coins className="w-4 h-4 text-accent" />
-            Balance Synopsis
+        <div className="panel" style={{ display: "flex", flexDirection: "column", gap: 24, padding: 32 }}>
+          <h3 style={{ display: "flex", alignItems: "center", gap: 8, margin: 0, paddingBottom: 16, borderBottom: "1px solid var(--c-border)" }}>
+            <Coins size={14} color="var(--c-accent)" />
+            <span className="panel-section-label">Balance Synopsis</span>
           </h3>
 
-          <div className="space-y-5 relative z-10 text-xs font-semibold">
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
             <div>
-              <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Total Balance</p>
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-3xl font-black font-sans tracking-tight text-text-primary">
+              <span className="field-label">Total Balance</span>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+                <span style={{ fontFamily: "var(--font-display)", fontSize: "2.5rem", fontWeight: 500, color: "var(--c-text-1)", letterSpacing: "-0.02em" }}>
                   {totalQua.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 })}
                 </span>
-                <span className="text-lg font-bold font-mono text-accent">QUA</span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: "1.125rem", color: "var(--c-accent)", fontWeight: 500 }}>QUA</span>
               </div>
             </div>
 
-            <div className="flex items-center justify-between border-b border-border pb-3">
-              <span className="text-text-secondary uppercase text-[10px]">Spendable:</span>
-              <span className="font-bold font-mono text-text-primary text-sm">{spendableQua.toLocaleString(undefined, { maximumFractionDigits: 6 })} QUA</span>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: 16, borderBottom: "1px solid var(--c-border)" }}>
+              <span className="field-label" style={{ marginBottom: 0 }}>Spendable:</span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.875rem", color: "var(--c-text-1)", fontWeight: 500 }}>{spendableQua.toLocaleString(undefined, { maximumFractionDigits: 6 })} QUA</span>
             </div>
 
             {data && data.locked_balances.length > 0 && (
-              <div className="flex items-center justify-between border-b border-border pb-3">
-                <span className="text-text-secondary uppercase text-[10px] flex items-center gap-1">
-                  <Lock className="w-3.5 h-3.5 text-accent" /> Locked/Vesting:
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: 16, borderBottom: "1px solid var(--c-border)" }}>
+                <span className="field-label" style={{ marginBottom: 0, display: "flex", alignItems: "center", gap: 4 }}>
+                  <Lock size={12} color="var(--c-accent)" /> Locked/Vesting:
                 </span>
-                <span className="font-bold font-mono text-text-primary text-sm">{lockedQua.toLocaleString(undefined, { maximumFractionDigits: 6 })} QUA</span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.875rem", color: "var(--c-text-1)", fontWeight: 500 }}>{lockedQua.toLocaleString(undefined, { maximumFractionDigits: 6 })} QUA</span>
               </div>
             )}
 
-            <div className="pt-2">
-              <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Account Nonce</p>
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-xs font-bold text-accent bg-accent/10 border border-accent/20 rounded-lg px-2.5 py-1">
+            <div>
+              <span className="field-label">Account Nonce</span>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <span className="tag tag-accent" style={{ fontSize: "0.6875rem" }}>
                   {data ? data.nonce : 0}
                 </span>
-                <span className="text-[10px] text-text-secondary uppercase">Transactions sent</span>
+                <span className="field-label" style={{ marginBottom: 0 }}>Transactions sent</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Transaction Metrics Card */}
-        <div className="quantum-panel p-6 border border-border relative overflow-hidden flex flex-col justify-between">
-          <div className="absolute -right-16 -bottom-16 w-64 h-64 bg-accent/5 rounded-full blur-3xl pointer-events-none" />
-          <h3 className="text-xs font-bold text-text-primary mb-6 flex items-center gap-2 uppercase tracking-widest relative z-10">
-            <History className="w-4 h-4 text-text-secondary" />
-            Transaction Metrics
+        <div className="panel" style={{ display: "flex", flexDirection: "column", gap: 24, padding: 32 }}>
+          <h3 style={{ display: "flex", alignItems: "center", gap: 8, margin: 0, paddingBottom: 16, borderBottom: "1px solid var(--c-border)" }}>
+            <History size={14} color="var(--c-text-2)" />
+            <span className="panel-section-label">Transaction Metrics</span>
           </h3>
-          <div className="space-y-4 relative z-10 flex-1 flex flex-col justify-center">
-            <div className="flex items-center justify-between bg-surface-2/40 border border-border rounded-xl p-5 hover:border-accent/20 transition-colors">
-              <span className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">Total Txs</span>
-              <span className="font-sans text-3xl font-black text-text-primary">{txs?.transaction_count || 0}</span>
+          <div style={{ display: "flex", flex: 1, flexDirection: "column", justifyContent: "center" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--c-bg-alt)", border: "1px solid var(--c-border)", borderRadius: 12, padding: 24 }}>
+              <span className="panel-section-label">Total Txs</span>
+              <span className="stat-val" style={{ fontSize: "2rem" }}>{txs?.transaction_count || 0}</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Transaction History Table */}
-      <h3 className="text-sm font-bold text-text-primary mb-4 flex items-center gap-2.5 uppercase tracking-widest">
-        <History className="w-4 h-4 text-text-secondary" />
-        Recent Transactions
+      <h3 style={{ display: "flex", alignItems: "center", gap: 8, margin: "0 0 24px 0" }}>
+        <History size={14} color="var(--c-text-2)" />
+        <span className="panel-section-label" style={{ color: "var(--c-text-1)" }}>Recent Transactions</span>
       </h3>
       
-      <div className="quantum-panel overflow-hidden border border-border mb-12">
-        <div className="overflow-x-auto bg-transparent">
-          <table className="w-full text-left whitespace-nowrap font-mono text-xs border-collapse">
-            <thead>
-              <tr className="border-b border-border bg-surface-2/30">
-                <th className="py-3.5 px-5 text-[10px] font-bold text-text-muted uppercase tracking-widest">Tx Hash</th>
-                <th className="py-3.5 px-5 text-[10px] font-bold text-text-muted uppercase tracking-widest">Block</th>
-                <th className="py-3.5 px-5 text-[10px] font-bold text-text-muted uppercase tracking-widest">Age</th>
-                <th className="py-3.5 px-5 text-[10px] font-bold text-text-muted uppercase tracking-widest text-center">Type</th>
-                <th className="py-3.5 px-5 text-[10px] font-bold text-text-muted uppercase tracking-widest">From / To</th>
-                <th className="py-3.5 px-5 text-[10px] font-bold text-text-muted uppercase tracking-widest text-right">Amount (QUA)</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {txs && txs.transactions.length > 0 ? (
-                txs.transactions.map((txData, i) => {
-                  const isReceiver = txData.recipient === id;
-                  const amtQua = (txData.amount_microunits / 1_000_000).toLocaleString(undefined, { maximumFractionDigits: 6 });
-                  const isCoinbase = txData.sender === 'COINBASE';
+      <div className="panel" style={{ padding: 0, overflowX: "auto" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 800 }}>
+          <thead>
+            <tr style={{ borderBottom: "1px solid var(--c-border-mid)", background: "var(--c-surface)" }}>
+              <th style={{ padding: "16px 24px", textAlign: "left" }}><span className="panel-section-label">Tx Hash</span></th>
+              <th style={{ padding: "16px 24px", textAlign: "left" }}><span className="panel-section-label">Block</span></th>
+              <th style={{ padding: "16px 24px", textAlign: "left" }}><span className="panel-section-label">Age</span></th>
+              <th style={{ padding: "16px 24px", textAlign: "center" }}><span className="panel-section-label">Type</span></th>
+              <th style={{ padding: "16px 24px", textAlign: "left" }}><span className="panel-section-label">From / To</span></th>
+              <th style={{ padding: "16px 24px", textAlign: "right" }}><span className="panel-section-label">Amount (QUA)</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {txs && txs.transactions.length > 0 ? (
+              txs.transactions.map((txData, i) => {
+                const isReceiver = txData.recipient === id;
+                const amtQua = (txData.amount_microunits / 1_000_000).toLocaleString(undefined, { maximumFractionDigits: 6 });
+                const isCoinbase = txData.sender === 'COINBASE';
 
-                  return (
-                    <tr key={`${txData.tx_hash}-${i}`} className="hover:bg-surface-2/30 transition-colors group">
-                      <td className="py-3.5 px-5">
-                        <Link href={`/tx/${txData.tx_hash}`} className="font-semibold text-text-secondary group-hover:text-accent transition-colors">
-                          {txData.tx_hash.substring(0, 16)}...
-                        </Link>
-                      </td>
-                      <td className="py-3.5 px-5">
-                        <Link href={`/block/${txData.block_height}`} className="font-bold text-text-primary group-hover:text-accent transition-colors">
-                          #{txData.block_height}
-                        </Link>
-                      </td>
-                      <td className="py-3.5 px-5 text-text-muted font-semibold group-hover:text-text-secondary transition-colors">
+                return (
+                  <tr key={`${txData.tx_hash}-${i}`} style={{ borderBottom: i === txs.transactions.length - 1 ? "none" : "1px solid var(--c-border)", background: "var(--c-bg-alt)" }}>
+                    <td style={{ padding: "16px 24px" }}>
+                      <Link href={`/tx/${txData.tx_hash}`} className="hover-accent" style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--c-text-2)", textDecoration: "none" }}>
+                        {txData.tx_hash.substring(0, 16)}...
+                      </Link>
+                    </td>
+                    <td style={{ padding: "16px 24px" }}>
+                      <Link href={`/block/${txData.block_height}`} className="hover-accent" style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--c-text-1)", textDecoration: "none", fontWeight: 500 }}>
+                        #{txData.block_height}
+                      </Link>
+                    </td>
+                    <td style={{ padding: "16px 24px" }}>
+                      <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--c-text-3)" }}>
                         <TimeAgo timestamp={txData.block_time} />
-                      </td>
-                      <td className="py-3.5 px-5 text-center">
-                        {isCoinbase ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-accent/10 text-accent rounded-full border border-accent/20 text-[9px] uppercase tracking-wider font-bold">
-                            Miner Reward
-                          </span>
-                        ) : isReceiver ? (
-                          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-accent/10 text-accent rounded-full border border-accent/20 text-[9px] uppercase tracking-wider font-bold">
-                            <ArrowLeftCircle className="w-3.5 h-3.5" /> IN
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-surface-2 text-text-secondary rounded-full border border-border text-[9px] uppercase tracking-wider font-bold">
-                            <ArrowRightCircle className="w-3.5 h-3.5 text-text-muted" /> OUT
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-3.5 px-5">
-                        {isReceiver ? (
-                          <div className="flex items-center gap-1.5 text-[10px] font-semibold text-text-secondary">
-                            <span className="text-text-muted uppercase">From</span>
-                            <span className="font-mono text-text-primary">{txData.sender.length > 20 ? `${txData.sender.substring(0, 8)}...${txData.sender.substring(txData.sender.length - 6)}` : txData.sender}</span>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-1.5 text-[10px] font-semibold text-text-secondary">
-                            <span className="text-text-muted uppercase">To</span>
-                            <span className="font-mono text-text-primary">{txData.recipient.length > 20 ? `${txData.recipient.substring(0, 8)}...${txData.recipient.substring(txData.recipient.length - 6)}` : txData.recipient}</span>
-                          </div>
-                        )}
-                      </td>
-                      <td className="py-3.5 px-5 text-right text-xs font-bold text-text-primary group-hover:text-accent transition-colors">
+                      </span>
+                    </td>
+                    <td style={{ padding: "16px 24px", textAlign: "center" }}>
+                      {isCoinbase ? (
+                        <span className="tag tag-accent" style={{ fontSize: "0.5625rem" }}>Miner Reward</span>
+                      ) : isReceiver ? (
+                        <span className="tag tag-accent" style={{ fontSize: "0.5625rem", display: "inline-flex", gap: 6 }}>
+                          <ArrowLeftCircle size={10} /> IN
+                        </span>
+                      ) : (
+                        <span className="tag" style={{ fontSize: "0.5625rem", display: "inline-flex", gap: 6, background: "var(--c-surface)", color: "var(--c-text-2)", borderColor: "var(--c-border)" }}>
+                          <ArrowRightCircle size={10} /> OUT
+                        </span>
+                      )}
+                    </td>
+                    <td style={{ padding: "16px 24px" }}>
+                      {isReceiver ? (
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <span className="field-label" style={{ marginBottom: 0, fontSize: "0.5625rem" }}>From</span>
+                          <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.6875rem", color: "var(--c-text-1)" }}>{txData.sender.length > 20 ? `${txData.sender.substring(0, 8)}...${txData.sender.substring(txData.sender.length - 6)}` : txData.sender}</span>
+                        </div>
+                      ) : (
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <span className="field-label" style={{ marginBottom: 0, fontSize: "0.5625rem" }}>To</span>
+                          <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.6875rem", color: "var(--c-text-1)" }}>{txData.recipient.length > 20 ? `${txData.recipient.substring(0, 8)}...${txData.recipient.substring(txData.recipient.length - 6)}` : txData.recipient}</span>
+                        </div>
+                      )}
+                    </td>
+                    <td style={{ padding: "16px 24px", textAlign: "right" }}>
+                      <span className="hover-accent" style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--c-text-1)", fontWeight: 500 }}>
                         {amtQua}
-                      </td>
-                    </tr>
-                  );
-                })
-              ) : (
-                <tr>
-                  <td colSpan={6} className="py-12 text-center">
-                    <div className="inline-flex flex-col items-center justify-center space-y-2">
-                      <History className="w-6 h-6 text-text-muted" />
-                      <span className="text-text-muted text-[10px] font-bold uppercase tracking-widest">No transactions found.</span>
-                    </div>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })
+            ) : (
+              <tr>
+                <td colSpan={6} style={{ padding: "48px", textAlign: "center" }}>
+                  <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+                    <History size={24} color="var(--c-text-3)" />
+                    <span className="panel-section-label">No transactions found.</span>
+                  </div>
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );
