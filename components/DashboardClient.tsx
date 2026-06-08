@@ -149,15 +149,39 @@ export default function DashboardClient({
   useEffect(() => { setIsMounted(true); }, []);
 
   useEffect(() => {
-    const load = async () => {
+    // Initial load
+    const loadInitial = async () => {
       try {
         const res = await fetch("/api/blocks?page=1&limit=10");
         if (res.ok) { const d = await res.json(); setDbBlocks(d.blocks || []); }
       } catch { }
     };
-    load();
-    const id = setInterval(load, 15000);
-    return () => clearInterval(id);
+    loadInitial();
+
+    // Setup SSE for real-time updates
+    const eventSource = new EventSource("/api/blocks/stream");
+    
+    eventSource.onmessage = (event) => {
+      try {
+        const newBlock = JSON.parse(event.data);
+        setDbBlocks(prev => {
+          // Check if block already exists to prevent duplicates
+          if (prev.some(b => b.index === newBlock.index)) return prev;
+          // Prepend new block and keep max 10
+          return [newBlock, ...prev].slice(0, 10);
+        });
+      } catch (e) {
+        console.error("Error parsing block from stream:", e);
+      }
+    };
+
+    eventSource.onerror = (error) => {
+      console.error("SSE error:", error);
+    };
+
+    return () => {
+      eventSource.close();
+    };
   }, []);
 
   useEffect(() => {
