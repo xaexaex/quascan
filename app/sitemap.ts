@@ -1,30 +1,26 @@
-import { MetadataRoute } from 'next';
+import { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  const baseUrl = 'https://quascan.xyz'
+
   return [
     {
-      url: 'https://www.quascan.xyz',
+      url: baseUrl,
       lastModified: new Date(),
       changeFrequency: 'always',
       priority: 1,
     },
     {
-      url: 'https://www.quascan.xyz/blocks',
+      url: `${baseUrl}/blocks`,
       lastModified: new Date(),
       changeFrequency: 'always',
       priority: 0.8,
     },
     {
-      url: 'https://www.quascan.xyz/transactions',
-      lastModified: new Date(),
-      changeFrequency: 'always',
-      priority: 0.8,
-    },
-    {
-      url: 'https://www.quascan.xyz/validators',
+      url: `${baseUrl}/validators`,
       lastModified: new Date(),
       changeFrequency: 'hourly',
       priority: 0.7,
     },
-  ];
+  ]
 }
