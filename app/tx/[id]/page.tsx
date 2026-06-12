@@ -87,7 +87,7 @@ export default async function TxDetailsPage({
         <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
           
           {/* Main Transaction Summary */}
-          <div className="panel" style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+          <div className="panel" style={{ display: "flex", flexDirection: "column", gap: 24, padding: 24 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: 16, borderBottom: "1px solid var(--c-border)" }}>
               <h3 style={{ display: "flex", alignItems: "center", gap: 8, margin: 0 }}>
                 <Hash size={14} color="var(--c-accent)" />
@@ -144,7 +144,7 @@ export default async function TxDetailsPage({
           </div>
 
           {/* Post-Quantum Security */}
-          <div className="panel" style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+          <div className="panel" style={{ display: "flex", flexDirection: "column", gap: 24, padding: 24 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: 16, borderBottom: "1px solid var(--c-border)" }}>
               <h3 style={{ display: "flex", alignItems: "center", gap: 8, margin: 0 }}>
                 <ShieldCheck size={14} color="var(--c-accent)" />
@@ -192,7 +192,7 @@ export default async function TxDetailsPage({
         {/* RIGHT COLUMN: Sidebar (Status & consensus info) */}
         <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
           
-          <div className="panel" style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+          <div className="panel" style={{ display: "flex", flexDirection: "column", gap: 24, padding: 24 }}>
             <h3 style={{ display: "flex", alignItems: "center", gap: 8, paddingBottom: 16, borderBottom: "1px solid var(--c-border)", margin: 0 }}>
               <Cpu size={14} color="var(--c-accent)" />
               <span className="panel-section-label">Consensus & Status</span>

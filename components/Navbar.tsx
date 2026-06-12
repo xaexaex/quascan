@@ -5,9 +5,10 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 
 const NAV_LINKS = [
-  { href: "/",           label: "Home" },
-  { href: "/blocks",     label: "Blocks" },
-  { href: "/validators", label: "Validators" },
+  { href: "/",              label: "Home" },
+  { href: "/blocks",        label: "Blocks" },
+  { href: "/transactions",  label: "Transactions" },
+  { href: "/validators",   label: "Validators" },
 ];
 
 export default function Navbar() {
