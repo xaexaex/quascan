@@ -459,7 +459,12 @@ export default function DashboardClient({
           {/* Stats strip */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", borderTop: "1px solid var(--c-border)" }} className="stats-strip">
             {[
-              { label: "Avg Block Time", value: "6.0 s" },
+              { 
+                label: "Avg Block Time", 
+                value: dbBlocks.length >= 2 
+                  ? ((dbBlocks[0].timestamp - dbBlocks[dbBlocks.length - 1].timestamp) / (dbBlocks.length - 1)).toFixed(1) + " s" 
+                  : "—" 
+              },
               { label: "Total Txs", value: historyData.length > 0 ? (historyData.reduce((a, b) => a + (b.transactions ?? 0), 0) / 1000).toFixed(1) + "k" : "—" },
               { label: "Validators", value: "7" },
               { label: "Chain Height", value: Math.max(0, (initialStats?.chain_length || 1) - 1).toLocaleString() },
