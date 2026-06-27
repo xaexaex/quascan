@@ -44,3 +44,6 @@ next-env.d.ts
 /mongodb_data/
 *.stackdump
 
+
+public/sitemap*.xml
+public/robots.txt

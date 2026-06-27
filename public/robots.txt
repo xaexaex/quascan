@@ -1,5 +1,9 @@
-# https://www.robotstxt.org/robotstxt.html
+# *
 User-agent: *
 Allow: /
 
+# Host
+Host: https://www.quascan.xyz
+
+# Sitemaps
 Sitemap: https://www.quascan.xyz/sitemap.xml
