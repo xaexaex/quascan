@@ -465,7 +465,7 @@ export default function DashboardClient({
                   ? ((dbBlocks[0].timestamp - dbBlocks[dbBlocks.length - 1].timestamp) / (dbBlocks.length - 1)).toFixed(1) + " s" 
                   : "—" 
               },
-              { label: "Total Txs", value: historyData.length > 0 ? (historyData.reduce((a, b) => a + (b.transactions ?? 0), 0) / 1000).toFixed(1) + "k" : "—" },
+              { label: "Total Txs", value: initialStats?.total_transactions ? (initialStats.total_transactions > 1000 ? (initialStats.total_transactions / 1000).toFixed(1) + "k" : initialStats.total_transactions.toLocaleString()) : (historyData.length > 0 ? (historyData.reduce((a, b) => a + (b.transactions ?? 0), 0) / 1000).toFixed(1) + "k" : "—") },
               { label: "Validators", value: "7" },
               { label: "Chain Height", value: Math.max(0, (initialStats?.chain_length || 1) - 1).toLocaleString() },
               { label: "Gas Tracker", value: "0.001 QUA" },

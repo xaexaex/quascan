@@ -28,15 +28,28 @@ export async function GET() {
     const startOfDay = new Date(now.getTime() - 14 * oneDayMs);
     const startUnix = Math.floor(startOfDay.getTime() / 1000);
 
-    // 2. Fetch real transactions from MongoDB created in this time window
-    const txs = await Transaction.find({ blockTime: { $gte: startUnix } });
+    // 2. Fetch aggregated daily transactions from MongoDB in this time window
+    const dailyStats = await Transaction.aggregate([
+      { $match: { blockTime: { $gte: startUnix } } },
+      { 
+        $group: {
+          _id: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: { $toDate: { $multiply: ["$blockTime", 1000] } }
+            }
+          },
+          count: { $sum: 1 }
+        }
+      }
+    ]);
 
     // 3. Populate daily counts
-    txs.forEach((tx) => {
-      const txDateStr = new Date(tx.blockTime * 1000).toISOString().split('T')[0];
+    dailyStats.forEach((stat) => {
+      const txDateStr = stat._id;
       const foundDay = days.find(d => d.dateStr === txDateStr);
       if (foundDay) {
-        foundDay.transactions += 1;
+        foundDay.transactions = stat.count;
       }
     });
 

@@ -31,5 +31,6 @@ const TransactionSchema: Schema = new Schema({
 TransactionSchema.index({ sender: 1 });
 TransactionSchema.index({ recipient: 1 });
 TransactionSchema.index({ blockHeight: -1 });
+TransactionSchema.index({ blockTime: 1 });
 
 export default mongoose.models.Transaction || mongoose.model<ITransaction>('Transaction', TransactionSchema);
