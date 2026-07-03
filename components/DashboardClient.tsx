@@ -468,7 +468,7 @@ export default function DashboardClient({
               { label: "Total Txs", value: initialStats?.total_transactions ? (initialStats.total_transactions > 1000 ? (initialStats.total_transactions / 1000).toFixed(1) + "k" : initialStats.total_transactions.toLocaleString()) : (historyData.length > 0 ? (historyData.reduce((a, b) => a + (b.transactions ?? 0), 0) / 1000).toFixed(1) + "k" : "—") },
               { label: "Validators", value: initialStats ? String((initialStats as any).validator_count ?? (initialStats as any).active_validators ?? 7) : "7" },
               { label: "Chain Height", value: Math.max(0, (initialStats?.chain_length || 1) - 1, dbBlocks.length > 0 ? dbBlocks[0].index : 0).toLocaleString() },
-              { label: "Gas Tracker", value: initialStats?.mining_reward ? (initialStats.mining_reward / 1_000_000).toFixed(3) + " QUA" : "0.001 QUA" },
+              { label: "Block Reward", value: initialStats?.mining_reward ? (initialStats.mining_reward / 1_000_000).toFixed(3) + " QUA" : "50.000 QUA" },
             ].map((s, i) => (
               <div
                 key={i}
