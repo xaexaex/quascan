@@ -457,7 +457,7 @@ export default function DashboardClient({
           </div>
 
           {/* Stats strip */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", borderTop: "1px solid var(--c-border)" }} className="stats-strip">
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", borderTop: "1px solid var(--c-border)" }} className="stats-strip">
             {[
               { 
                 label: "Avg Block Time", 
@@ -469,10 +469,25 @@ export default function DashboardClient({
               { label: "Validators", value: initialStats ? String((initialStats as any).validator_count ?? (initialStats as any).active_validators ?? 7) : "7" },
               { label: "Chain Height", value: Math.max(0, (initialStats?.chain_length || 1) - 1, dbBlocks.length > 0 ? dbBlocks[0].index : 0).toLocaleString() },
               { label: "Block Reward", value: initialStats?.mining_reward ? (initialStats.mining_reward / 1_000_000).toFixed(3) + " QUA" : "50.000 QUA" },
+              { label: "Gas Tracker", value: (() => {
+                  let totalFee = 0;
+                  let feeTxCount = 0;
+                  dbBlocks.forEach(b => {
+                      (b.transactions || []).forEach((tx: any) => {
+                          const payload = tx?.V2_Falcon512 || tx?.V1_Ed25519 || tx || {};
+                          if (payload.sender !== "COINBASE" && payload.sender !== "TREASURY") {
+                              totalFee += Number(payload.fee || 0);
+                              feeTxCount++;
+                          }
+                      });
+                  });
+                  if (feeTxCount === 0) return "< 0.0001 QUA";
+                  return ((totalFee / feeTxCount) / 1000000).toFixed(4) + " QUA";
+              })() },
             ].map((s, i) => (
               <div
                 key={i}
-                style={{ padding: "20px 24px", borderRight: i < 4 ? "1px solid var(--c-border)" : "none" }}
+                style={{ padding: "20px 24px", borderRight: i < 5 ? "1px solid var(--c-border)" : "none" }}
               >
                 <div className="stat-val">{s.value}</div>
                 <div className="stat-lbl">{s.label}</div>
@@ -486,12 +501,13 @@ export default function DashboardClient({
         @media (max-width: 860px) {
           .table-grid { grid-template-columns: 1fr !important; }
           .table-grid > div:last-child { border-left: 1px solid var(--c-border) !important; border-top: none; }
-          .stats-strip { grid-template-columns: repeat(2, 1fr) !important; }
-          .stats-strip > div:nth-child(2) { border-right: none !important; }
+          .stats-strip { grid-template-columns: repeat(3, 1fr) !important; }
+          .stats-strip > div:nth-child(3) { border-right: none !important; }
         }
         @media (max-width: 500px) {
-          .stats-strip { grid-template-columns: 1fr !important; }
-          .stats-strip > div { border-right: none !important; border-bottom: 1px solid var(--c-border); }
+          .stats-strip { grid-template-columns: repeat(2, 1fr) !important; }
+          .stats-strip > div:nth-child(even) { border-right: none !important; }
+          .stats-strip > div { border-bottom: 1px solid var(--c-border); }
         }
       `}</style>
     </div>
