@@ -160,6 +160,8 @@ export interface ValidatorInfo {
   stake_microunits: number;
   registered_epoch: number;
   active: boolean;
+  is_online: boolean;
+  node_version: number | null;
 }
 
 export interface ValidatorsResponse {

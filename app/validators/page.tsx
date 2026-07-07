@@ -61,6 +61,8 @@ export default async function ValidatorsPage() {
           <thead>
             <tr style={{ borderBottom: "1px solid var(--c-border-mid)", background: "var(--c-surface)" }}>
               <th style={{ padding: "16px 24px", textAlign: "left" }}><span className="panel-section-label">Status</span></th>
+              <th style={{ padding: "16px 24px", textAlign: "left" }}><span className="panel-section-label">Network</span></th>
+              <th style={{ padding: "16px 24px", textAlign: "left" }}><span className="panel-section-label">Version</span></th>
               <th style={{ padding: "16px 24px", textAlign: "left" }}><span className="panel-section-label">Validator Address</span></th>
               <th style={{ padding: "16px 24px", textAlign: "left" }}><span className="panel-section-label">Stake (QUA)</span></th>
               <th style={{ padding: "16px 24px", textAlign: "left" }}><span className="panel-section-label">Registered Epoch</span></th>
@@ -76,6 +78,16 @@ export default async function ValidatorsPage() {
                   ) : (
                     <span className="tag" style={{ fontSize: "0.5625rem", background: "var(--c-bg)", color: "var(--c-text-3)", borderColor: "var(--c-border-mid)" }}>Inactive</span>
                   )}
+                </td>
+                <td style={{ padding: "16px 24px" }}>
+                  {val.is_online ? (
+                    <span className="tag" style={{ fontSize: "0.5625rem", color: "#4ade80", borderColor: "#4ade8040", background: "#4ade8010" }}>Online</span>
+                  ) : (
+                    <span className="tag" style={{ fontSize: "0.5625rem", color: "#f87171", borderColor: "#f8717140", background: "#f8717110" }}>Offline</span>
+                  )}
+                </td>
+                <td style={{ padding: "16px 24px", fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--c-text-2)" }}>
+                  {val.node_version ? `v${val.node_version}` : "Unknown"}
                 </td>
                 <td style={{ padding: "16px 24px" }}>
                   <Link href={`/address/${val.address}`} className="hover-accent" style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--c-text-1)", textDecoration: "none" }}>
@@ -96,7 +108,7 @@ export default async function ValidatorsPage() {
             ))}
             {data.validators.length === 0 && (
               <tr>
-                <td colSpan={5} style={{ padding: "48px", textAlign: "center" }}>
+                <td colSpan={7} style={{ padding: "48px", textAlign: "center" }}>
                   <span className="panel-section-label">No validators registered.</span>
                 </td>
               </tr>
