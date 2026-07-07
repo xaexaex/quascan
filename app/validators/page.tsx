@@ -75,6 +75,8 @@ export default async function ValidatorsPage() {
               <th style={{ padding: "16px 24px", textAlign: "left" }}><span className="panel-section-label">Validator Address</span></th>
               <th style={{ padding: "16px 24px", textAlign: "left" }}><span className="panel-section-label">Stake (QUA)</span></th>
               <th style={{ padding: "16px 24px", textAlign: "left" }}><span className="panel-section-label">Reg. Block / Session</span></th>
+              <th style={{ padding: "16px 24px", textAlign: "left" }}><span className="panel-section-label">Proposed</span></th>
+              <th style={{ padding: "16px 24px", textAlign: "left" }}><span className="panel-section-label">Sign Rate</span></th>
               <th style={{ padding: "16px 24px", textAlign: "left" }}><span className="panel-section-label">Public Key Snippet</span></th>
             </tr>
           </thead>
@@ -111,6 +113,26 @@ export default async function ValidatorsPage() {
                   Block {val.registered_epoch}
                   <span style={{ marginLeft: 6, fontSize: "0.65rem", color: "var(--c-text-3)" }}>(S{Math.floor(val.registered_epoch / 60)})</span>
                 </td>
+                <td style={{ padding: "16px 24px", fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--c-text-2)" }}>
+                  {val.blocks_proposed ?? "—"}
+                </td>
+                <td style={{ padding: "16px 24px", minWidth: 120 }}>
+                  {val.sign_rate_pct != null ? (() => {
+                    const rate = val.sign_rate_pct;
+                    const color = rate >= 90 ? "#4ade80" : rate >= 70 ? "#facc15" : "#f87171";
+                    return (
+                      <div>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                          <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.6875rem", color }}>{rate.toFixed(1)}%</span>
+                          <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.6rem", color: "var(--c-text-3)" }}>{val.blocks_signed}/{val.uptime_window}</span>
+                        </div>
+                        <div style={{ height: 4, borderRadius: 2, background: "var(--c-border-mid)", overflow: "hidden" }}>
+                          <div style={{ height: "100%", width: `${Math.min(rate, 100)}%`, background: color, borderRadius: 2, transition: "width 0.3s ease" }} />
+                        </div>
+                      </div>
+                    );
+                  })() : <span style={{ color: "var(--c-text-3)", fontSize: "0.6875rem" }}>—</span>}
+                </td>
                 <td style={{ padding: "16px 24px", fontFamily: "var(--font-mono)", fontSize: "0.625rem", color: "var(--c-text-3)" }} title={val.falcon_pk_hex}>
                   {val.falcon_pk_hex.substring(0, 16)}...{val.falcon_pk_hex.substring(val.falcon_pk_hex.length - 16)}
                 </td>
@@ -118,7 +140,7 @@ export default async function ValidatorsPage() {
             ))}
             {data.validators.length === 0 && (
               <tr>
-                <td colSpan={7} style={{ padding: "48px", textAlign: "center" }}>
+                <td colSpan={9} style={{ padding: "48px", textAlign: "center" }}>
                   <span className="panel-section-label">No validators registered.</span>
                 </td>
               </tr>

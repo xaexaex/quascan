@@ -162,6 +162,12 @@ export interface ValidatorInfo {
   active: boolean;
   is_online: boolean;
   node_version: number | null;
+  // Consensus participation stats
+  blocks_proposed: number;
+  blocks_signed: number;
+  blocks_missed: number;
+  sign_rate_pct: number;
+  uptime_window: number;
 }
 
 export interface ValidatorsResponse {
