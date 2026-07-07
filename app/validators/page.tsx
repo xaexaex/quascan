@@ -2,6 +2,7 @@ import { fetchValidators, fetchPeers } from "@/lib/api";
 import Link from "next/link";
 import { ShieldCheck, Cpu, Activity, UserCircle } from "lucide-react";
 import BackButton from "@/components/BackButton";
+import monikers from "@/lib/monikers.json";
 
 export default async function ValidatorsPage() {
   const [data, peersData] = await Promise.all([fetchValidators(), fetchPeers()]);
@@ -101,9 +102,18 @@ export default async function ValidatorsPage() {
                   {val.node_version ? `v${val.node_version}` : "Unknown"}
                 </td>
                 <td style={{ padding: "16px 24px" }}>
-                  <Link href={`/address/${val.address}`} className="hover-accent" style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--c-text-1)", textDecoration: "none" }}>
-                    <UserCircle size={14} color="var(--c-text-3)" />
-                    {val.address}
+                  <Link href={`/address/${val.address}`} className="hover-accent" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
+                    <UserCircle size={14} color="var(--c-text-3)" style={{ flexShrink: 0 }} />
+                    <div>
+                      {(monikers as Record<string, string>)[val.address] && (
+                        <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", fontWeight: 600, color: "var(--c-accent)", letterSpacing: "0.04em" }}>
+                          {(monikers as Record<string, string>)[val.address]}
+                        </div>
+                      )}
+                      <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.6875rem", color: "var(--c-text-2)" }}>
+                        {val.address}
+                      </div>
+                    </div>
                   </Link>
                 </td>
                 <td style={{ padding: "16px 24px", fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--c-accent)" }}>
