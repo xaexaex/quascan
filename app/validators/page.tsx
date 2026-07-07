@@ -41,10 +41,18 @@ export default async function ValidatorsPage() {
         
         <div className="panel" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 24 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-            <span className="panel-section-label">Active</span>
+            <span className="panel-section-label">BFT Active</span>
             <Activity size={16} color="var(--c-accent)" />
           </div>
           <div className="stat-val" style={{ color: "var(--c-accent)" }}>{data.active_count}</div>
+        </div>
+
+        <div className="panel" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 24 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+            <span className="panel-section-label">Online Now</span>
+            <Activity size={16} color="#4ade80" />
+          </div>
+          <div className="stat-val" style={{ color: "#4ade80" }}>{data.validators.filter(v => v.is_online).length}</div>
         </div>
         
         <div className="panel" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 24 }}>
@@ -65,7 +73,7 @@ export default async function ValidatorsPage() {
               <th style={{ padding: "16px 24px", textAlign: "left" }}><span className="panel-section-label">Version</span></th>
               <th style={{ padding: "16px 24px", textAlign: "left" }}><span className="panel-section-label">Validator Address</span></th>
               <th style={{ padding: "16px 24px", textAlign: "left" }}><span className="panel-section-label">Stake (QUA)</span></th>
-              <th style={{ padding: "16px 24px", textAlign: "left" }}><span className="panel-section-label">Registered Epoch</span></th>
+              <th style={{ padding: "16px 24px", textAlign: "left" }}><span className="panel-section-label">Reg. Block / Session</span></th>
               <th style={{ padding: "16px 24px", textAlign: "left" }}><span className="panel-section-label">Public Key Snippet</span></th>
             </tr>
           </thead>
@@ -99,7 +107,8 @@ export default async function ValidatorsPage() {
                   {(val.stake_microunits / 1_000_000).toLocaleString(undefined, { maximumFractionDigits: 2 })}
                 </td>
                 <td style={{ padding: "16px 24px", fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--c-text-2)" }}>
-                  Epoch {val.registered_epoch}
+                  Block {val.registered_epoch}
+                  <span style={{ marginLeft: 6, fontSize: "0.65rem", color: "var(--c-text-3)" }}>(S{Math.floor(val.registered_epoch / 60)})</span>
                 </td>
                 <td style={{ padding: "16px 24px", fontFamily: "var(--font-mono)", fontSize: "0.625rem", color: "var(--c-text-3)" }} title={val.falcon_pk_hex}>
                   {val.falcon_pk_hex.substring(0, 16)}...{val.falcon_pk_hex.substring(val.falcon_pk_hex.length - 16)}
