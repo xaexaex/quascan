@@ -181,3 +181,26 @@ export async function fetchValidators(): Promise<ValidatorsResponse | null> {
     return null;
   }
 }
+
+export interface PeersResponse {
+  peer_count: number;
+  peers: {
+    address: string;
+    node_id: string;
+    height: number;
+    connected_for: number;
+  }[];
+}
+
+export async function fetchPeers(): Promise<PeersResponse | null> {
+  try {
+    const res = await fetch(`${RPC_URL}/api/peers`, {
+      next: { revalidate: 15 },
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (error) {
+    console.error("Failed to fetch peers", error);
+    return null;
+  }
+}

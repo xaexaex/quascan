@@ -1,10 +1,11 @@
-import { fetchValidators } from "@/lib/api";
+import { fetchValidators, fetchPeers } from "@/lib/api";
 import Link from "next/link";
 import { ShieldCheck, Cpu, Activity, UserCircle } from "lucide-react";
 import BackButton from "@/components/BackButton";
 
 export default async function ValidatorsPage() {
-  const data = await fetchValidators();
+  const [data, peersData] = await Promise.all([fetchValidators(), fetchPeers()]);
+  const totalNodes = peersData?.peer_count ?? data?.validators.length ?? 0;
 
   if (!data) {
     return (
@@ -36,7 +37,7 @@ export default async function ValidatorsPage() {
             <span className="panel-section-label">Total Nodes</span>
             <Cpu size={16} color="var(--c-accent)" />
           </div>
-          <div className="stat-val">{data.validators.length}</div>
+          <div className="stat-val">{totalNodes}</div>
         </div>
         
         <div className="panel" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 24 }}>
@@ -50,9 +51,9 @@ export default async function ValidatorsPage() {
         <div className="panel" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 24 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
             <span className="panel-section-label">Online Now</span>
-            <Activity size={16} color="#4ade80" />
+            <Activity size={16} color="var(--c-accent)" />
           </div>
-          <div className="stat-val" style={{ color: "#4ade80" }}>{data.validators.filter(v => v.is_online).length}</div>
+          <div className="stat-val" style={{ color: "var(--c-accent)" }}>{data.validators.filter(v => v.is_online).length}</div>
         </div>
         
         <div className="panel" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 24 }}>
