@@ -78,47 +78,7 @@ export default function ValidatorsClient({ data, peersData }: { data: any, peers
         </div>
       </div>
 
-      {peersData && peersData.peers && peersData.peers.length > 0 && (
-        <div className="panel" style={{ marginBottom: 32 }}>
-          <div 
-            style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }}
-            onClick={() => setShowPeers(!showPeers)}
-          >
-            <h3 style={{ display: "flex", alignItems: "center", gap: 8, margin: 0 }}>
-              <Network size={16} color="var(--c-accent)" />
-              <span className="panel-section-label">Connected Peers ({peersData.peers.length})</span>
-            </h3>
-            {showPeers ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-          </div>
-          
-          {showPeers && (
-            <div style={{ marginTop: 16, borderTop: "1px solid var(--c-border)", paddingTop: 16 }}>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr style={{ borderBottom: "1px solid var(--c-border-mid)", background: "var(--c-surface)" }}>
-                    <th style={{ padding: "8px 16px", textAlign: "left", fontSize: "0.75rem", color: "var(--c-text-2)" }}>IP Address</th>
-                    <th style={{ padding: "8px 16px", textAlign: "left", fontSize: "0.75rem", color: "var(--c-text-2)" }}>Node ID</th>
-                    <th style={{ padding: "8px 16px", textAlign: "left", fontSize: "0.75rem", color: "var(--c-text-2)" }}>Height</th>
-                    <th style={{ padding: "8px 16px", textAlign: "left", fontSize: "0.75rem", color: "var(--c-text-2)" }}>Connected For</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {peersData.peers.map((peer: any, idx: number) => (
-                    <tr key={idx} style={{ borderBottom: "1px solid var(--c-border)" }}>
-                      <td style={{ padding: "8px 16px", fontFamily: "var(--font-mono)", fontSize: "0.75rem" }}>
-                        {peer.address ? peer.address.replace(/^(\d+\.\d+)\.\d+\.\d+/, '$1.*.*') : 'Unknown'}
-                      </td>
-                      <td style={{ padding: "8px 16px", fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--c-text-3)" }}>{peer.node_id?.substring(0, 16) || 'Unknown'}</td>
-                      <td style={{ padding: "8px 16px", fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--c-accent)" }}>{peer.height}</td>
-                      <td style={{ padding: "8px 16px", fontFamily: "var(--font-mono)", fontSize: "0.75rem" }}>{Math.floor(peer.connected_for / 60)}m</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      )}
+
 
       <div className="panel" style={{ padding: 0, overflowX: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 800 }}>
