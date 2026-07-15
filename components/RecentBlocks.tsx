@@ -16,11 +16,7 @@ export default function RecentBlocks() {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchRecentBlocks();
-    const interval = setInterval(fetchRecentBlocks, 10000);
-    return () => clearInterval(interval);
-  }, []);
+  const [now, setNow] = useState(Date.now());
 
   const fetchRecentBlocks = async () => {
     try {
@@ -41,8 +37,19 @@ export default function RecentBlocks() {
     }
   };
 
+  useEffect(() => {
+    fetchRecentBlocks();
+    const interval = setInterval(() => {
+      fetchRecentBlocks();
+      setNow(Date.now());
+    }, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+
+
   const formatTime = (timestamp: number) => {
-    const seconds = Math.floor((Date.now() - timestamp) / 1000);
+    const seconds = Math.floor((now - timestamp) / 1000);
     if (seconds < 60) return `${seconds}s ago`;
     if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
     return `${Math.floor(seconds / 3600)}h ago`;

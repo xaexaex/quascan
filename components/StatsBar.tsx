@@ -5,7 +5,8 @@ import { Activity, Blocks, Users, Database } from "lucide-react";
 
 interface NetworkStats {
   blockHeight: number;
-  difficulty: string;
+  currentSession: number;
+  blocksUntilNextSession: number;
   mempoolSize: number;
   peerCount: number;
   hashrate: string;
@@ -13,15 +14,6 @@ interface NetworkStats {
 
 export default function StatsBar() {
   const [stats, setStats] = useState<NetworkStats | null>(null);
-
-  useEffect(() => {
-    // Fetch initial stats
-    fetchStats();
-    
-    // Poll every 10 seconds
-    const interval = setInterval(fetchStats, 10000);
-    return () => clearInterval(interval);
-  }, []);
 
   const fetchStats = async () => {
     try {
@@ -34,6 +26,15 @@ export default function StatsBar() {
       console.error('Failed to fetch stats:', error);
     }
   };
+
+  useEffect(() => {
+    // Fetch initial stats
+    fetchStats();
+    
+    // Poll every 10 seconds
+    const interval = setInterval(fetchStats, 10000);
+    return () => clearInterval(interval);
+  }, []);
 
   if (!stats) {
     return (
@@ -63,8 +64,15 @@ export default function StatsBar() {
             <Activity className="w-6 h-6 text-[#00E599]" />
           </div>
           <div>
-            <div className="text-gray-400 text-sm uppercase tracking-wider mb-1">Difficulty</div>
-            <div className="text-white text-3xl font-bold">{stats.difficulty}</div>
+            <div className="text-gray-400 text-sm uppercase tracking-wider mb-1 flex items-center gap-2">
+              BFT Session
+              {stats.blocksUntilNextSession !== undefined && (
+                <span className="text-xs normal-case text-gray-500">
+                  (next in {stats.blocksUntilNextSession} blks)
+                </span>
+              )}
+            </div>
+            <div className="text-white text-3xl font-bold">{stats.currentSession || 0}</div>
           </div>
         </div>
 

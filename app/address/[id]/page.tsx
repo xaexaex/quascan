@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
-import { fetchAddressInfo, fetchAddressTransactions } from '@/lib/api';
-import { Wallet, Coins, History, ArrowRightCircle, ArrowLeftCircle, Lock } from 'lucide-react';
+import { fetchAddressInfo, fetchAddressTransactions, fetchValidators } from '@/lib/api';
+import { Wallet, Coins, History, ArrowRightCircle, ArrowLeftCircle, Lock, ShieldCheck, Activity } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import dbConnect from '@/lib/db';
@@ -28,10 +28,17 @@ function TimeAgo({ timestamp }: { timestamp: number }) {
 
 export default async function AddressDetailsPage({
   params,
+  searchParams,
 }: {
-  params: Promise<{ id: string }>
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const { id } = await params;
+  const sParams = await searchParams;
+  let page = parseInt(sParams.page as string, 10);
+  if (isNaN(page) || page < 1) page = 1;
+  const pageSize = 20;
+  const skip = (page - 1) * pageSize;
 
   if (!id) {
     notFound();
@@ -39,14 +46,22 @@ export default async function AddressDetailsPage({
 
   await dbConnect();
 
-  const [data, dbTxsRaw, rpcTxsRaw] = await Promise.all([
+  const [data, dbTxsRaw, sentCount, receivedCount, firstTx, lastTx, validatorsData] = await Promise.all([
     fetchAddressInfo(id),
     TransactionModel.find({ $or: [{ sender: id }, { recipient: id }] })
       .sort({ blockHeight: -1 })
-      .limit(100)
+      .skip(skip)
+      .limit(pageSize)
       .lean() as Promise<any[]>,
-    fetchAddressTransactions(id, 10_000).catch(() => null),
+    TransactionModel.countDocuments({ sender: id }),
+    TransactionModel.countDocuments({ recipient: id }),
+    TransactionModel.findOne({ $or: [{ sender: id }, { recipient: id }] }).sort({ blockHeight: 1 }).select('blockTime').lean() as Promise<any>,
+    TransactionModel.findOne({ $or: [{ sender: id }, { recipient: id }] }).sort({ blockHeight: -1 }).select('blockTime').lean() as Promise<any>,
+    fetchValidators().catch(() => null),
   ]);
+
+  const txCount = sentCount + receivedCount;
+  const totalPages = Math.max(1, Math.ceil(txCount / pageSize));
 
   const dbTxs = (dbTxsRaw ?? []).map((tx: any) => ({
     tx_hash: tx.txHash as string,
@@ -59,25 +74,9 @@ export default async function AddressDetailsPage({
     tx_type: (tx.txType || 'TRANSFER') as string,
   }));
 
-  const rpcTxs = rpcTxsRaw?.transactions ?? [];
-
-  const seen = new Set<string>();
-  const merged: typeof rpcTxs = [];
-  for (const tx of [...rpcTxs, ...dbTxs]) {
-    if (!seen.has(tx.tx_hash)) {
-      seen.add(tx.tx_hash);
-      merged.push(tx);
-    }
-  }
-  merged.sort((a, b) => b.block_height - a.block_height);
-  const topTxs = merged.slice(0, 100);
-
   const txs = {
-    transaction_count: Math.max(
-      rpcTxsRaw?.transaction_count ?? 0,
-      await TransactionModel.countDocuments({ $or: [{ sender: id }, { recipient: id }] }),
-    ),
-    transactions: topTxs,
+    transaction_count: txCount,
+    transactions: dbTxs,
   };
 
   if (!data && txs.transactions.length === 0) {
@@ -87,6 +86,8 @@ export default async function AddressDetailsPage({
   const spendableQua = data ? data.balance_qua : 0;
   const totalQua = data ? data.total_balance_qua : 0;
   const lockedQua = totalQua - spendableQua;
+
+  const validatorInfo = validatorsData?.validators.find((v) => v.address === id);
 
   return (
     <div className="page-wrap">
@@ -135,11 +136,31 @@ export default async function AddressDetailsPage({
             </div>
 
             {data && data.locked_balances.length > 0 && (
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: 16, borderBottom: "1px solid var(--c-border)" }}>
-                <span className="field-label" style={{ marginBottom: 0, display: "flex", alignItems: "center", gap: 4 }}>
-                  <Lock size={12} color="var(--c-accent)" /> Locked/Vesting:
-                </span>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.875rem", color: "var(--c-text-1)", fontWeight: 500 }}>{lockedQua.toLocaleString(undefined, { maximumFractionDigits: 6 })} QUA</span>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12, paddingBottom: 16, borderBottom: "1px solid var(--c-border)" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <span className="field-label" style={{ marginBottom: 0, display: "flex", alignItems: "center", gap: 4 }}>
+                    <Lock size={12} color="var(--c-accent)" /> Locked/Vesting:
+                  </span>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.875rem", color: "var(--c-text-1)", fontWeight: 500 }}>{lockedQua.toLocaleString(undefined, { maximumFractionDigits: 6 })} QUA</span>
+                </div>
+                {data.locked_balances.map((lb, idx) => {
+                  const unlockHeight = lb.unlock_height;
+                  const currentHeight = lastTx?.blockHeight || 0; // Approximate current height
+                  const progress = Math.min(100, Math.max(0, ((currentHeight) / unlockHeight) * 100));
+                  return (
+                    <div key={idx} style={{ background: "var(--c-bg-alt)", padding: 12, borderRadius: 8, border: "1px solid var(--c-border)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                        <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.6875rem", color: "var(--c-text-2)" }}>{lb.amount_qua.toLocaleString()} QUA</span>
+                        <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.6875rem", color: progress >= 100 ? "#4ade80" : "var(--c-text-3)" }}>
+                          {progress >= 100 ? "Unlocked" : `Unlocks at #${unlockHeight}`}
+                        </span>
+                      </div>
+                      <div style={{ height: 4, borderRadius: 2, background: "var(--c-border-mid)", overflow: "hidden" }}>
+                        <div style={{ height: "100%", width: `${progress}%`, background: progress >= 100 ? "#4ade80" : "var(--c-accent)", borderRadius: 2 }} />
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
 
@@ -161,13 +182,76 @@ export default async function AddressDetailsPage({
             <History size={14} color="var(--c-text-2)" />
             <span className="panel-section-label">Transaction Metrics</span>
           </h3>
-          <div style={{ display: "flex", flex: 1, flexDirection: "column", justifyContent: "center" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--c-bg-alt)", border: "1px solid var(--c-border)", borderRadius: 12, padding: 24 }}>
-              <span className="panel-section-label">Total Txs</span>
-              <span className="stat-val" style={{ fontSize: "2rem" }}>{txs?.transaction_count || 0}</span>
+          <div style={{ display: "flex", flex: 1, flexDirection: "column", justifyContent: "center", gap: 16 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              <div style={{ display: "flex", flexDirection: "column", background: "var(--c-bg-alt)", border: "1px solid var(--c-border)", borderRadius: 12, padding: 16 }}>
+                <span className="panel-section-label" style={{ fontSize: "0.6875rem" }}>Total Txs</span>
+                <span className="stat-val" style={{ fontSize: "1.5rem" }}>{txs?.transaction_count || 0}</span>
+                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8, paddingTop: 8, borderTop: "1px solid var(--c-border)" }}>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.6875rem", color: "var(--c-text-3)" }}>IN: {receivedCount}</span>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.6875rem", color: "var(--c-text-3)" }}>OUT: {sentCount}</span>
+                </div>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", background: "var(--c-bg-alt)", border: "1px solid var(--c-border)", borderRadius: 12, padding: 16 }}>
+                <span className="panel-section-label" style={{ fontSize: "0.6875rem" }}>Activity</span>
+                <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 4 }}>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.6875rem", color: "var(--c-text-2)" }}>First: {firstTx ? <TimeAgo timestamp={firstTx.blockTime} /> : "N/A"}</span>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.6875rem", color: "var(--c-text-2)" }}>Last: {lastTx ? <TimeAgo timestamp={lastTx.blockTime} /> : "N/A"}</span>
+                </div>
+              </div>
             </div>
+            {validatorInfo && (
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--c-bg-alt)", border: "1px solid var(--c-border)", borderRadius: 12, padding: 24 }}>
+                <span className="panel-section-label">Validator Stake</span>
+                <span className="stat-val" style={{ fontSize: "1.5rem", color: "var(--c-accent)" }}>{(validatorInfo.stake_microunits / 1_000_000).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+              </div>
+            )}
           </div>
         </div>
+
+        {/* Validator Metrics Card (Conditional) */}
+        {validatorInfo && (
+          <div className="panel" style={{ display: "flex", flexDirection: "column", gap: 24, padding: 32 }}>
+            <h3 style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: 0, paddingBottom: 16, borderBottom: "1px solid var(--c-border)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <ShieldCheck size={14} color="var(--c-accent)" />
+                <span className="panel-section-label">Consensus Node</span>
+              </div>
+              {validatorInfo.is_online ? (
+                <span className="tag" style={{ fontSize: "0.5625rem", color: "#4ade80", borderColor: "#4ade8040", background: "#4ade8010" }}>Online</span>
+              ) : (
+                <span className="tag" style={{ fontSize: "0.5625rem", color: "#f87171", borderColor: "#f8717140", background: "#f8717110" }}>Offline</span>
+              )}
+            </h3>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: 16, borderBottom: "1px solid var(--c-border)" }}>
+                <span className="field-label" style={{ marginBottom: 0 }}>Blocks Proposed:</span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.875rem", color: "var(--c-text-1)", fontWeight: 500 }}>{validatorInfo.blocks_proposed}</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: 16, borderBottom: "1px solid var(--c-border)" }}>
+                <span className="field-label" style={{ marginBottom: 0 }}>Blocks Missed:</span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.875rem", color: "var(--c-text-1)", fontWeight: 500 }}>{validatorInfo.blocks_missed}</span>
+              </div>
+              
+              <div>
+                <span className="field-label" style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                  <span>Sign Rate</span>
+                  <span style={{ color: "var(--c-text-1)" }}>{validatorInfo.sign_rate_pct != null ? validatorInfo.sign_rate_pct.toFixed(1) : 0}%</span>
+                </span>
+                <div style={{ height: 6, borderRadius: 3, background: "var(--c-border-mid)", overflow: "hidden" }}>
+                  <div style={{ 
+                    height: "100%", 
+                    width: `${Math.min(validatorInfo.sign_rate_pct || 0, 100)}%`, 
+                    background: (validatorInfo.sign_rate_pct || 0) >= 90 ? "#4ade80" : (validatorInfo.sign_rate_pct || 0) >= 70 ? "#facc15" : "#f87171", 
+                    borderRadius: 3, 
+                    transition: "width 0.3s ease" 
+                  }} />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Transaction History Table */}
@@ -259,6 +343,29 @@ export default async function AddressDetailsPage({
           </tbody>
         </table>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 24, marginTop: 40 }}>
+          <Link
+            href={page > 1 ? `/address/${id}?page=${page - 1}` : '#'}
+            className={`page-btn ${page <= 1 ? 'disabled' : ''}`}
+            style={{ padding: "8px 16px", background: "var(--c-bg-alt)", border: "1px solid var(--c-border)", borderRadius: 6, color: page <= 1 ? "var(--c-text-3)" : "var(--c-text-1)", textDecoration: "none" }}
+          >
+            &larr; Prev
+          </Link>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', color: 'var(--c-text-3)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            Page <strong style={{ color: 'var(--c-text-1)', fontWeight: 500 }}>{page}</strong> of <strong style={{ color: 'var(--c-text-1)', fontWeight: 500 }}>{totalPages}</strong>
+          </span>
+          <Link
+            href={page < totalPages ? `/address/${id}?page=${page + 1}` : '#'}
+            className={`page-btn ${page >= totalPages ? 'disabled' : ''}`}
+            style={{ padding: "8px 16px", background: "var(--c-bg-alt)", border: "1px solid var(--c-border)", borderRadius: 6, color: page >= totalPages ? "var(--c-text-3)" : "var(--c-text-1)", textDecoration: "none" }}
+          >
+            Next &rarr;
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

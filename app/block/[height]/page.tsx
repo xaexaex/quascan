@@ -34,6 +34,8 @@ export default async function BlockDetailsPage({
     notFound();
   }
 
+  const totalFees = block.transactions ? block.transactions.reduce((acc, tx) => acc + (tx.fee || 0), 0) : 0;
+
   return (
     <div className="page-wrap">
       <BackButton />
@@ -43,9 +45,23 @@ export default async function BlockDetailsPage({
         <div className="page-icon">
           <Box size={20} />
         </div>
-        <div>
-          <span className="page-title">Block Identifiers</span>
-          <h1 className="page-heading">Block <span style={{ color: "var(--c-accent)", fontFamily: "var(--font-mono)", fontWeight: 400 }}>#{block.index}</span></h1>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", width: "100%" }}>
+          <div>
+            <span className="page-title">Block Identifiers</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+              <h1 className="page-heading" style={{ margin: 0 }}>Block <span style={{ color: "var(--c-accent)", fontFamily: "var(--font-mono)", fontWeight: 400 }}>#{block.index}</span></h1>
+              <div style={{ display: "flex", gap: 8 }}>
+                {block.index > 0 && (
+                  <Link href={`/block/${block.index - 1}`} style={{ padding: "4px 12px", fontSize: "0.875rem", border: "1px solid var(--c-border)", borderRadius: "6px", textDecoration: "none", color: "var(--c-text-1)" }}>
+                    &larr; Prev
+                  </Link>
+                )}
+                <Link href={`/block/${block.index + 1}`} style={{ padding: "4px 12px", fontSize: "0.875rem", border: "1px solid var(--c-border)", borderRadius: "6px", textDecoration: "none", color: "var(--c-text-1)" }}>
+                  Next &rarr;
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -80,6 +96,22 @@ export default async function BlockDetailsPage({
                   </div>
                 </Link>
               </div>
+
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <span className="field-label" style={{ marginBottom: 0 }}>Merkle Root</span>
+                  {block.merkle_root && <CopyButton text={block.merkle_root} />}
+                </div>
+                <div className="hash-box">{block.merkle_root || "N/A"}</div>
+              </div>
+              
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <span className="field-label" style={{ marginBottom: 0 }}>State Root</span>
+                  {block.state_root && <CopyButton text={block.state_root} />}
+                </div>
+                <div className="hash-box">{block.state_root || "N/A"}</div>
+              </div>
             </div>
           </div>
           
@@ -88,6 +120,12 @@ export default async function BlockDetailsPage({
               <ArrowRight size={14} color="var(--c-accent)" />
               <span className="panel-section-label">Transactions</span>
               <span className="tag" style={{ fontSize: "0.5rem", marginLeft: 4 }}>{block.transactions?.length || 0}</span>
+              <div style={{ flex: 1 }} />
+              {totalFees > 0 && (
+                <span style={{ fontSize: "0.75rem", color: "var(--c-text-2)" }}>
+                  Total Fees: {(totalFees / 1_000_000).toLocaleString()} QUA
+                </span>
+              )}
             </h3>
             
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -165,6 +203,29 @@ export default async function BlockDetailsPage({
                     Round {block.bft_round ?? 0}
                   </div>
                 </div>
+              </div>
+
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <span className="field-label" style={{ marginBottom: 0 }}>BFT Signers</span>
+                  <span className="tag">{block.bft_signers?.length || 0} Signatures</span>
+                </div>
+                {block.bft_signers && block.bft_signers.length > 0 ? (
+                  <details className="hash-box hover-border-accent" style={{ background: "var(--c-bg-alt)", cursor: "pointer" }}>
+                    <summary style={{ outline: "none", fontWeight: 500, color: "var(--c-text-2)" }}>View Signers</summary>
+                    <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 8, maxHeight: "200px", overflowY: "auto" }}>
+                      {block.bft_signers.map(s => (
+                        <Link key={s} href={`/validators/${s}`} style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--c-text-2)", textDecoration: "none", wordBreak: "break-all" }}>
+                          {s}
+                        </Link>
+                      ))}
+                    </div>
+                  </details>
+                ) : (
+                  <div className="hash-box" style={{ background: "var(--c-bg-alt)", color: "var(--c-text-3)", textAlign: "center" }}>
+                    No BFT Signatures
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { fetchTx } from '@/lib/api';
+import { fetchTx, fetchStats } from '@/lib/api';
 import { Hash, Clock, Cpu, ArrowRight, ArrowRightLeft, Database, AlertCircle, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -28,6 +28,7 @@ export default async function TxDetailsPage({
   }
 
   const txData = await fetchTx(id);
+  const nodeStats = await fetchStats();
 
   if (!txData) {
     return (
@@ -65,6 +66,7 @@ export default async function TxDetailsPage({
 
   const { tx_hash, status, transaction: tx, block_height } = txData;
   const isCoinbase = tx.sender === 'COINBASE';
+  const currentHeight = nodeStats ? nodeStats.chain_length - 1 : 0;
 
   return (
     <div className="page-wrap">
@@ -92,6 +94,11 @@ export default async function TxDetailsPage({
               <h3 style={{ display: "flex", alignItems: "center", gap: 8, margin: 0 }}>
                 <Hash size={14} color="var(--c-accent)" />
                 <span className="panel-section-label">Transaction Synopsis</span>
+                {tx.tx_type && (
+                  <span className="tag tag-accent" style={{ marginLeft: "auto", fontSize: "0.6875rem" }}>
+                    {typeof tx.tx_type === 'string' ? tx.tx_type : Object.keys(tx.tx_type)[0]}
+                  </span>
+                )}
               </h3>
               <CopyButton text={tx_hash} />
             </div>
@@ -101,6 +108,15 @@ export default async function TxDetailsPage({
                 <span className="field-label">Transaction Hash</span>
                 <div className="hash-box">{tx_hash}</div>
               </div>
+
+              {tx.lock_time ? (
+                <div>
+                  <span className="field-label">Time Lock</span>
+                  <div className="hash-box" style={{ background: "rgba(224, 163, 82, 0.1)", color: "rgb(224, 163, 82)", border: "1px solid rgba(224, 163, 82, 0.2)" }}>
+                    Locked until block #{tx.lock_time}
+                  </div>
+                </div>
+              ) : null}
 
               <div style={{ background: "var(--c-surface)", border: "1px solid var(--c-border)", display: "flex", flexDirection: "column" }}>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", borderBottom: "1px solid var(--c-border)" }}>
@@ -139,6 +155,15 @@ export default async function TxDetailsPage({
                     </div>
                   )}
                 </div>
+                
+                {tx.payload && (Array.isArray(tx.payload) ? tx.payload.length > 0 : Object.keys(tx.payload).length > 0) && (
+                  <div style={{ padding: 20, borderTop: "1px solid var(--c-border)", background: "var(--c-bg-alt)" }}>
+                    <span className="field-label">Payload Data</span>
+                    <div className="hash-box" style={{ background: "var(--c-bg)", marginTop: 8, fontFamily: "var(--font-mono)", fontSize: "0.75rem", whiteSpace: "pre-wrap", wordBreak: "break-all", maxHeight: 200, overflowY: "auto" }}>
+                      {Array.isArray(tx.payload) ? Buffer.from(tx.payload).toString('utf8').replace(/[^\x20-\x7E]/g, '.') : JSON.stringify(tx.payload)}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -148,9 +173,9 @@ export default async function TxDetailsPage({
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: 16, borderBottom: "1px solid var(--c-border)" }}>
               <h3 style={{ display: "flex", alignItems: "center", gap: 8, margin: 0 }}>
                 <ShieldCheck size={14} color="var(--c-accent)" />
-                <span className="panel-section-label">Post-Quantum Security Detail</span>
+                <span className="panel-section-label">Security Detail</span>
               </h3>
-              <span className="tag tag-accent" style={{ fontSize: "0.5rem" }}>Falcon-512</span>
+              <span className="tag tag-accent" style={{ fontSize: "0.5rem" }}>{tx.sig_scheme || 'Falcon-512'}</span>
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -159,7 +184,7 @@ export default async function TxDetailsPage({
                 <div>
                   <span style={{ fontFamily: "var(--font-sans)", fontSize: "0.875rem", fontWeight: 500, color: "var(--c-text-1)", display: "block" }}>Signature Verification Valid</span>
                   <span style={{ fontFamily: "var(--font-sans)", fontSize: "0.75rem", color: "var(--c-text-2)", lineHeight: 1.5, marginTop: 4, display: "block" }}>
-                    This transaction is secured using the post-quantum <strong style={{ color: "var(--c-accent)", fontWeight: 400 }}>Falcon-512</strong> cryptographic signature algorithm (PQC Level 5), protecting it against potential future quantum computing decryption vectors.
+                    This transaction is secured using the <strong style={{ color: "var(--c-accent)", fontWeight: 400 }}>{tx.sig_scheme || 'Falcon-512'}</strong> cryptographic signature algorithm.
                   </span>
                 </div>
               </div>
@@ -202,10 +227,17 @@ export default async function TxDetailsPage({
               <div>
                 <span className="field-label">Confirmation Status</span>
                 {status === 'confirmed' ? (
-                  <span className="tag tag-accent" style={{ display: "inline-flex", gap: 6 }}>
-                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--c-bg)" }} />
-                    Confirmed
-                  </span>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                    <span className="tag tag-accent" style={{ display: "inline-flex", gap: 6, width: "fit-content" }}>
+                      <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--c-bg)" }} />
+                      Confirmed
+                    </span>
+                    {block_height !== null && currentHeight > 0 && (
+                      <span style={{ fontSize: "0.6875rem", color: "var(--c-text-2)" }}>
+                        {Math.max(1, currentHeight - block_height + 1)} confirmations
+                      </span>
+                    )}
+                  </div>
                 ) : (
                   <span className="tag" style={{ display: "inline-flex", gap: 6, background: "var(--c-surface)", color: "var(--c-text-2)", borderColor: "var(--c-border)" }}>
                     <Clock size={10} />

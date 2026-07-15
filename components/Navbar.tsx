@@ -3,12 +3,19 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
+import useSWR from "swr";
+
+const fetcher = (url: string) => fetch(url).then(r => r.json());
 
 const NAV_LINKS = [
   { href: "/",              label: "Home" },
   { href: "/blocks",        label: "Blocks" },
+  { href: "/epochs",        label: "Sessions" },
   { href: "/transactions",  label: "Transactions" },
-  { href: "/validators",   label: "Validators" },
+  { href: "/mempool",       label: "Mempool" },
+  { href: "/contracts",     label: "Contracts" },
+  { href: "/agents",        label: "Agents" },
+  { href: "/validators",    label: "Validators" },
 ];
 
 export default function Navbar() {
@@ -16,7 +23,11 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
-  useEffect(() => { setOpen(false); }, [pathname]);
+  const { data: health } = useSWR('/api/health', fetcher, { refreshInterval: 10000 });
+
+  useEffect(() => {
+    if (open) setOpen(false);
+  }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
@@ -123,6 +134,16 @@ export default function Navbar() {
             borderLeft: "1px solid var(--c-border)",
           }}
         >
+          <div 
+            style={{ 
+              width: 8, 
+              height: 8, 
+              borderRadius: '50%', 
+              background: health?.status === 'ok' ? '#4ade80' : health?.status === 'degraded' ? '#facc15' : '#f87171', 
+              boxShadow: `0 0 10px ${health?.status === 'ok' ? '#4ade80' : health?.status === 'degraded' ? '#facc15' : '#f87171'}` 
+            }} 
+            title={`Status: ${health?.status || 'checking'}`} 
+          />
           <span
             style={{
               fontFamily: "var(--font-mono)",

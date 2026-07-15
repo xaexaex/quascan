@@ -4,6 +4,8 @@ export interface NetworkStats {
   chain_length: number;
   total_transactions: number;
   current_epoch: number;
+  current_session?: number;
+  blocks_until_next_session?: number;
   mining_reward: number;
   total_supply: number;
   pending_transactions: number;
@@ -33,6 +35,11 @@ export interface Transaction {
   nonce: number;
   signature: string;
   public_key: string;
+  tx_type?: any;
+  lock_time?: number;
+  sig_scheme?: any;
+  network_id?: number;
+  payload?: any;
 }
 
 export async function fetchStats(): Promise<NetworkStats | null> {
@@ -168,6 +175,11 @@ export interface ValidatorInfo {
   blocks_missed: number;
   sign_rate_pct: number;
   uptime_window: number;
+  // Additional consensus fields
+  unbonding_epoch?: number;
+  slash_cooldown_until_epoch?: number;
+  epoch_slots_assigned?: number;
+  epoch_slots_produced?: number;
 }
 
 export interface ValidatorsResponse {
@@ -207,6 +219,63 @@ export async function fetchPeers(): Promise<PeersResponse | null> {
     return await res.json();
   } catch (error) {
     console.error("Failed to fetch peers", error);
+    return null;
+  }
+}
+
+export interface MempoolTx {
+  tx_hash: string;
+  transaction: Transaction;
+}
+
+export interface MempoolResponse {
+  transaction_count: number;
+  transactions: MempoolTx[];
+}
+
+export async function fetchMempool(): Promise<MempoolResponse | null> {
+  try {
+    const res = await fetch(`${RPC_URL}/api/mempool`, {
+      cache: 'no-store',
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (error) {
+    console.error("Failed to fetch mempool", error);
+    return null;
+  }
+}
+
+export async function fetchValidatorByAddress(address: string): Promise<ValidatorInfo | null> {
+  try {
+    const res = await fetch(`${RPC_URL}/api/validators/${address}`, {
+      next: { revalidate: 10 },
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (error) {
+    console.error(`Failed to fetch validator ${address}`, error);
+    return null;
+  }
+}
+
+export interface HealthResponse {
+  status: string;
+  chain_height: number;
+  mempool_size: number;
+  connected_peers: number;
+  uptime_seconds: number;
+}
+
+export async function fetchHealth(): Promise<HealthResponse | null> {
+  try {
+    const res = await fetch(`${RPC_URL}/health`, {
+      cache: 'no-store',
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (error) {
+    console.error("Failed to fetch health", error);
     return null;
   }
 }
