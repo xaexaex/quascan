@@ -91,167 +91,138 @@ export default async function AddressDetailsPage({
 
   return (
     <div className="page-wrap">
-      <BackButton />
       
       {/* Page Header */}
-      <div className="page-header">
-        <div className="page-icon">
-          <Wallet size={20} />
-        </div>
+      <div className="page-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 16 }}>
         <div>
-          <span className="page-title">Explorer</span>
-          <h1 className="page-heading">Address Details</h1>
+          <h1 className="page-heading" style={{ margin: 0 }}>Address Details</h1>
           <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 12 }}>
-            <span className="tag" style={{ background: "var(--c-surface)", color: "var(--c-text-1)", fontFamily: "var(--font-mono)", fontSize: "0.75rem", userSelect: "all", wordBreak: "break-all" }}>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.875rem", color: "var(--c-text-1)", wordBreak: "break-all" }}>
               {data?.address || id}
             </span>
             <CopyButton text={data?.address || id} />
           </div>
         </div>
+        {validatorInfo && (
+          <div>
+            {validatorInfo.is_online ? (
+              <span className="tag" style={{ fontSize: "0.6875rem", color: "var(--c-accent)", borderColor: "var(--c-accent-mid)", background: "var(--c-accent-dim)" }}>Consensus Node (Online)</span>
+            ) : (
+              <span className="tag" style={{ fontSize: "0.6875rem", color: "var(--c-text-3)", borderColor: "var(--c-border)", background: "var(--c-bg-alt)" }}>Consensus Node (Offline)</span>
+            )}
+          </div>
+        )}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 32, marginBottom: 48 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 40, marginBottom: 40 }}>
         
-        {/* Balance Card */}
-        <div className="panel" style={{ display: "flex", flexDirection: "column", gap: 24, padding: 32 }}>
-          <h3 style={{ display: "flex", alignItems: "center", gap: 8, margin: 0, paddingBottom: 16, borderBottom: "1px solid var(--c-border)" }}>
-            <Coins size={14} color="var(--c-accent)" />
-            <span className="panel-section-label">Balance Synopsis</span>
-          </h3>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-            <div>
+        {/* Stats Strip Grid */}
+        <div className="panel" style={{ padding: 0 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))" }}>
+            
+            {/* Total Balance */}
+            <div style={{ padding: 24, borderRight: "1px solid var(--c-border)", borderBottom: "1px solid var(--c-border)" }}>
               <span className="field-label">Total Balance</span>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-                <span style={{ fontFamily: "var(--font-display)", fontSize: "2.5rem", fontWeight: 500, color: "var(--c-text-1)", letterSpacing: "-0.02em" }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginTop: 4 }}>
+                <span style={{ fontFamily: "var(--font-display)", fontSize: "2rem", fontWeight: 500, color: "var(--c-text-1)", letterSpacing: "-0.02em" }}>
                   {totalQua.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 })}
                 </span>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: "1.125rem", color: "var(--c-accent)", fontWeight: 500 }}>QUA</span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: "1rem", color: "var(--c-accent)" }}>QUA</span>
               </div>
             </div>
 
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: 16, borderBottom: "1px solid var(--c-border)" }}>
-              <span className="field-label" style={{ marginBottom: 0 }}>Spendable:</span>
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.875rem", color: "var(--c-text-1)", fontWeight: 500 }}>{spendableQua.toLocaleString(undefined, { maximumFractionDigits: 6 })} QUA</span>
+            {/* Spendable & Locked */}
+            <div style={{ padding: 24, borderRight: "1px solid var(--c-border)", borderBottom: "1px solid var(--c-border)", display: "flex", flexDirection: "column", justifyContent: "center", gap: 12 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span className="field-label" style={{ marginBottom: 0 }}>Spendable</span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.875rem", color: "var(--c-text-1)" }}>
+                  {spendableQua.toLocaleString(undefined, { maximumFractionDigits: 6 })} QUA
+                </span>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span className="field-label" style={{ marginBottom: 0, display: "flex", alignItems: "center", gap: 4 }}>
+                  <Lock size={12} color="var(--c-text-3)" /> Locked
+                </span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.875rem", color: "var(--c-text-2)" }}>
+                  {lockedQua.toLocaleString(undefined, { maximumFractionDigits: 6 })} QUA
+                </span>
+              </div>
             </div>
 
-            {data && data.locked_balances.length > 0 && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 12, paddingBottom: 16, borderBottom: "1px solid var(--c-border)" }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <span className="field-label" style={{ marginBottom: 0, display: "flex", alignItems: "center", gap: 4 }}>
-                    <Lock size={12} color="var(--c-accent)" /> Locked/Vesting:
-                  </span>
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.875rem", color: "var(--c-text-1)", fontWeight: 500 }}>{lockedQua.toLocaleString(undefined, { maximumFractionDigits: 6 })} QUA</span>
-                </div>
-                {data.locked_balances.map((lb, idx) => {
+            {/* Tx Metrics */}
+            <div style={{ padding: 24, borderRight: "1px solid var(--c-border)", borderBottom: "1px solid var(--c-border)", display: "flex", flexDirection: "column", justifyContent: "center", gap: 12 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span className="field-label" style={{ marginBottom: 0 }}>Total Txs</span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.875rem", color: "var(--c-text-1)" }}>
+                  {txs?.transaction_count || 0}
+                </span>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span className="field-label" style={{ marginBottom: 0 }}>First Active</span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.875rem", color: "var(--c-text-2)" }}>
+                  {firstTx ? <TimeAgo timestamp={firstTx.blockTime} /> : "N/A"}
+                </span>
+              </div>
+            </div>
+
+            {/* Validator Stats (if applicable) or Nonce */}
+            <div style={{ padding: 24, borderBottom: "1px solid var(--c-border)", display: "flex", flexDirection: "column", justifyContent: "center", gap: 12 }}>
+              {validatorInfo ? (
+                <>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span className="field-label" style={{ marginBottom: 0 }}>Stake</span>
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.875rem", color: "var(--c-accent)" }}>
+                      {(validatorInfo.stake_microunits / 1_000_000).toLocaleString()} QUA
+                    </span>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span className="field-label" style={{ marginBottom: 0 }}>Sign Rate</span>
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.875rem", color: "var(--c-text-1)" }}>
+                      {validatorInfo.sign_rate_pct != null ? validatorInfo.sign_rate_pct.toFixed(1) : 0}%
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span className="field-label" style={{ marginBottom: 0 }}>Account Nonce</span>
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.875rem", color: "var(--c-text-1)" }}>
+                      {data ? data.nonce : 0}
+                    </span>
+                  </div>
+                </>
+              )}
+            </div>
+
+          </div>
+          
+          {/* Locked Balances Expansion if any */}
+          {data && data.locked_balances.length > 0 && (
+            <div style={{ padding: 24, background: "var(--c-bg-alt)", borderBottomLeftRadius: 8, borderBottomRightRadius: 8 }}>
+              <span className="field-label" style={{ marginBottom: 12 }}>Vesting / Locked Schedules</span>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 16 }}>
+                {data.locked_balances.map((lb: any, idx: number) => {
                   const unlockHeight = lb.unlock_height;
-                  const currentHeight = lastTx?.blockHeight || 0; // Approximate current height
+                  const currentHeight = lastTx?.blockHeight || 0;
                   const progress = Math.min(100, Math.max(0, ((currentHeight) / unlockHeight) * 100));
                   return (
-                    <div key={idx} style={{ background: "var(--c-bg-alt)", padding: 12, borderRadius: 8, border: "1px solid var(--c-border)" }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                        <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.6875rem", color: "var(--c-text-2)" }}>{lb.amount_qua.toLocaleString()} QUA</span>
-                        <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.6875rem", color: progress >= 100 ? "#4ade80" : "var(--c-text-3)" }}>
+                    <div key={idx} style={{ padding: 12, border: "1px solid var(--c-border)", borderRadius: 6, background: "var(--c-surface)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                        <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--c-text-1)" }}>{lb.amount_qua.toLocaleString()} QUA</span>
+                        <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.6875rem", color: progress >= 100 ? "var(--c-accent)" : "var(--c-text-3)" }}>
                           {progress >= 100 ? "Unlocked" : `Unlocks at #${unlockHeight}`}
                         </span>
                       </div>
                       <div style={{ height: 4, borderRadius: 2, background: "var(--c-border-mid)", overflow: "hidden" }}>
-                        <div style={{ height: "100%", width: `${progress}%`, background: progress >= 100 ? "#4ade80" : "var(--c-accent)", borderRadius: 2 }} />
+                        <div style={{ height: "100%", width: `${progress}%`, background: "var(--c-accent)", borderRadius: 2 }} />
                       </div>
                     </div>
                   );
                 })}
               </div>
-            )}
-
-            <div>
-              <span className="field-label">Account Nonce</span>
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <span className="tag tag-accent" style={{ fontSize: "0.6875rem" }}>
-                  {data ? data.nonce : 0}
-                </span>
-                <span className="field-label" style={{ marginBottom: 0 }}>Transactions sent</span>
-              </div>
             </div>
-          </div>
+          )}
         </div>
-
-        {/* Transaction Metrics Card */}
-        <div className="panel" style={{ display: "flex", flexDirection: "column", gap: 24, padding: 32 }}>
-          <h3 style={{ display: "flex", alignItems: "center", gap: 8, margin: 0, paddingBottom: 16, borderBottom: "1px solid var(--c-border)" }}>
-            <History size={14} color="var(--c-text-2)" />
-            <span className="panel-section-label">Transaction Metrics</span>
-          </h3>
-          <div style={{ display: "flex", flex: 1, flexDirection: "column", justifyContent: "center", gap: 16 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-              <div style={{ display: "flex", flexDirection: "column", background: "var(--c-bg-alt)", border: "1px solid var(--c-border)", borderRadius: 12, padding: 16 }}>
-                <span className="panel-section-label" style={{ fontSize: "0.6875rem" }}>Total Txs</span>
-                <span className="stat-val" style={{ fontSize: "1.5rem" }}>{txs?.transaction_count || 0}</span>
-                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8, paddingTop: 8, borderTop: "1px solid var(--c-border)" }}>
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.6875rem", color: "var(--c-text-3)" }}>IN: {receivedCount}</span>
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.6875rem", color: "var(--c-text-3)" }}>OUT: {sentCount}</span>
-                </div>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", background: "var(--c-bg-alt)", border: "1px solid var(--c-border)", borderRadius: 12, padding: 16 }}>
-                <span className="panel-section-label" style={{ fontSize: "0.6875rem" }}>Activity</span>
-                <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 4 }}>
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.6875rem", color: "var(--c-text-2)" }}>First: {firstTx ? <TimeAgo timestamp={firstTx.blockTime} /> : "N/A"}</span>
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.6875rem", color: "var(--c-text-2)" }}>Last: {lastTx ? <TimeAgo timestamp={lastTx.blockTime} /> : "N/A"}</span>
-                </div>
-              </div>
-            </div>
-            {validatorInfo && (
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--c-bg-alt)", border: "1px solid var(--c-border)", borderRadius: 12, padding: 24 }}>
-                <span className="panel-section-label">Validator Stake</span>
-                <span className="stat-val" style={{ fontSize: "1.5rem", color: "var(--c-accent)" }}>{(validatorInfo.stake_microunits / 1_000_000).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Validator Metrics Card (Conditional) */}
-        {validatorInfo && (
-          <div className="panel" style={{ display: "flex", flexDirection: "column", gap: 24, padding: 32 }}>
-            <h3 style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: 0, paddingBottom: 16, borderBottom: "1px solid var(--c-border)" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <ShieldCheck size={14} color="var(--c-accent)" />
-                <span className="panel-section-label">Consensus Node</span>
-              </div>
-              {validatorInfo.is_online ? (
-                <span className="tag" style={{ fontSize: "0.5625rem", color: "#4ade80", borderColor: "#4ade8040", background: "#4ade8010" }}>Online</span>
-              ) : (
-                <span className="tag" style={{ fontSize: "0.5625rem", color: "#f87171", borderColor: "#f8717140", background: "#f8717110" }}>Offline</span>
-              )}
-            </h3>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: 16, borderBottom: "1px solid var(--c-border)" }}>
-                <span className="field-label" style={{ marginBottom: 0 }}>Blocks Proposed:</span>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.875rem", color: "var(--c-text-1)", fontWeight: 500 }}>{validatorInfo.blocks_proposed}</span>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: 16, borderBottom: "1px solid var(--c-border)" }}>
-                <span className="field-label" style={{ marginBottom: 0 }}>Blocks Missed:</span>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.875rem", color: "var(--c-text-1)", fontWeight: 500 }}>{validatorInfo.blocks_missed}</span>
-              </div>
-              
-              <div>
-                <span className="field-label" style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                  <span>Sign Rate</span>
-                  <span style={{ color: "var(--c-text-1)" }}>{validatorInfo.sign_rate_pct != null ? validatorInfo.sign_rate_pct.toFixed(1) : 0}%</span>
-                </span>
-                <div style={{ height: 6, borderRadius: 3, background: "var(--c-border-mid)", overflow: "hidden" }}>
-                  <div style={{ 
-                    height: "100%", 
-                    width: `${Math.min(validatorInfo.sign_rate_pct || 0, 100)}%`, 
-                    background: (validatorInfo.sign_rate_pct || 0) >= 90 ? "#4ade80" : (validatorInfo.sign_rate_pct || 0) >= 70 ? "#facc15" : "#f87171", 
-                    borderRadius: 3, 
-                    transition: "width 0.3s ease" 
-                  }} />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Transaction History Table */}

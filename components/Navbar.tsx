@@ -12,7 +12,6 @@ const NAV_LINKS = [
   { href: "/blocks",        label: "Blocks" },
   { href: "/epochs",        label: "Sessions" },
   { href: "/transactions",  label: "Transactions" },
-  { href: "/mempool",       label: "Mempool" },
   { href: "/contracts",     label: "Contracts" },
   { href: "/agents",        label: "Agents" },
   { href: "/validators",    label: "Validators" },
@@ -49,7 +48,7 @@ export default function Navbar() {
           display: "flex",
           alignItems: "stretch",
           borderBottom: `1px solid ${scrolled ? "var(--c-border-mid)" : "var(--c-border)"}`,
-          background: scrolled ? "rgba(13,4,2,0.97)" : "rgba(13,4,2,0.92)",
+          background: scrolled ? "rgba(248, 250, 252, 0.97)" : "rgba(248, 250, 252, 0.85)",
           backdropFilter: "blur(16px)",
           WebkitBackdropFilter: "blur(16px)",
           transition: "background 0.25s ease, border-color 0.25s ease",
@@ -68,7 +67,7 @@ export default function Navbar() {
           }}
         >
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path fillRule="evenodd" clipRule="evenodd" d="M7 2H17V7H22V17H17V22H7V17H2V7H7V2ZM9 9V15H15V9H9Z" fill="#D4FF28" />
+            <path fillRule="evenodd" clipRule="evenodd" d="M7 2H17V7H22V17H17V22H7V17H2V7H7V2ZM9 9V15H15V9H9Z" fill="var(--c-accent)" />
           </svg>
           <span
             style={{
@@ -134,16 +133,7 @@ export default function Navbar() {
             borderLeft: "1px solid var(--c-border)",
           }}
         >
-          <div 
-            style={{ 
-              width: 8, 
-              height: 8, 
-              borderRadius: '50%', 
-              background: health?.status === 'ok' ? '#4ade80' : health?.status === 'degraded' ? '#facc15' : '#f87171', 
-              boxShadow: `0 0 10px ${health?.status === 'ok' ? '#4ade80' : health?.status === 'degraded' ? '#facc15' : '#f87171'}` 
-            }} 
-            title={`Status: ${health?.status || 'checking'}`} 
-          />
+
           <span
             style={{
               fontFamily: "var(--font-mono)",
@@ -200,7 +190,7 @@ export default function Navbar() {
             position: "fixed",
             top: "var(--nav-h)",
             left: 0, right: 0, bottom: 0,
-            background: "rgba(13,4,2,0.98)",
+            background: "rgba(248, 250, 252, 0.98)",
             backdropFilter: "blur(20px)",
             zIndex: 99,
             display: "flex",

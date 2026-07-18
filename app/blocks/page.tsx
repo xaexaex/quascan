@@ -50,15 +50,11 @@ export default async function BlocksPage({
 
   return (
     <div className="page-wrap">
-      <BackButton />
+
       
       {/* Page Header */}
       <div className="page-header">
-        <div className="page-icon">
-          <Box size={20} />
-        </div>
         <div>
-          <span className="page-title">QuantaChain Explorer</span>
           <h1 className="page-heading">Blocks</h1>
           <p className="text-muted mt-2" style={{ fontFamily: "var(--font-mono)", fontSize: "0.6875rem", letterSpacing: "0.04em" }}>
             Showing blocks #{startHeight} to #{endHeight}

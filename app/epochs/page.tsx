@@ -6,8 +6,8 @@ import dbConnect from '@/lib/db';
 import BlockModel from '@/lib/models/Block';
 
 export const metadata: Metadata = {
-  title: 'Consensus Sessions | Quanta Explorer',
-  description: 'View BFT consensus sessions (epochs) on the Quanta network',
+  title: 'Sessions | Quanta Explorer',
+  description: 'View BFT Sessions on the Quanta network',
 };
 
 export const revalidate = 10;
@@ -52,16 +52,15 @@ export default async function EpochsPage({
 
   return (
     <div className="page-wrap">
-      <BackButton />
+
 
       <div className="page-header">
-        <div className="page-icon">
-          <Layers size={20} />
-        </div>
         <div>
-          <span className="page-title">Network Consensus</span>
-          <h1 className="page-heading">BFT Sessions (Epochs)</h1>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', letterSpacing: '0.04em', color: 'var(--c-text-3)', marginTop: 4 }}>
+          <h1 className="page-heading" style={{ marginBottom: 8 }}>BFT Sessions</h1>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', letterSpacing: '0.04em', color: 'var(--c-text-2)', maxWidth: 600, lineHeight: 1.6 }}>
+            In Quanta, a <strong>BFT Session</strong> (60 blocks) determines the active validator rotation, while an <strong>Economic Epoch</strong> (1000 blocks) determines staking reward distribution. This page tracks BFT Sessions.
+          </p>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', letterSpacing: '0.04em', color: 'var(--c-text-3)', marginTop: 16 }}>
             {totalSessions.toLocaleString()} total sessions
           </p>
         </div>
@@ -73,7 +72,7 @@ export default async function EpochsPage({
         <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 860 }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--c-border-mid)', background: 'var(--c-surface)' }}>
-              <th style={{ padding: '16px 20px', textAlign: 'left' }}><span className="panel-section-label">Session ID</span></th>
+              <th style={{ padding: '16px 20px', textAlign: 'left' }}><span className="panel-section-label">Session</span></th>
               <th style={{ padding: '16px 20px', textAlign: 'left' }}><span className="panel-section-label">Start Block</span></th>
               <th style={{ padding: '16px 20px', textAlign: 'left' }}><span className="panel-section-label">End Block</span></th>
               <th style={{ padding: '16px 20px', textAlign: 'left' }}><span className="panel-section-label">Started</span></th>

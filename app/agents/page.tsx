@@ -27,16 +27,12 @@ export default async function AgentsPage() {
 
   return (
     <div className="page-wrap">
-      <BackButton />
+
 
       <div className="page-header">
-        <div className="page-icon">
-          <Bot size={20} />
-        </div>
         <div>
-          <span className="page-title">Agentic Layer</span>
           <h1 className="page-heading">Autonomous Agents</h1>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', letterSpacing: '0.04em', color: 'var(--c-text-3)', marginTop: 4 }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', letterSpacing: '0.04em', color: 'var(--c-text-3)', marginTop: 8 }}>
             Showing recent agent registrations
           </p>
         </div>

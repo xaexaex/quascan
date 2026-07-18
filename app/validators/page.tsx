@@ -17,16 +17,12 @@ export default async function ValidatorsPage() {
 
   return (
     <div className="page-wrap">
-      <BackButton />
+
       
       {/* Page Header */}
       <div className="page-header">
-        <div className="page-icon">
-          <ShieldCheck size={20} />
-        </div>
         <div>
-          <span className="page-title">Network Security</span>
-          <h1 className="page-heading">Consensus Nodes</h1>
+          <h1 className="page-heading">Validators</h1>
         </div>
       </div>
 

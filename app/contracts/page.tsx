@@ -28,16 +28,12 @@ export default async function ContractsPage() {
 
   return (
     <div className="page-wrap">
-      <BackButton />
+
 
       <div className="page-header">
-        <div className="page-icon">
-          <Code2 size={20} />
-        </div>
         <div>
-          <span className="page-title">WASM Execution Environment</span>
           <h1 className="page-heading">Smart Contracts</h1>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', letterSpacing: '0.04em', color: 'var(--c-text-3)', marginTop: 4 }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', letterSpacing: '0.04em', color: 'var(--c-text-3)', marginTop: 8 }}>
             Showing recent contract deployments
           </p>
         </div>

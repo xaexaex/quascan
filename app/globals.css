@@ -2,57 +2,57 @@
 
 /* ── Tailwind v4 theme tokens — maps old class names used across all pages ── */
 @theme {
-  --color-accent:        #D4FF28;
-  --color-border:        #2E1410;
-  --color-surface:       #1A0806;
-  --color-surface-2:     #210C08;
-  --color-text-primary:  #F2EEE1;
-  --color-text-secondary:#B8AFA0;
-  --color-text-muted:    #6B5E58;
-  --color-background:    #0D0402;
-  --color-ok:            #34C97A;
-  --color-err:           #E05252;
+  --color-accent:        #6366F1;
+  --color-border:        #E2E8F0;
+  --color-surface:       #FFFFFF;
+  --color-surface-2:     #F8FAFC;
+  --color-text-primary:  #0F172A;
+  --color-text-secondary:#475569;
+  --color-text-muted:    #94A3B8;
+  --color-background:    #F8FAFC;
+  --color-ok:            #10B981;
+  --color-err:           #EF4444;
 }
 
 /* ================================================================
-   QUASCAN DESIGN SYSTEM — Aztec / Ornyx Aesthetic
-   Oxblood dark · Parchment text · Chartreuse accent
+   QUASCAN DESIGN SYSTEM — Calm & Fresh Aesthetic (PQC + AI Layer)
+   Soft Slate background · Crisp White surfaces · Indigo accent
 ================================================================ */
 
 :root {
-  --c-bg:         #0D0402;
-  --c-bg-alt:     #130604;
-  --c-surface:    #1A0806;
-  --c-raised:     #210C08;
-  --c-border:     #2E1410;
-  --c-border-mid: #3D1C17;
+  --c-bg:         #F8FAFC; /* Slate 50 */
+  --c-bg-alt:     #F1F5F9; /* Slate 100 */
+  --c-surface:    #FFFFFF; /* Pure White */
+  --c-raised:     #FFFFFF;
+  --c-border:     #E2E8F0; /* Slate 200 */
+  --c-border-mid: #CBD5E1; /* Slate 300 */
 
-  --c-text-1:     #F2EEE1;
-  --c-text-2:     #B8AFA0;
-  --c-text-3:     #6B5E58;
+  --c-text-1:     #0F172A; /* Slate 900 (High contrast) */
+  --c-text-2:     #475569; /* Slate 600 (Secondary) */
+  --c-text-3:     #94A3B8; /* Slate 400 (Muted) */
 
-  --c-accent:     #D4FF28;
-  --c-accent-dim: rgba(212, 255, 40, 0.08);
-  --c-accent-mid: rgba(212, 255, 40, 0.2);
-  --c-amber:      #C47A2D;
-  --c-amber-dim:  rgba(196, 122, 45, 0.1);
-  --c-amber-mid:  rgba(196, 122, 45, 0.22);
+  --c-accent:     #6366F1; /* Indigo 500 */
+  --c-accent-dim: rgba(99, 102, 241, 0.08);
+  --c-accent-mid: rgba(99, 102, 241, 0.2);
+  --c-amber:      #F59E0B; /* Amber 500 */
+  --c-amber-dim:  rgba(245, 158, 11, 0.1);
+  --c-amber-mid:  rgba(245, 158, 11, 0.22);
 
-  --c-ok:         #34C97A;
-  --c-ok-dim:     rgba(52, 201, 122, 0.1);
-  --c-err:        #E05252;
-  --c-err-dim:    rgba(224, 82, 82, 0.1);
-  --c-warn:       #D4973A;
-  --c-warn-dim:   rgba(212, 151, 58, 0.08);
+  --c-ok:         #10B981; /* Emerald 500 */
+  --c-ok-dim:     rgba(16, 185, 129, 0.1);
+  --c-err:        #EF4444; /* Red 500 */
+  --c-err-dim:    rgba(239, 68, 68, 0.1);
+  --c-warn:       #F59E0B;
+  --c-warn-dim:   rgba(245, 158, 11, 0.08);
 
-  --font-display: 'EB Garamond', Georgia, 'Times New Roman', serif;
-  --font-body:    'Geist', system-ui, sans-serif;
-  --font-mono:    'Geist Mono', 'IBM Plex Mono', monospace;
+  --font-display: 'Inter', system-ui, sans-serif;
+  --font-body:    'Inter', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', 'Fira Code', 'IBM Plex Mono', monospace;
 
   --nav-h: 64px;
-  --r-sm:  2px;
-  --r-md:  4px;
-  --r-lg:  6px;
+  --r-sm:  4px;
+  --r-md:  8px;
+  --r-lg:  12px;
   --t: 180ms ease;
 }
 
@@ -68,7 +68,7 @@ html {
 
 body {
   background: var(--c-bg);
-  background-image: radial-gradient(rgba(242,238,225,0.03) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(15, 23, 42, 0.04) 1px, transparent 1px);
   background-size: 28px 28px;
   color: var(--c-text-1);
   font-family: var(--font-body);

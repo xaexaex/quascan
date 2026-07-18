@@ -55,7 +55,7 @@ export async function syncBlocks() {
           const txPayload = (tx as any).V2_Falcon512 || (tx as any).V1_Ed25519 || tx;
 
           const txData = {
-            txHash: Array.isArray(txPayload.signature) ? Buffer.from(txPayload.signature).toString('hex') : (txPayload.signature || ''),
+            txHash: txPayload.tx_hash || (Array.isArray(txPayload.signature) ? Buffer.from(txPayload.signature).toString('hex') : (txPayload.signature || '')),
             blockHeight: rpcBlock.index,
             blockTime: rpcBlock.timestamp,
             sender: txPayload.sender || '',

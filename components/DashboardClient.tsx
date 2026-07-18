@@ -200,21 +200,8 @@ export default function DashboardClient({
   return (
     <div className="container" style={{ paddingTop: 0 }}>
 
-      {/* ── HERO ── */}
-      <section style={{ padding: "80px 0 56px", textAlign: "center" }}>
-
-        <span className="eyebrow" style={{ marginBottom: 20 }}>
-          QuantaChain Block Explorer
-        </span>
-
-        <h1 className="heading-display" style={{
-          fontSize: "clamp(2.75rem, 6vw, 5.5rem)",
-          marginBottom: 20,
-          color: "var(--c-text-1)",
-        }}>
-          The <em>Post-Quantum</em><br />Blockchain Explorer
-        </h1>
-
+      {/* ── SEARCH BAR ── */}
+      <section style={{ padding: "40px 0 40px", textAlign: "center" }}>
 
         {/* Search */}
         <div style={{ maxWidth: 640, margin: "0 auto 28px", display: "flex", height: 52, background: "var(--c-surface)", border: "1px solid var(--c-border-mid)", overflow: "hidden" }}>
@@ -283,6 +270,42 @@ export default function DashboardClient({
         </div>
       </section>
 
+      {/* ── STATS STRIP ── */}
+      <div className="panel" style={{ borderRadius: 0, borderTop: "1px solid var(--c-border)", marginBottom: 40, borderLeft: "none", borderRight: "none" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)" }} className="stats-strip">
+          {[
+            { label: "Chain Height", value: Math.max(0, (initialStats?.chain_length || 1) - 1, dbBlocks.length > 0 ? dbBlocks[0].index : 0).toLocaleString() },
+            { label: "Network TPS", value: initialStats?.tps !== undefined ? initialStats.tps.toFixed(2) : "—" },
+            { label: "Validators", value: initialStats?.active_validator_count ? initialStats.active_validator_count.toString() : "—" },
+            { label: "Total Staked", value: initialStats?.total_staked ? (initialStats.total_staked / 1_000_000).toLocaleString() + " QUA" : "—" },
+            { label: "Circulating Supply", value: initialStats?.circulating_supply ? (initialStats.circulating_supply / 1_000_000).toLocaleString(undefined, { maximumFractionDigits: 0 }) + " QUA" : "—" },
+            { label: "Gas Tracker", value: (() => {
+                let totalFee = 0;
+                let feeTxCount = 0;
+                dbBlocks.forEach(b => {
+                    (b.transactions || []).forEach((tx: any) => {
+                        const payload = tx?.V2_Falcon512 || tx?.V1_Ed25519 || tx || {};
+                        if (payload.sender !== "COINBASE" && payload.sender !== "TREASURY") {
+                            totalFee += Number(payload.fee || 0);
+                            feeTxCount++;
+                        }
+                    });
+                });
+                if (feeTxCount === 0) return "0.001 QUA";
+                return ((totalFee / feeTxCount) / 1000000).toFixed(3) + " QUA";
+            })() },
+          ].map((s, i) => (
+            <div
+              key={i}
+              style={{ padding: "20px 24px", borderRight: i < 5 ? "1px solid var(--c-border)" : "none" }}
+            >
+              <div className="stat-val">{s.value}</div>
+              <div className="stat-lbl">{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* ── TABLES — 2 col ── */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1, marginBottom: 1 }} className="table-grid">
 
@@ -348,10 +371,15 @@ export default function DashboardClient({
                 .flatMap((b) =>
                   (b.transactions || []).map((tx: any) => {
                     const payload = tx?.V2_Falcon512 || tx?.V1_Ed25519 || tx || {};
-                    let sig = payload.signature;
-                    if (sig && sig.type === "Buffer" && Array.isArray(sig.data)) sig = sig.data;
-                    const hashStr = formatSignature(sig) || "";
                     const isSystem = payload.sender === "COINBASE" || payload.sender === "TREASURY";
+                    // If the node API provided tx_hash (which it does now), use it! Otherwise fallback to signature formatting.
+                    let hashStr = tx?.tx_hash;
+                    if (!hashStr) {
+                      let sig = payload.signature;
+                      if (sig && sig.type === "Buffer" && Array.isArray(sig.data)) sig = sig.data;
+                      hashStr = formatSignature(sig) || "";
+                    }
+                    
                     return {
                       hash: hashStr,
                       blockIndex: b.index,
@@ -362,7 +390,7 @@ export default function DashboardClient({
                     };
                   })
                 )
-                .filter((tx) => tx.isSystem || (tx.hash !== "" && tx.hash !== "[object Object]"))
+                .filter((tx) => tx.hash !== "" && tx.hash !== "[object Object]")
                 .slice(0, 10);
 
               if (txList.length === 0) {
@@ -411,91 +439,52 @@ export default function DashboardClient({
         </div>
       </div>
 
-      {/* ── NETWORK ACTIVITY ── */}
-      <div className="panel" style={{ borderRadius: 0, borderTop: "none", marginBottom: 40 }}>
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          {/* Chart */}
-          <div style={{ flex: 1, padding: "24px 24px 0" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
-              <Activity size={14} style={{ color: "var(--c-accent)" }} />
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.6875rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--c-text-2)" }}>
-                Network Activity
-              </span>
-            </div>
-            <div style={{ height: 200 }}>
-              {isMounted && historyData.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={historyData} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="txGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="var(--c-accent)" stopOpacity={0.2} />
-                        <stop offset="95%" stopColor="var(--c-accent)" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <Tooltip
-                      content={<CustomTooltip />}
-                      cursor={{ stroke: "var(--c-border-mid)", strokeWidth: 1, strokeDasharray: "3 3" }}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="transactions"
-                      stroke="var(--c-accent)"
-                      strokeWidth={1.5}
-                      fillOpacity={1}
-                      fill="url(#txGrad)"
-                      dot={false}
-                      activeDot={{ r: 3, fill: "var(--c-bg)", stroke: "var(--c-accent)", strokeWidth: 2 }}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              ) : (
-                <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-mono)", fontSize: "0.6875rem", color: "var(--c-text-3)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
-                  Loading history…
-                </div>
-              )}
-            </div>
+      {/* ── NETWORK ACTIVITY CHART ── */}
+      <div className="panel" style={{ borderRadius: 0, marginTop: 40, borderLeft: "none", borderRight: "none", borderBottom: "none" }}>
+        <div style={{ padding: "32px 24px 0" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+            <Activity size={14} style={{ color: "var(--c-accent)" }} />
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.6875rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--c-text-2)" }}>
+              Network Activity
+            </span>
           </div>
-
-          {/* Stats strip */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", borderTop: "1px solid var(--c-border)" }} className="stats-strip">
-            {[
-              { 
-                label: "Avg Block Time", 
-                value: dbBlocks.length >= 2 
-                  ? ((dbBlocks[0].timestamp - dbBlocks[dbBlocks.length - 1].timestamp) / (dbBlocks.length - 1)).toFixed(1) + " s" 
-                  : "—" 
-              },
-              { label: "Total Txs", value: initialStats?.total_transactions ? (initialStats.total_transactions > 1000 ? (initialStats.total_transactions / 1000).toFixed(1) + "k" : initialStats.total_transactions.toLocaleString()) : (historyData.length > 0 ? (historyData.reduce((a, b) => a + (b.transactions ?? 0), 0) / 1000).toFixed(1) + "k" : "—") },
-              { label: "Validators", value: initialStats ? String((initialStats as any).validator_count ?? (initialStats as any).active_validators ?? 7) : "7" },
-              { label: "Chain Height", value: Math.max(0, (initialStats?.chain_length || 1) - 1, dbBlocks.length > 0 ? dbBlocks[0].index : 0).toLocaleString() },
-              { label: "Block Reward", value: initialStats?.mining_reward ? (initialStats.mining_reward / 1_000_000).toFixed(3) + " QUA" : "50.000 QUA" },
-              { label: "Gas Tracker", value: (() => {
-                  let totalFee = 0;
-                  let feeTxCount = 0;
-                  dbBlocks.forEach(b => {
-                      (b.transactions || []).forEach((tx: any) => {
-                          const payload = tx?.V2_Falcon512 || tx?.V1_Ed25519 || tx || {};
-                          if (payload.sender !== "COINBASE" && payload.sender !== "TREASURY") {
-                              totalFee += Number(payload.fee || 0);
-                              feeTxCount++;
-                          }
-                      });
-                  });
-                  if (feeTxCount === 0) return "< 0.0001 QUA";
-                  return ((totalFee / feeTxCount) / 1000000).toFixed(4) + " QUA";
-              })() },
-            ].map((s, i) => (
-              <div
-                key={i}
-                style={{ padding: "20px 24px", borderRight: i < 5 ? "1px solid var(--c-border)" : "none" }}
-              >
-                <div className="stat-val">{s.value}</div>
-                <div className="stat-lbl">{s.label}</div>
+          <div style={{ height: 240, paddingBottom: 20 }}>
+            {isMounted && historyData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={historyData} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="txGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="var(--c-accent)" stopOpacity={0.2} />
+                      <stop offset="95%" stopColor="var(--c-accent)" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <Tooltip
+                    content={<CustomTooltip />}
+                    cursor={{ stroke: "var(--c-border-mid)", strokeWidth: 1, strokeDasharray: "3 3" }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="transactions"
+                    stroke="var(--c-accent)"
+                    strokeWidth={1.5}
+                    fillOpacity={1}
+                    fill="url(#txGrad)"
+                    dot={false}
+                    activeDot={{ r: 3, fill: "var(--c-bg)", stroke: "var(--c-accent)", strokeWidth: 2 }}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            ) : (
+              <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-mono)", fontSize: "0.6875rem", color: "var(--c-text-3)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+                Loading history…
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>
+
+      {/* ── BOTTOM SPACING ── */}
+      <div style={{ height: 40 }} />
 
       <style>{`
         @media (max-width: 860px) {

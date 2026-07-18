@@ -14,7 +14,7 @@ export default function Footer() {
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path fillRule="evenodd" clipRule="evenodd" d="M7 2H17V7H22V17H17V22H7V17H2V7H7V2ZM9 9V15H15V9H9Z" fill="#D4FF28" />
+                <path fillRule="evenodd" clipRule="evenodd" d="M7 2H17V7H22V17H17V22H7V17H2V7H7V2ZM9 9V15H15V9H9Z" fill="var(--c-accent)" />
               </svg>
               <span style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontStyle: "italic", fontSize: "1.0625rem", color: "var(--c-text-1)" }}>
                 QuaScan
@@ -36,6 +36,7 @@ export default function Footer() {
               {[
                 { label: "Blocks",     href: "/blocks" },
                 { label: "Transactions", href: "/transactions" },
+                { label: "Mempool", href: "/mempool" },
                 { label: "Validators", href: "/validators" },
               ].map((l) => (
                 <Link

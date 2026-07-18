@@ -44,38 +44,18 @@ export default function ValidatorsClient({ data, peersData }: { data: any, peers
 
   return (
     <>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 24, marginBottom: 32 }}>
-        <div className="panel" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 24 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-            <span className="panel-section-label">Total Nodes</span>
-            <Cpu size={16} color="var(--c-accent)" />
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", borderTop: "1px solid var(--c-border)", borderBottom: "1px solid var(--c-border)", marginBottom: 40 }} className="stats-strip">
+        {[
+          { label: "Total Nodes", value: totalNodes },
+          { label: "BFT Active", value: data.active_count },
+          { label: "Total Staked", value: totalStake.toLocaleString(undefined, { maximumFractionDigits: 0 }) + " QUA" },
+          { label: "Online Now", value: data.validators.filter((v: any) => v.is_online).length },
+        ].map((s, i) => (
+          <div key={i} style={{ padding: "24px 24px", borderRight: i < 3 ? "1px solid var(--c-border)" : "none" }}>
+            <div className="stat-val">{s.value}</div>
+            <div className="stat-lbl">{s.label}</div>
           </div>
-          <div className="stat-val">{totalNodes}</div>
-        </div>
-        
-        <div className="panel" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 24 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-            <span className="panel-section-label">BFT Active</span>
-            <Activity size={16} color="var(--c-accent)" />
-          </div>
-          <div className="stat-val" style={{ color: "var(--c-accent)" }}>{data.active_count}</div>
-        </div>
-
-        <div className="panel" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 24 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-            <span className="panel-section-label">Total Staked</span>
-            <ShieldCheck size={16} color="var(--c-accent)" />
-          </div>
-          <div className="stat-val" style={{ color: "var(--c-accent)" }}>{totalStake.toLocaleString(undefined, { maximumFractionDigits: 0 })} QUA</div>
-        </div>
-        
-        <div className="panel" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 24 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-            <span className="panel-section-label">Online Now</span>
-            <Activity size={16} color="var(--c-accent)" />
-          </div>
-          <div className="stat-val" style={{ color: "var(--c-accent)" }}>{data.validators.filter((v: any) => v.is_online).length}</div>
-        </div>
+        ))}
       </div>
 
 
@@ -119,9 +99,9 @@ export default function ValidatorsClient({ data, peersData }: { data: any, peers
                 </td>
                 <td style={{ padding: "16px 24px" }}>
                   {val.is_online ? (
-                    <span className="tag" style={{ fontSize: "0.5625rem", color: "#4ade80", borderColor: "#4ade8040", background: "#4ade8010" }}>Online</span>
+                    <span className="tag tag-accent" style={{ fontSize: "0.5625rem" }}>Online</span>
                   ) : (
-                    <span className="tag" style={{ fontSize: "0.5625rem", color: "#f87171", borderColor: "#f8717140", background: "#f8717110" }}>Offline</span>
+                    <span className="tag" style={{ fontSize: "0.5625rem", background: "var(--c-bg)", color: "var(--c-text-3)", borderColor: "var(--c-border-mid)" }}>Offline</span>
                   )}
                 </td>
                 <td style={{ padding: "16px 24px", fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--c-text-2)" }}>

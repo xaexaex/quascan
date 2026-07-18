@@ -8,6 +8,10 @@ export interface NetworkStats {
   blocks_until_next_session?: number;
   mining_reward: number;
   total_supply: number;
+  circulating_supply?: number;
+  active_validator_count?: number;
+  total_staked?: number;
+  tps?: number;
   pending_transactions: number;
 }
 
@@ -41,6 +45,7 @@ export interface Transaction {
   network_id?: number;
   payload?: any;
 }
+
 
 export async function fetchStats(): Promise<NetworkStats | null> {
   try {
@@ -269,11 +274,19 @@ export interface HealthResponse {
 
 export async function fetchHealth(): Promise<HealthResponse | null> {
   try {
-    const res = await fetch(`${RPC_URL}/health`, {
+    const res = await fetch(`${RPC_URL}/api/stats`, {
       cache: 'no-store',
+      signal: AbortSignal.timeout(3000), // Avoid 8.8s hangs
     });
     if (!res.ok) return null;
-    return await res.json();
+    const stats = await res.json();
+    return {
+      status: "ok",
+      chain_height: stats.chain_length,
+      mempool_size: stats.pending_transactions,
+      connected_peers: 0,
+      uptime_seconds: 0
+    };
   } catch (error) {
     console.error("Failed to fetch health", error);
     return null;
