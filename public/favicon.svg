@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <!-- Background -->
-  <rect width="32" height="32" fill="#0D0402"/>
-  <!-- Ornyx logo mark: outer ring + inner hollow square -->
-  <path fill-rule="evenodd" clip-rule="evenodd"
-    d="M9 3H23V9H29V23H23V29H9V23H3V9H9V3ZM11 11V21H21V11H11Z"
-    fill="#D4FF28"/>
-</svg>

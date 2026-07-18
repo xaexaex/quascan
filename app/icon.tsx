@@ -11,7 +11,7 @@ export default function Icon() {
         style={{
           width: 32,
           height: 32,
-          background: '#1a1f35',
+          background: 'transparent',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -22,7 +22,7 @@ export default function Icon() {
             fillRule="evenodd"
             clipRule="evenodd"
             d="M7 2H17V7H22V17H17V22H7V17H2V7H7V2ZM9 9V15H15V9H9Z"
-            fill="#5A67D8"
+            fill="#6366F1"
           />
         </svg>
       </div>

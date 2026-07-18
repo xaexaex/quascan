@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     images: ["/seo/image.png"],
     creator: "@quantachain",
   },
-  icons: { icon: "/favicon.svg" },
+
   manifest: "/site.webmanifest",
   robots: { index: true, follow: true },
 };

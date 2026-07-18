@@ -276,7 +276,7 @@ export default function DashboardClient({
           {[
             { label: "Chain Height", value: Math.max(0, (initialStats?.chain_length || 1) - 1, dbBlocks.length > 0 ? dbBlocks[0].index : 0).toLocaleString() },
             { label: "Network TPS", value: initialStats?.tps !== undefined ? initialStats.tps.toFixed(2) : "—" },
-            { label: "Validators", value: initialStats?.active_validator_count ? initialStats.active_validator_count.toString() : "—" },
+            { label: "Validators", value: initialStats?.validator_count ? initialStats.validator_count.toString() : "—" },
             { label: "Total Staked", value: initialStats?.total_staked ? (initialStats.total_staked / 1_000_000).toLocaleString() + " QUA" : "—" },
             { label: "Circulating Supply", value: initialStats?.circulating_supply ? (initialStats.circulating_supply / 1_000_000).toLocaleString(undefined, { maximumFractionDigits: 0 }) + " QUA" : "—" },
             { label: "Gas Tracker", value: (() => {

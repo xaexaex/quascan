@@ -10,6 +10,7 @@ export interface NetworkStats {
   total_supply: number;
   circulating_supply?: number;
   active_validator_count?: number;
+  validator_count?: number;
   total_staked?: number;
   tps?: number;
   pending_transactions: number;

@@ -173,8 +173,8 @@ code, pre { font-family: var(--font-mono); }
   white-space: nowrap;
   letter-spacing: 0.02em;
 }
-.btn-primary { background: var(--c-accent); color: #0D0402; border-color: var(--c-accent); }
-.btn-primary:hover { background: #E8FF5A; border-color: #E8FF5A; }
+.btn-primary { background: var(--c-accent); color: #FFFFFF; border-color: var(--c-accent); }
+.btn-primary:hover { background: #4F46E5; border-color: #4F46E5; }
 .btn-sm { padding: 7px 14px; font-size: 0.8125rem; }
 
 /* ── Table ── */
