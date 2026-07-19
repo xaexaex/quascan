@@ -44,14 +44,14 @@ export default function ValidatorsClient({ data, peersData }: { data: any, peers
 
   return (
     <>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", borderTop: "1px solid var(--c-border)", borderBottom: "1px solid var(--c-border)", marginBottom: 40 }} className="stats-strip">
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 200px), 1fr))", gap: 1, background: "var(--c-border)", borderTop: "1px solid var(--c-border)", borderBottom: "1px solid var(--c-border)", marginBottom: 40 }} className="stats-strip">
         {[
           { label: "Total Nodes", value: totalNodes },
           { label: "BFT Active", value: data.active_count },
           { label: "Total Staked", value: totalStake.toLocaleString(undefined, { maximumFractionDigits: 0 }) + " QUA" },
           { label: "Online Now", value: data.validators.filter((v: any) => v.is_online).length },
         ].map((s, i) => (
-          <div key={i} style={{ padding: "24px 24px", borderRight: i < 3 ? "1px solid var(--c-border)" : "none" }}>
+          <div key={i} style={{ padding: "24px 24px", background: "var(--c-bg)" }}>
             <div className="stat-val">{s.value}</div>
             <div className="stat-lbl">{s.label}</div>
           </div>

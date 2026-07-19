@@ -68,10 +68,10 @@ export default async function TxDetailsPage({
       <div style={{ display: "flex", flexDirection: "column", gap: 40 }}>
         
         {/* Top Info Grid */}
-        <div className="panel" style={{ padding: 0 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))" }}>
+        <div className="panel" style={{ padding: 0, overflow: "hidden" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))", gap: 1, background: "var(--c-border)" }}>
             
-            <div style={{ padding: 24, borderRight: "1px solid var(--c-border)", borderBottom: "1px solid var(--c-border)", gridColumn: "1 / -1" }}>
+            <div style={{ padding: 24, background: "var(--c-surface)", gridColumn: "1 / -1" }}>
               <span className="field-label" style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 Transaction Hash
                 {tx.tx_type && (
@@ -85,7 +85,7 @@ export default async function TxDetailsPage({
               </div>
             </div>
             
-            <div style={{ padding: 24, borderRight: "1px solid var(--c-border)", borderBottom: "1px solid var(--c-border)" }}>
+            <div style={{ padding: 24, background: "var(--c-surface)" }}>
               <span className="field-label">Status</span>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 {status === 'confirmed' ? (
@@ -107,7 +107,7 @@ export default async function TxDetailsPage({
               </div>
             </div>
 
-            <div style={{ padding: 24, borderBottom: "1px solid var(--c-border)" }}>
+            <div style={{ padding: 24, background: "var(--c-surface)" }}>
               <span className="field-label">Block</span>
               {block_height !== null && status === 'confirmed' ? (
                 <div style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: "var(--font-mono)", fontSize: "0.875rem", color: "var(--c-text-1)" }}>
@@ -120,7 +120,7 @@ export default async function TxDetailsPage({
               )}
             </div>
 
-            <div style={{ padding: 24, borderRight: "1px solid var(--c-border)", borderBottom: "1px solid var(--c-border)" }}>
+            <div style={{ padding: 24, background: "var(--c-surface)" }}>
               <span className="field-label">From</span>
               {isCoinbase ? (
                 <span className="tag tag-accent" style={{ fontSize: "0.6875rem" }}>System (Coinbase)</span>
@@ -131,35 +131,35 @@ export default async function TxDetailsPage({
               )}
             </div>
 
-            <div style={{ padding: 24, borderBottom: "1px solid var(--c-border)" }}>
+            <div style={{ padding: 24, background: "var(--c-surface)" }}>
               <span className="field-label">To</span>
               <Link href={`/address/${tx.recipient}`} className="hover-accent" style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: "var(--font-mono)", fontSize: "0.875rem", color: "var(--c-text-1)", wordBreak: "break-all", textDecoration: "none" }}>
                 {tx.recipient}
               </Link>
             </div>
 
-            <div style={{ padding: 24, borderRight: "1px solid var(--c-border)", borderBottom: "1px solid var(--c-border)" }}>
+            <div style={{ padding: 24, background: "var(--c-surface)" }}>
               <span className="field-label">Value</span>
               <div style={{ fontFamily: "var(--font-display)", fontSize: "1.25rem", fontWeight: 500, color: "var(--c-text-1)", letterSpacing: "-0.02em" }}>
                 {(tx.amount / 1_000_000).toLocaleString(undefined, { maximumFractionDigits: 6 })} <span style={{ color: "var(--c-accent)", fontSize: "0.875rem", fontWeight: 400 }}>QUA</span>
               </div>
             </div>
 
-            <div style={{ padding: 24, borderBottom: "1px solid var(--c-border)" }}>
+            <div style={{ padding: 24, background: "var(--c-surface)" }}>
               <span className="field-label">Transaction Fee</span>
               <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.875rem", color: "var(--c-text-2)" }}>
                 {!isCoinbase ? `${(tx.fee / 1_000_000).toLocaleString(undefined, { maximumFractionDigits: 6 })} QUA` : "0 QUA"}
               </div>
             </div>
 
-            <div style={{ padding: 24, borderRight: "1px solid var(--c-border)" }}>
+            <div style={{ padding: 24, background: "var(--c-surface)" }}>
               <span className="field-label">Nonce</span>
               <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.875rem", color: "var(--c-text-1)" }}>
                 {tx.nonce}
               </div>
             </div>
 
-            <div style={{ padding: 24 }}>
+            <div style={{ padding: 24, background: "var(--c-surface)" }}>
               <span className="field-label">Time Lock</span>
               <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.875rem", color: "var(--c-text-1)" }}>
                 {tx.lock_time ? `Locked until block #${tx.lock_time}` : "None"}
@@ -167,7 +167,7 @@ export default async function TxDetailsPage({
             </div>
             
             {tx.payload && (Array.isArray(tx.payload) ? tx.payload.length > 0 : Object.keys(tx.payload).length > 0) && (
-              <div style={{ padding: 24, borderTop: "1px solid var(--c-border)", gridColumn: "1 / -1", background: "var(--c-bg-alt)" }}>
+              <div style={{ padding: 24, gridColumn: "1 / -1", background: "var(--c-bg-alt)" }}>
                 <span className="field-label">Payload Data</span>
                 <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--c-text-2)", whiteSpace: "pre-wrap", wordBreak: "break-all", maxHeight: 200, overflowY: "auto" }}>
                   {Array.isArray(tx.payload) ? Buffer.from(tx.payload).toString('utf8').replace(/[^\x20-\x7E]/g, '.') : JSON.stringify(tx.payload)}
@@ -187,7 +187,7 @@ export default async function TxDetailsPage({
             <span className="tag tag-accent" style={{ fontSize: "0.5rem" }}>{tx.sig_scheme || 'Falcon-512'}</span>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 32 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))", gap: 32 }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <span className="field-label" style={{ marginBottom: 0 }}>Public Key ({tx.public_key?.length || 0} bytes)</span>

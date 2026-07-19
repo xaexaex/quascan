@@ -75,16 +75,16 @@ export default async function BlockDetailsPage({
       <div style={{ display: "flex", flexDirection: "column", gap: 40 }}>
         
         {/* Top Info Grid */}
-        <div className="panel" style={{ padding: 0 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))" }}>
-            <div style={{ padding: 24, borderRight: "1px solid var(--c-border)", borderBottom: "1px solid var(--c-border)", gridColumn: "1 / -1" }}>
+        <div className="panel" style={{ padding: 0, overflow: "hidden" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))", gap: 1, background: "var(--c-border)" }}>
+            <div style={{ padding: 24, background: "var(--c-surface)", gridColumn: "1 / -1" }}>
               <span className="field-label">Block Hash</span>
               <div style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: "var(--font-mono)", fontSize: "0.875rem", color: "var(--c-text-1)", wordBreak: "break-all" }}>
                 {block.hash} <CopyButton text={block.hash} />
               </div>
             </div>
             
-            <div style={{ padding: 24, borderRight: "1px solid var(--c-border)", borderBottom: "1px solid var(--c-border)", gridColumn: "1 / -1" }}>
+            <div style={{ padding: 24, background: "var(--c-surface)", gridColumn: "1 / -1" }}>
               <span className="field-label">Previous Hash</span>
               <div style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: "var(--font-mono)", fontSize: "0.875rem", color: "var(--c-text-2)", wordBreak: "break-all" }}>
                 <Link href={`/block/${block.index > 0 ? block.index - 1 : 0}`} className="hover-accent" style={{ textDecoration: "none", color: "inherit" }}>
@@ -94,7 +94,7 @@ export default async function BlockDetailsPage({
               </div>
             </div>
 
-            <div style={{ padding: 24, borderRight: "1px solid var(--c-border)", borderBottom: "1px solid var(--c-border)" }}>
+            <div style={{ padding: 24, background: "var(--c-surface)" }}>
               <span className="field-label">Validated Timestamp</span>
               <div style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: "var(--font-mono)", fontSize: "0.875rem", color: "var(--c-text-1)" }}>
                 <Clock size={14} color="var(--c-text-3)" />
@@ -102,14 +102,14 @@ export default async function BlockDetailsPage({
               </div>
             </div>
             
-            <div style={{ padding: 24, borderBottom: "1px solid var(--c-border)" }}>
+            <div style={{ padding: 24, background: "var(--c-surface)" }}>
               <span className="field-label">Proposer</span>
               <Link href={`/address/${block.proposer || 'GENESIS'}`} className="hover-accent" style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: "var(--font-mono)", fontSize: "0.875rem", color: "var(--c-text-1)", wordBreak: "break-all", textDecoration: "none" }}>
                 {block.proposer || 'GENESIS'}
               </Link>
             </div>
             
-            <div style={{ padding: 24, borderRight: "1px solid var(--c-border)", display: "flex", flexDirection: "column", gap: 12 }}>
+            <div style={{ padding: 24, background: "var(--c-surface)", display: "flex", flexDirection: "column", gap: 12 }}>
               <span className="field-label">Consensus Details</span>
               <div style={{ display: "flex", flexDirection: "column", gap: 4, fontFamily: "var(--font-mono)", fontSize: "0.8125rem", color: "var(--c-text-1)" }}>
                 <div>Economic Epoch: {block.epoch ?? 0}</div>
@@ -118,7 +118,7 @@ export default async function BlockDetailsPage({
               </div>
             </div>
 
-            <div style={{ padding: 24 }}>
+            <div style={{ padding: 24, background: "var(--c-surface)" }}>
               <span className="field-label">BFT Signatures</span>
               <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.875rem", color: "var(--c-text-1)" }}>
                 {block.bft_signers?.length || 0} Signers
